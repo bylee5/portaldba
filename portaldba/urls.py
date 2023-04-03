@@ -19,8 +19,8 @@ from django.urls import include, path
 from home import views
 
 urlpatterns = [
+    path('', views.index, name='index'),  # '/' 에 해당되는 path
     path('login/', include('login.urls')),
     path('account/', include('account.urls')),
     path('admin/', admin.site.urls),
-    path('', views.index, name='index'),  # '/' 에 해당되는 path
 ]
