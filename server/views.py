@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from .models import Server
 from django.core.paginator import Paginator  
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def server(request):
     page = request.GET.get('page', '1')  # 페이지
     query = "SELECT * FROM server_list"
