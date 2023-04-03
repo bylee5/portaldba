@@ -88,8 +88,8 @@ DATABASES = {
         'NAME': 'portaldba',  # 스키마명
         'USER': 'root',
         'PASSWORD': 'root',
-        'HOST': '127.0.0.1',
-        'PORT': '13306',
+        'HOST': '10.12.14.136',
+        'PORT': '3306',
         'OPTIONS': {
             'init_command': "SET sql_mode='NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES'"
         }
