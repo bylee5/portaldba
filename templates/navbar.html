@@ -37,9 +37,9 @@
         </li>
         <li class="nav-item">
             {% if user.is_authenticated %}
-            <button type="button" class="btn btn-default navbar-btn"><a class="nav-link" href="{% url 'login:logout' %}">{{ user.username }} (로그아웃)</a></button>
+            <a class="nav-link" href="{% url 'login:logout' %}">{{ user.username }} (로그아웃)</a>
             {% else %}
-            <button type="button" class="btn btn-default navbar-btn"><a class="nav-link" href="{% url 'login:login' %}">로그인</a></button>
+            <a class="nav-link" href="{% url 'login:login' %}">로그인</a>
             {% endif %}
         </li>
         </ul>
