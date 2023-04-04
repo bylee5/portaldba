@@ -11,9 +11,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-
 import os
-
+import environ
 import pymysql
 pymysql.install_as_MySQLdb()
 
@@ -82,14 +81,17 @@ WSGI_APPLICATION = 'portaldba.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+env = environ.Env()
+environ.Env.read_env(BASE_DIR / '.env')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'portaldba',  # 스키마명
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': '10.12.14.136',
-        'PORT': '3306',
+        'NAME': env('DB_NAME'),  # 스키마명
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT'),
         'OPTIONS': {
             'init_command': "SET sql_mode='NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES'"
         }
