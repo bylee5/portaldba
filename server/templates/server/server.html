@@ -1,16 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="container my-3">
+<div class="container-fluid">
     <table class="table">
         <thead>
         <tr class="table-dark">
-            <th>DB서버명</th>
+            <th>ID</th>
+            <th>DB서버</th>
+            <th>DB버전</th>
             <th>용도</th>
+            <th>가상ip</th>
+            <th>사설ip</th>
+            <th>공용ip</th>
             <th>포트번호</th>
-            <th>ip1</th>
-            <th>ip2</th>
             <th>분류</th>
+            <th>정 담당</th>
+            <th>부 담당</th>
             <th>생성일</th>
             <th>변경일</th>
         </tr>
@@ -19,13 +24,17 @@
             {% if server_list %}
             {% for server in server_list %}
             <tr>
-                <td>{{ forloop.counter }}</td>
+                <td>{{ server.id }}</td>
                 <td> {{ server.svr }}</td>
+                <td> {{ server.ver }}</td>
                 <td>{{ server.usg }}</td>
+                <td>{{ server.vip }}</td>
+                <td>{{ server.pri_ip }}</td>
+                <td>{{ server.pub_ip }}</td>
                 <td> {{ server.port1 }}</td>
-                <td>{{ server.ip1 }}</td>
-                <td> {{ server.ip2 }}</td>
                 <td>{{ server.priority }}</td>
+                <td>{{ server.manager1 }}</td>
+                <td>{{ server.manager2 }}</td>
                 <td> {{ server.created_at }}</td>
                 <td>{{ server.updated_at }}</td>
             </tr>
