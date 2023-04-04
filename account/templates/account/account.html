@@ -1,12 +1,32 @@
 {% extends 'base.html' %}
 {% block content %}
-{% if account_list %}
-<ul>
-{% for account in account_list %}
-    <li><a href="/account/{{ account.id }}/">{{ account.account_host }}</a></li>
-{% endfor %}
-</ul>
-{% else %}
-<p>No account are available.</p>
-{% endif %}
+
+<!-- NAV MENU-->
+    <nav class="navbar navbar-default">
+        <ul class="nav navbar-nav">
+            <li class="nav-item">
+      <a class="nav-link" href="{% url 'account:account' %}">조회</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link"href="{% url 'account:account_remove' %}">조회(삭제계정)</a>
+    </li>
+      <li class="nav-item">
+      <a class="nav-link" href="{% url 'account:account_repository_select' %}">Repository 계정관리</a>
+    </li>    
+    </ul>
+    </nav>
+
+
+    <p>
+        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+          Button with data-bs-target
+        </button>
+      </p>
+      <div class="collapse" id="collapseExample">
+        <div class="card card-body">
+          Some
+        </div>
+      </div>
+
+
 {% endblock %}
