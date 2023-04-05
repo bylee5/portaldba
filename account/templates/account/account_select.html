@@ -64,13 +64,13 @@
                 });
             </script>
         </td>
-        <td style = "cursor:pointer;" id="{{ account.id }}" name="{{ account.id }}" data-toggle="account_id" data-placement="right" title="입력란 복사">
+        <td style = "cursor:pointer;" id="{{ account.id }}" name="{{ account.id }}" data-bs-toggle="account_id" data-placement="right" title="입력란 복사">
             {{ account.id }}
             <!-- 입력란 복사 script-->
             <script>
                 $(function () {
-                    $('[data-toggle="account_id"]').tooltip()
-                    $('[data-toggle="account_url"]').tooltip()
+                    $('[data-bs-toggle="account_id"]').tooltip()
+                    $('[data-bs-toggle="account_url"]').tooltip()
                 })
 
                 $('#{{ account.id }}').click(function(){
@@ -102,7 +102,7 @@
                 });
             </script>
         </td>
-        <td style = "cursor:pointer;" data-toggle="modal" data-target="#myModal"
+        <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_update_dt="{{ account.account_update_dt|date:'Y/m/d H:i:s' }}"
@@ -128,7 +128,7 @@
             data-account_del_note="{{ account.account_del_note }}">
             {{ account.account_create_dt|date:'Y/m/d H:i:s' }}
         </td>
-        <td style = "cursor:pointer;" data-toggle="modal" data-target="#myModal"
+        <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_update_dt="{{ account.account_update_dt|date:'Y/m/d H:i:s' }}"
@@ -154,7 +154,7 @@
             data-account_del_note="{{ account.account_del_note }}">
             {{ account.account_requestor }}
         </td>
-        <td style = "cursor:pointer;" data-toggle="modal" data-target="#myModal"
+        <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_update_dt="{{ account.account_update_dt|date:'Y/m/d H:i:s' }}"
@@ -180,7 +180,7 @@
             data-account_del_note="{{ account.account_del_note }}">
             {{ account.account_devteam }}
         </td>
-        <td style = "cursor:pointer;" data-toggle="modal" data-target="#myModal"
+        <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_update_dt="{{ account.account_update_dt|date:'Y/m/d H:i:s' }}"
@@ -206,7 +206,7 @@
             data-account_del_note="{{ account.account_del_note }}">
             {{ account.account_svr }}
         </td>
-        <td style = "cursor:pointer;" data-toggle="modal" data-target="#myModal"
+        <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_update_dt="{{ account.account_update_dt|date:'Y/m/d H:i:s' }}"
@@ -232,7 +232,7 @@
             data-account_del_note="{{ account.account_del_note }}">
             {{ account.account_user }}
         </td>
-        <td style = "cursor:pointer;" data-toggle="modal" data-target="#myModal"
+        <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_update_dt="{{ account.account_update_dt|date:'Y/m/d H:i:s' }}"
@@ -258,7 +258,7 @@
             data-account_del_note="{{ account.account_del_note }}">
             {{ account.account_host }}
         </td>
-        <td style = "cursor:pointer;" data-toggle="modal" data-target="#myModal"
+        <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_update_dt="{{ account.account_update_dt|date:'Y/m/d H:i:s' }}"
@@ -284,7 +284,7 @@
             data-account_del_note="{{ account.account_del_note }}">
             {{ account.account_grant }}
         </td>
-        <td style = "cursor:pointer;" data-toggle="modal" data-target="#myModal"
+        <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_update_dt="{{ account.account_update_dt|date:'Y/m/d H:i:s' }}"
@@ -310,7 +310,7 @@
             data-account_del_note="{{ account.account_del_note }}">
             {{ account.account_db }}
         </td>
-        <td style = "cursor:pointer;" data-toggle="modal" data-target="#myModal"
+        <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_update_dt="{{ account.account_update_dt|date:'Y/m/d H:i:s' }}"
@@ -336,7 +336,7 @@
             data-account_del_note="{{ account.account_del_note }}">
             {{ account.account_table }}
         </td>
-        <td style = "cursor:pointer;" id="{{ account.account_url }}" name="{{ account.account_url }}" data-toggle="account_url" data-placement="right" title="URL 이동" onClick="window.open('https://kakaovx.atlassian.net/browse/{{ account.account_url}}')">
+        <td style = "cursor:pointer;" id="{{ account.account_url }}" name="{{ account.account_url }}" data-bs-toggle="account_url" data-placement="right" title="URL 이동" onClick="window.open('https://kakaovx.atlassian.net/browse/{{ account.account_url}}')">
             {{ account.account_url }}
         </td>
 
@@ -369,7 +369,7 @@
                 <!-- Nav tabs -->
                 <ul class="nav nav-pills" role="tablist">
                     <li>
-                        <a class="nav-link active btn-outline-dark" href="#selectTab" aria-controls="selectTab" role="tab" aria-selected="true" data-toggle="tab">
+                        <a class="nav-link active btn-outline-dark" href="#selectTab" aria-controls="selectTab" role="tab" aria-selected="true" data-bs-toggle="tab">
                             ACCOUNT_SQL
                         </a>
                     </li>
