@@ -813,11 +813,11 @@ def account_insert(request):
                                 else:
                                     account_grant_with_str = ';'
 
-                                account_sql = "/*" + account_svr + "*/ " + "USE mysql; " + "/*" + account_url + \
-                                                "*/" + " GRANT " + account_grant  + " ON " + \
-                                                account_db + "." + account_table + \
-                                                " TO " + "''" + account_user + "''@''" + account_host + \
-                                                "'' IDENTIFIED BY PASSWORD ''" + account_hash + "''" + account_grant_with_str
+                                account_sql = "/*" + account_svr + "*/ " + "USE mysql;" + "/*" + account_url + "*/" + \
+                                                "CREATE USER IF NOT EXISTS " + "''" + account_user + "''@''" + account_host + "''" + \
+                                                " IDENTIFIED WITH ''mysql_native_password'' AS ''" + account_hash + "'';" + \
+                                                "GRANT " + account_grant  + " ON " + account_db + "." + account_table + \
+                                                " TO " + "''" + account_user + "''@''" + account_host + "''" + account_grant_with_str
                                 #print("sql : " + account_sql)
 
                                 insert_sql = "INSERT INTO account_account(account_create_dt, account_update_dt, " + \
