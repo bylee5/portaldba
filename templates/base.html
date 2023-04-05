@@ -3,8 +3,12 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8">
-    <!-- 부트스트랩 -->
+    <!-- CSS -->
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}?{% now 'U' %}">
+
+    <!-- JS -->
+    <script src="{% static 'js/bootstrap.bundle.js' %}?{% now 'U' %}"></script>
+    <script src="{% static 'js/jquery-3.6.4.min.js' %}?{% now 'U' %}"></script>
 
     <title>DB 어드민</title>
 </head>
@@ -12,11 +16,11 @@
 <body>
 <!-- 네비게이션바 -->
 {% include "navbar.html" %}
+
 <!-- 기본 템플릿 안에 삽입될 내용 Start -->
 {% block content %}
 {% endblock %}
 <!-- 기본 템플릿 안에 삽입될 내용 End -->    
-<!-- Bootstrap JS -->
-<script src="{% static 'js/bootstrap.bundle.js' %}?{% now 'U' %}"></script>
+
 </body>
 </html>
