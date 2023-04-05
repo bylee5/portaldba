@@ -11,7 +11,7 @@
 
 <!-- 검색 -->
 <div class="collapse"  id="collapseSelect" style="font-size: 12px;">
-    <div class="card card-body mt-2 bg-light callout callout-primary">
+    <div class="card card-body bg-light mb-0 pb-0">
 
         <h6>검색란</h6>
         <table class="mb-2">
@@ -22,14 +22,12 @@
         </tr>
         </table>
 
-        <table class="table table-sm text-center" style="table-layout: fixed">
+        <table class="table table-sm text-center mb-0 pb-0" style="table-layout: fixed">
             <tr class="bg-dark text-white">
                 <th class="rounded-left">요청자명</th>
                 <th class="">요청팀</th>
                 <th class="">서버</th>
-                <th class="">
-                    아이디
-                </th>
+                <th class="">아이디</th>
                 <th class="">허용 호스트</th>
                 <th class="">권한</th>
                 <th class="">DB</th>
@@ -87,7 +85,7 @@
 
 <!-- 입력 -->
 <div class="collapse" id="collapseInsert" style="font-size: 12px;">
-    <div class="card card-body mt-2 bg-light callout callout-danger">
+    <div class="card card-body mt-2 bg-light mb-0 pb-0">
         <h6>입력란</h6>
         <table class="mb-2">
         <tr>
@@ -109,7 +107,7 @@
         </tr>
         </table>
 
-        <table class="table table-sm text-center" style="table-layout: fixed">
+        <table class="table table-sm text-center  mb-0 pb-0" style="table-layout: fixed">
             <form class="form-inline" onsubmit="return false;" name="insertForm">
             {% csrf_token %}
             <tr class="">
@@ -195,14 +193,14 @@
 <div class="collapse" id="collapseUpdateMulti" style="font-size: 12px;">
     <table>
         <td>
-            <div class="card card-body mt-2 bg-light callout callout-info">
+            <div class="card card-body mt-2 bg-light callout callout-info mb-0 pb-0">
                 <h6>다중 수정란</h6>
                 <a>- 좌측 하단 체크박스 클릭을 통해 다중 변경 대상을 선택해주세요.</a>
                 <a>- 권한 직접입력을 할 경우에는, <b>반드시 ,</b>를 잘 사용해주세요. (ex. SELECT, INSERT, DELETE, UPDATE)
                 <a>- 패스워드 입력 시, <b>올바른 평문 패스워드</b> 또는 <b>암호화 패스워드</b>를 입력해주세요.</a>
                 <a class="mb-3">- 체크 대상으로 <font color="red"><b>일괄 변경</b></font> 되오니, 신중하게 사용해주세요.</a>
 
-                <table class="table table-sm text-center" style="table-layout: fixed">
+                <table class="table table-sm text-center mb-0 pb-0" style="table-layout: fixed">
                     <form class="form-inline" onsubmit="return false;" name="MultiUpdateForm">
                         {% csrf_token %}
                         <tr class="bg-dark text-white">
@@ -237,14 +235,14 @@
             </div>
         </td>
         <td>
-            <div class="card card-body mt-2 bg-light callout callout-dark">
+            <div class="card card-body mt-2 bg-light callout callout-dark mb-0 pb-0">
                 <h6> 다중 삭제란</h6>
                 <a>- 좌측 하단 체크박스 클릭을 통해 다중 변경 대상을 선택해주세요.</a>
                 <a>- 삭제 사유 및 삭제 URL (JIRA)를 기재해주세요.<a>
                 <a>&nbsp;&nbsp;(ex. ARCH-번호)</a>
                 <a class="mb-3">- 체크 대상으로 <font color="red"><b>일괄 삭제</b></font> 되오니, 신중하게 사용해주세요.</a>
 
-                <table class="table table-sm text-center" style="table-layout: fixed">
+                <table class="table table-sm text-center mb-0 pb-0" style="table-layout: fixed">
                     <form class="form-inline" onsubmit="return false;" name="MultiDeleteForm">
                         {% csrf_token %}
                         <tr class="bg-dark text-white">
