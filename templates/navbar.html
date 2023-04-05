@@ -1,7 +1,8 @@
 <!-- 네비게이션바 -->
-<nav class="navbar navbar-expand-lg bg-light">
+<nav class="navbar navbar-expand-lg bg-warning bg-gradient">
+    <a class="navbar-brand px-0" href="#">카카오VX DBA</a>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="nav navbar-nav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
             <a class="nav-link" href="/">홈</a>
         </li>
@@ -21,13 +22,13 @@
             <a class="nav-link" href="/innodb_lock">잠금</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/slow_query">쿼리</a>
+            <a class="nav-link" href="/slow_query">슬로우쿼리</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/undo_size">언두</a>
+            <a class="nav-link" href="/undo_size">언두사이즈</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/account">계정</a>
+            <a class="nav-link" href="/account">계정관리</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="/process">프로세스</a>
@@ -35,6 +36,8 @@
         <li class="nav-item">
             <a class="nav-link" href="/memo">메모</a>
         </li>
+        </ul>
+        <ul class="navbar-nav px-3">
         <li class="nav-item">
             {% if user.is_authenticated %}
             <a class="nav-link" href="{% url 'login:logout' %}">{{ user.username }} (로그아웃)</a>
