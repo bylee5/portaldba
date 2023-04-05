@@ -1,0 +1,14 @@
+<!-- 계정관리 메뉴-->
+<nav class="navbar navbar-expand-lg bg-light">
+    <ul class="navbar-nav px-2">
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'account:account' %}">조회</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'account:account_remove' %}">삭제</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'account:account_repository_select' %}">레포지토리</a>
+    </li>    
+    </ul>
+</nav>

@@ -1,32 +1,1177 @@
 {% extends 'base.html' %}
 {% block content %}
+<!-- 네비게이션바 -->
+{% include "navbar-account.html" %}
+<!-- MAIN -->
+<p>
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSelect" aria-expanded="false" aria-controls="collapseSelect">검색</button>
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInsert" aria-expanded="false" aria-controls="collapseInsert">입력</button>
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUpdateMulti" aria-expanded="false" aria-controls="collapseUpdateMulti">수정/삭제</button>
+</p>
 
-<!-- NAV MENU-->
-    <nav class="navbar navbar-expand-lg bg-light">
-        <ul class="nav navbar-nav">
-            <li class="nav-item">
-      <a class="nav-link" href="{% url 'account:account' %}">조회</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link"href="{% url 'account:account_remove' %}">조회(삭제계정)</a>
-    </li>
-      <li class="nav-item">
-      <a class="nav-link" href="{% url 'account:account_repository_select' %}">Repository 계정관리</a>
-    </li>    
-    </ul>
-    </nav>
+<!-- 검색 -->
+<div class="collapse"  id="collapseSelect" style="font-size: 12px;">
+    <div class="card card-body mt-2 bg-light callout callout-primary">
 
+        <h6>검색란</h6>
+        <table class="mb-2">
+        <tr>
+            <td>
+                <a>- 서버명은 <font color="red"><b>=</b></font> 검색, 이외 항목은 기본적으로 <font color="red"><b>like</b></font> 검색을 제공하고 있습니다.</a>
+            </td>
+        </tr>
+        </table>
 
-    <p>
-        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-          Button with data-bs-target
-        </button>
-      </p>
-      <div class="collapse" id="collapseExample">
-        <div class="card card-body">
-          Some
+        <table class="table table-sm text-center" style="table-layout: fixed">
+            <tr class="bg-dark text-white">
+                <th class="rounded-left">요청자명</th>
+                <th class="">요청팀</th>
+                <th class="">서버</th>
+                <th class="">
+                    아이디
+                </th>
+                <th class="">허용 호스트</th>
+                <th class="">권한</th>
+                <th class="">DB</th>
+                <th class="">TABLE</th>
+                <th class="">URL</th>
+                <th class="rounded-right"></th>
+            </tr>
+            <tr>
+                <form class="form-inline" onsubmit="return false" name="selectForm">
+                    {% csrf_token %}
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_account_requestor" name="s_account_requestor" value="{{ account_requestor }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_account_devteam" name="s_account_devteam" value="{{ account_devteam }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <div class="input-group input-group-sm">
+                            <select class="custom-select" id="s_account_svr" name="s_account_svr">
+                                <option value="">All</option>
+                                {% if account_svr_list %}
+                                {% for account_svr_lists in account_svr_list %}
+                                <option {% if account_svr == account_svr_lists.account_svr %} selected {% endif %} value="{{ account_svr_lists.account_svr }}">{{ account_svr_lists.account_svr }}</option>
+                                {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_account_user" name="s_account_user" value="{{ account_user }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_account_host" name="s_account_host" value="{{ account_host }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_account_grant" name="s_account_grant" value="{{ account_grant }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_account_db" name="s_account_db" value="{{ account_db }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_account_table" name="s_account_table" value="{{ account_table }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_account_url" name="s_account_url" value="{{ account_url }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <button id="search" class="btn btn-outline-primary btn-sm">검색</button>
+                    </td>
+                </form>
+            </tr>
+        </table>
+    </div>   
+</div>
+
+<!-- 입력 -->
+<div class="collapse" id="collapseInsert" style="font-size: 12px;">
+    <div class="card card-body mt-2 bg-light callout callout-danger">
+        <h6>입력란</h6>
+        <table class="mb-2">
+        <tr>
+            <td>
+                <a>- 권한 직접입력을 할 경우에는, <b>반드시 ,</b>를 잘 사용해주세요. (ex. select, insert, update, execute)</a>
+                <br><a>- <b> , </b>를 활용하여 다중계정 생성을 할 수 있습니다. <b>(적용항목 : 서버, 허용 호스트, DB, TABLE)</b>
+                <br><a>&nbsp;&nbsp;ex) 서버 : db1, db2 / 허용호스트 : 10.11.11.%, 10.11.12.%, 10.11.13.% / DB : testdb, testdb1 / TABLE : test_table1, test_table2</a>
+                <br><a>&nbsp;&nbsp;※ real / dev 계정은 패스워드를 <b>다르게 구분</b>하여 따로 생성해주세요.</a>
+                <br><a>- 패스워드 입력 시 <b>올바른 평문 패스워드</b> 또는 <b>암호화 또는 해시값 패스워드를 입력</b>해주세요.</a>
+                <br><a>- 불가피한 사유로 계정 입력을 해야 할지, 우측 <font color="red"><b>강제입력</b></font> 스위치를 ON 시켜주세요.</a>
+            </td>
+            <td class="text-right align-bottom">
+                <a>강제입력 <input type="checkbox" id="forceinsert_flag" name="forceinsert_flag" data-toggle="toggle" data-size="xs" data-style="ios" data-onstyle="danger"  data-offstyle="light" data-height="20" data-width="50" data-on="ON" data-off="Off"></a>
+                <style>
+                    .toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20rem; }
+                    .toggle.ios .toggle-handle { border-radius: 20rem; }
+                </style>
+            </td>
+        </tr>
+        </table>
+
+        <table class="table table-sm text-center" style="table-layout: fixed">
+            <form class="form-inline" onsubmit="return false;" name="insertForm">
+            {% csrf_token %}
+            <tr class="">
+                <td style="width: 5%" class="bg-dark text-white align-middle">요청자명</td>
+                <td style="width: 9%"><input class="form-control form-control-sm" id="i_account_requestor" name="i_account_requestor" value="{{ i_account_requestor }}" type="text"></td>
+                <td style="width: 5%" class="bg-dark text-white align-middle">요청팀</td>
+                <td style="width: 9%"><input class="form-control form-control-sm" id="i_account_devteam" name="i_account_devteam" value="{{ i_account_devteam }}" type="text"></td>
+                <td style="width: 5%" class="bg-dark text-white align-middle">서버</td>
+                <td style="width: 9%"><input class="form-control form-control-sm" id="i_account_svr" name="i_account_svr" value="{{ i_account_svr }}" type="text"></td>
+                <td style="width: 5%" class="bg-dark text-white align-middle">아이디</td>
+                <td style="width: 9%"><input class="form-control form-control-sm" id="i_account_user" name="i_account_user" value="{{ i_account_user }}" type="text"></td>
+                <td style="width: 5%" class="bg-dark text-white align-middle">허용 호스트</td>
+                <td colspan="2" style="width: 14%"><input class="form-control form-control-sm" id="i_account_host" name="i_account_host" value="{{ i_account_host }}" type="text"></td>
+                <td style="width: 5%" class="bg-dark text-white align-middle">패스워드</td>
+                <td style="width: 15%"><input class="form-control form-control-sm" id="i_account_pass" name="i_account_pass" value="{{ i_account_pass }}" type="text"></td>
+                <td style="width: 5%" class="bg-dark text-white align-middle">GRANT WITH</td>
+                <td style="width: 4%">
+                    <div class="input-group input-group-sm">
+                        <select class="custom-select" id="i_account_grant_with" name="i_account_grant_with">
+                            <option value="N" selected>N</option>
+                            <option value="Y">Y</option>
+                        </select>
+                    </div>
+                </td>
+            </tr>
+            <tr class="">
+                <td class="bg-dark text-white align-middle">INFO</td>
+                <td><input class="form-control form-control-sm" id="i_account_info" name="i_account_info" value="{{ i_account_info }}" type="text"></td>
+                <td class="bg-dark text-white align-middle">URL</td>
+                <td><input class="form-control form-control-sm" id="i_account_url" name="i_account_url" value="{{ i_account_url }}" type="text"></td>
+                <td class="bg-dark text-white align-middle">DB</td>
+                <td><input class="form-control form-control-sm" id="i_account_db" name="i_account_db" value="{{ i_account_db }}" type="text"></td>
+                <td class="bg-dark text-white align-middle">TABLE</td>
+                <td><input class="form-control form-control-sm" id="i_account_table" name="i_account_table" value="{{ i_account_table }}" type="text"></td>
+                <td class="bg-dark text-white align-middle">권한</td>
+                <td colspan="6">
+                    <div class="input-group input-group-sm">
+                        <select class="custom-select" id="i_account_grant" name="i_account_grant">
+                            <option value="SELECT" selected>SELECT</option>
+                            <option value="SELECT, INSERT, UPDATE, DELETE">SELECT, INSERT, UPDATE, DELETE</option>
+                            <option value="SELECT, INSERT, UPDATE, DELETE, ALTER, DROP, CREATE">SELECT, INSERT, UPDATE, DELETE, ALTER, DROP, CREATE</option>
+                            <option value="">직접 입력</option>
+                        </select>
+                        <input class="form-control form-control-sm" id="i_account_grant_direct" name="i_account_grant_direct" value="{{ i_account_grant_direct }}" type="text">
+
+                            <!-- input grant 직접입력 구현 -->
+                            <script>
+
+                            $('#i_account_grant').change(function(){
+                                $("#i_account_grant option:selected").each(function () {
+                                    if($(this).val() == ''){
+                                        $("#i_account_grant_direct").show();
+                                        $("#i_account_grant_direct").val('');
+                                        $("#i_account_grant_direct").attr("disabled",false);
+                                        $("#i_account_grant").hide();
+                                    }else{
+                                        $("#i_account_grant").show();
+                                        $("#i_account_grant_direct").hide();
+                                    }
+                                });
+                            });
+
+                            $('#i_account_grant_direct').load('dummy',function(){
+                                $("#i_account_grant").show();
+                                $("#i_account_grant_direct").hide();
+                            });
+                            </script>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-left">
+                    <button class="btn btn-outline-danger btn-sm" onclick="insertBox()" type="submit">입력</button>
+                    <input class="btn btn-outline-dark btn-sm" type="button" value="지우기" onClick="insertBox_del()">
+                </td>
+            </tr>
+            </form>
+        </table>
+    </div>
+</div>
+
+<!-- 수정/삭제 -->
+<div class="collapse" id="collapseUpdateMulti" style="font-size: 12px;">
+    <table>
+        <td>
+            <div class="card card-body mt-2 bg-light callout callout-info">
+                <h6>다중 수정란</h6>
+                <a>- 좌측 하단 체크박스 클릭을 통해 다중 변경 대상을 선택해주세요.</a>
+                <a>- 권한 직접입력을 할 경우에는, <b>반드시 ,</b>를 잘 사용해주세요. (ex. SELECT, INSERT, DELETE, UPDATE)
+                <a>- 패스워드 입력 시, <b>올바른 평문 패스워드</b> 또는 <b>암호화 패스워드</b>를 입력해주세요.</a>
+                <a class="mb-3">- 체크 대상으로 <font color="red"><b>일괄 변경</b></font> 되오니, 신중하게 사용해주세요.</a>
+
+                <table class="table table-sm text-center" style="table-layout: fixed">
+                    <form class="form-inline" onsubmit="return false;" name="MultiUpdateForm">
+                        {% csrf_token %}
+                        <tr class="bg-dark text-white">
+                            <th style="width: 30%" class="rounded-left">변경 항목</th>
+                            <th style="width: 62%" class="">변경 값</th>
+                            <th style="width: 8%" class="rounded-right"></th>
+                        <tr class="">
+                            <td>
+                                <div class="input-group input-group-sm">
+                                    <select class="custom-select" id="mu_type" name="mu_type">
+                                        <option value="account_requestor" selected>요청자(requestor)</option>
+                                        <option value="account_devteam">요청팀(devteam)</option>
+                                        <option value="account_svr">서버(svr)</option>
+                                        <option value="account_user">아이디(user)</option>
+                                        <option value="account_host">허용호스트(host)</option>
+                                        <option value="account_pass">패스워드(passwd)</option>
+                                        <option value="account_grant">권한(grant)</option>
+                                        <option value="account_db">DB</option>
+                                        <option value="account_table">TABLE</option>
+                                        <option value="account_info">용도(info)</option>
+                                        <option value="account_url">Jira(URL)</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td><input class="form-control form-control-sm" id="mu_value" name="mu_value" type="text"></td>
+                            <td>
+                                <button class="btn btn-outline-info btn-sm" onclick="MultiUpdateBox()" type="submit">수정</button>
+                            </td>
+                        </tr>
+                    </form>
+                </table>
+            </div>
+        </td>
+        <td>
+            <div class="card card-body mt-2 bg-light callout callout-dark">
+                <h6> 다중 삭제란</h6>
+                <a>- 좌측 하단 체크박스 클릭을 통해 다중 변경 대상을 선택해주세요.</a>
+                <a>- 삭제 사유 및 삭제 URL (JIRA)를 기재해주세요.<a>
+                <a>&nbsp;&nbsp;(ex. ARCH-번호)</a>
+                <a class="mb-3">- 체크 대상으로 <font color="red"><b>일괄 삭제</b></font> 되오니, 신중하게 사용해주세요.</a>
+
+                <table class="table table-sm text-center" style="table-layout: fixed">
+                    <form class="form-inline" onsubmit="return false;" name="MultiDeleteForm">
+                        {% csrf_token %}
+                        <tr class="bg-dark text-white">
+                            <th style="width: 62%" class="rounded-left">삭제 사유</th>
+                            <th style="width: 30%" class="">삭제 URL(JIRA)</th>
+                            <th style="width: 8%" class="rounded-right"></th>
+                        <tr class="">
+                            <td><input class="form-control form-control-sm" id="md_account_del_reason" name="md_account_del_reason" type="text"></td>
+                            <td><input class="form-control form-control-sm" id="md_account_del_note" name="md_account_del_note" type="text"></td>
+                            <td>
+                                <button class="btn btn-outline-dark btn-sm" onclick="MultiDeleteBox()" type="submit">삭제</button>
+                            </td>
+                        </tr>
+                    </form>
+                </table>
+            </div>
+        </td>
+    </table>
+</div>
+
+<!-- 결과란 -->
+<div>
+    {% if page is none %}
+        <input id="page" name="page" type="hidden" value="1">
+    {% else %}
+        <input id="page" name="page" type="hidden" value="{{ page }}">
+    {% endif %}
+
+    {% if scrollHeight is none %}
+        <input id="scrollHeight" name="scrollHeight" type="hidden" value="0">
+    {% else %}
+        <input id="scrollHeight" name="scrollHeight" type="hidden" value="{{ scrollHeight }}">
+    {% endif %}
+</div>
+<div class="board small" id="account_list_ajax" style="font-size: 12px;"></div>
+
+<!-- Modal(모달) -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header small">
+                <!-- Nav tabs -->
+                <ul class="nav nav-pills" role="tablist">
+                    <li>
+                        <a class="nav-link active btn-outline-dark" href="#updateTab" aria-controls="updateTab" role="tab" aria-selected="true" data-toggle="tab">수정</a>
+                    </li>
+                    <li>
+                        <a class="nav-link btn-outline-dark" href="#deleteTab" aria-controls="deleteTab" role="tab" data-toggle="tab">삭제</a>
+                    </li>
+                </ul>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body small">
+                <div role="tabpanel">
+                    <!-- Modal Tab panes -->
+                    <div class="tab-content">
+                        <!-- Modal Delete -->
+                        <div role="tabpanel" class="tab-pane fade" id="deleteTab">
+                            <form class="" onsubmit="return false;" name="deleteForm">
+                            {% csrf_token %}
+
+                            <!-- hidden value (pk) -->
+                            <!-- view에 조회 데이터 넘기기 및 페이징 처리 원위치 이동을 위해 구현-->
+                            <input class="form-control form-control-sm" id="id" name="id" type="hidden">
+                            <input class="form-control form-control-sm" id="page" name="page" value="{{ page }}" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_requestor" name="s_account_requestor" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_devteam" name="s_account_devteam" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_svr" name="s_account_svr" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_user" name="s_account_user" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_host" name="s_account_host" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_grant" name="s_account_grant" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_db" name="s_account_db" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_table" name="s_account_table" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_url" name="s_account_url" type="hidden">
+
+                                <div class="card card-body mt-0 bg-light callout callout-dark mb-2">
+                                    <table class="w-100">
+                                        <tr>
+                                            <td>
+                                                <a>- 삭제 사유 및 삭제 URL (JIRA)를 기재해주세요. (ex. ARCH-번호)<a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                            <table class="table table-sm table-hover text-center">
+                            <tr class="">
+                                <!-- hidden -->
+                                <input class="form-control form-control-sm" id="page" name="page" type="hidden">
+                                <input class="form-control form-control-sm" id="scrollHeight" name="scrollHeight" type="hidden">
+
+                                <td class="bg-dark text-white align-middle" style="width: 12%">생성일</td>
+                                <td style="width: 38%"><input class="form-control form-control-sm" id="d_account_create_dt" name="d_account_create_dt" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle" style="width: 12%">변경일</td>
+                                <td style="width: 38%"><input class="form-control form-control-sm" id="d_account_update_dt" name="d_account_update_dt" type="text" readonly></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-dark text-white align-middle">만료일</td>
+                                <td><input class="form-control form-control-sm" id="d_account_end_dt" name="d_account_end_dt" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle">요청자명</td>
+                                <td><input class="form-control form-control-sm" id="d_account_requestor" name="d_account_requestor" type="text" readonly></td>
+                            </tr>
+                            <tr class="">
+                                <td class="bg-dark text-white align-middle">요청팀</td>
+                                <td><input class="form-control form-control-sm" id="d_account_devteam" name="d_account_devteam" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle">호스트명</td>
+                                <td><input class="form-control form-control-sm" id="d_account_svr" name="d_account_svr" type="text" readonly></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-dark text-white align-middle">아이디</td>
+                                <td><input class="form-control form-control-sm" id="d_account_user" name="d_account_user" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle">허용호스트</td>
+                                <td><input class="form-control form-control-sm" id="d_account_host" name="d_account_host" type="text" readonly></td>
+                            </tr>
+                            <tr class="">
+                                <td class="bg-dark text-white align-middle">패스워드</td>
+                                <td><input class="form-control form-control-sm" id="d_account_pass" name="d_account_pass" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle">해쉬</td>
+                                <td><input class="form-control form-control-sm" id="d_account_hash" name="d_account_hash" type="text" readonly></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-dark text-white align-middle">권한</td>
+                                <td><input class="form-control form-control-sm" id="d_account_grant" name="d_account_grant" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle">grant with</td>
+                                <td><input class="form-control form-control-sm" id="d_account_grant_with" name="d_account_grant_with" type="text" readonly></td>
+                            </tr>
+                            <tr class="">
+                                <td class="bg-dark text-white align-middle">db</td>
+                                <td><input class="form-control form-control-sm" id="d_account_db" name="d_account_db" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle">table</td>
+                                <td><input class="form-control form-control-sm" id="d_account_table" name="d_account_table" type="text" readonly></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-dark text-white align-middle">용도</td>
+                                <td><input class="form-control form-control-sm" id="d_account_info" name="d_account_info" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle">URL</td>
+                                <td><input class="form-control form-control-sm" id="d_account_url" name="d_account_url" type="text" readonly></td>
+                            </tr>
+                            <tr class="">
+                                <td class="bg-dark text-white align-middle">SQL</td>
+                                <td colspan="3">
+                                    <input class="form-control form-control-sm" id="d_account_sql" name="d_account_sql" type="text" readonly title="클릭 : 클립보드 복사" data-toggle="tooltip" readonly onclick="d_copy_clipboard()">
+                                </td>
+                                <!-- 클립보드 복사 -->
+                                <script>
+                                    function d_copy_clipboard() {
+                                        var copyText = document.getElementById("d_account_sql");
+                                        copyText.select();
+                                        document.execCommand("Copy");
+                                    }
+
+                                    $(function(){
+                                        $('#d_account_sql').tooltip({
+                                            animation: true,
+                                            container: false,
+                                            delay: {show:50, hide:50},
+                                            html: false,
+                                            selector: false,
+                                            template: '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
+                                            trigger: 'hover focus',
+                                            viewport: { selector: 'body', padding: 0 },
+                                        });
+                                    });
+                                </script>
+                            </tr>
+                            <tr class="">
+                                <td class="bg-dark text-white align-middle">삭제 사유</td>
+                                <td colspan="3">
+                                    <input class="form-control form-control-sm" id="d_account_del_reason" name="d_account_del_reason" type="text">
+                                </td>
+                            </tr>
+                            <tr class="">
+                                <td class="bg-dark text-white align-middle">삭제 JIRA</td>
+                                <td colspan="3">
+                                    <input class="form-control form-control-sm" id="d_account_del_note" name="d_account_del_note" type="text">
+                                </td>
+                            </tr>
+                            </table>
+                            <p class="text-right">삭제 하시겠습니까?</p>
+
+                            <div class="modal-footer">
+                                <button class="btn btn-outline-primary btn-sm" onclick="deleteBox()" type="submit">삭제</button>
+                                <button type="" class="btn btn-sm btn-outline-danger" data-dismiss="modal">취소</button>
+                            </div>
+                            </form>
+                        </div>
+
+                        <!-- Modal Update-->
+                        <div role="tabpanel" class="tab-pane active fade show" id="updateTab">
+                            <form class="" onsubmit="return false;" name="updateForm">
+                            {% csrf_token %}
+                            <!-- hidden value (pk) -->
+                            <!-- view에 조회 데이터 넘기기 및 페이징 처리 원위치 이동을 위해 구현-->
+                            <input class="form-control form-control-sm" id="id" name="id" type="hidden">
+                            <input class="form-control form-control-sm" id="page" name="page" value="{{ page }}" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_requestor" name="s_account_requestor" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_devteam" name="s_account_devteam" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_svr" name="s_account_svr" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_user" name="s_account_user" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_host" name="s_account_host" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_grant" name="s_account_grant" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_db" name="s_account_db" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_table" name="s_account_table" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_url" name="s_account_url" type="hidden">
+
+                            <div class="card card-body mt-0 bg-light callout callout-dark mb-2">
+                            <table class="w-100">
+                                <tr>
+                                    <td>
+                                        <a>- 권한 직접입력을 할 경우에는, <b>반드시 ,</b>를 잘 사용해주세요. (ex. SELECT, INSERT, DELETE, EXECUTE)</a>
+                                        <br><a>- 패스워드 입력 시 <b>올바른 평문 패스워드</b> 또는 <b>암호화 또는 해시값 패스워드를 입력</b>해주세요.</a>
+                                        <br><a>- 불가피한 사유로 강제로 수정을 해야 한다면, 우측 <font color="red"><b>강제수정</b></font> 스위치를 ON 시켜주세요.</a>
+                                    </td>
+                                    <td class="text-right align-bottom">
+                                        <div class="text-light" id="account_dummy_pass" style="font-size: 12px;"></div>
+                                        <span style="font-size: 12px;" type="button" class="badge badge-light" onclick="account_dummy_pass();">&nbsp;&nbsp;</span>
+                                        <a>강제수정 <input type="checkbox" id="forceupdate_flag" name="forceupdate_flag" data-toggle="toggle" data-size="xs" data-style="ios" data-onstyle="danger"  data-offstyle="light" data-height="20" data-width="50" data-on="ON" data-off="Off"></a>
+                                    </td>
+                                </tr>
+                            </table>
+                            </div>
+
+                            <table class="table table-sm table-hover text-center">
+                            <tr class="">
+                                <!-- hidden -->
+                                <input class="form-control form-control-sm" id="page" name="page" type="hidden">
+                                <input class="form-control form-control-sm" id="scrollHeight" name="scrollHeight" type="hidden">
+
+                                <td class="bg-dark text-white align-middle" style="width: 12%">생성일</td>
+                                <td style="width: 38%"><input class="form-control form-control-sm" id="u_account_create_dt" name="u_account_create_dt" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle" style="width: 12%">변경일</td>
+                                <td style="width: 38%"><input class="form-control form-control-sm" id="u_account_update_dt" name="u_account_update_dt" type="text" readonly></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-dark text-white align-middle" >만료일</td>
+                                <td><input class="form-control form-control-sm" id="u_account_end_dt" name="u_account_end_dt" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle">요청자명</td>
+                                <td><input class="form-control form-control-sm" id="u_account_requestor" name="u_account_requestor" type="text"></td>
+                            </tr>
+                            <tr class="">
+                                <td class="bg-dark text-white align-middle">요청팀</td>
+                                <td><input class="form-control form-control-sm" id="u_account_devteam" name="u_account_devteam" type="text"></td>
+                                <td class="bg-dark text-white align-middle">호스트명</td>
+                                <td><input class="form-control form-control-sm" id="u_account_svr" name="u_account_svr" type="text"></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-dark text-white align-middle">아이디</td>
+                                <td><input class="form-control form-control-sm" id="u_account_user" name="u_account_user" type="text"></td>
+                                <td class="bg-dark text-white align-middle">허용호스트</td>
+                                <td><input class="form-control form-control-sm" id="u_account_host" name="u_account_host" type="text"></td>
+                            </tr>
+                            <tr class="">
+                                <td class="bg-dark text-white align-middle">패스워드</td>
+                                <td><input class="form-control form-control-sm" id="u_account_pass" name="u_account_pass" type="text"></td>
+                                <td class="bg-dark text-white align-middle">해쉬</td>
+                                <td><input class="form-control form-control-sm" id="u_account_hash" name="u_account_hash" type="text" readonly></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-dark text-white align-middle">권한</td>
+                                <td><input class="form-control form-control-sm" id="u_account_grant" name="u_account_grant" type="text"></td>
+                                <td class="bg-dark text-white align-middle">grant with</td>
+                                <td><input class="form-control form-control-sm" id="u_account_grant_with" name="u_account_grant_with" type="text"></td>
+                            </tr>
+                            <tr class="">
+                                <td class="bg-dark text-white align-middle">db</td>
+                                <td><input class="form-control form-control-sm" id="u_account_db" name="u_account_db" type="text"></td>
+                                <td class="bg-dark text-white align-middle">table</td>
+                                <td><input class="form-control form-control-sm" id="u_account_table" name="u_account_table" type="text"></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-dark text-white align-middle">용도</td>
+                                <td><input class="form-control form-control-sm" id="u_account_info" name="u_account_info" type="text"></td>
+                                <td class="bg-dark text-white align-middle">URL</td>
+                                <td><input class="form-control form-control-sm" id="u_account_url" name="u_account_url" type="text"></td>
+                            </tr>
+                            <tr class="">
+                                <td class="bg-dark text-white align-middle">SQL</td>
+                                <td colspan="3">
+                                    <input class="form-control form-control-sm" id="u_account_sql" name="u_account_sql" type="text" data-placement="bottom" title="클릭 : 클립보드 복사" data-toggle="tooltip" readonly onclick="u_copy_clipboard()">
+                                </td>
+                                <!-- 클립보드 복사 -->
+                                    <script>
+                                        function u_copy_clipboard() {
+                                            var copyText = document.getElementById("u_account_sql");
+                                            copyText.select();
+                                            document.execCommand("Copy");
+                                        }
+
+                                        $(function(){
+                                            $('#u_account_sql').tooltip({
+                                                animation: true,
+                                                container: false,
+                                                delay: {show:50, hide:50},
+                                                html: false,
+                                                selector: false,
+                                                template: '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
+                                                trigger: 'hover focus',
+                                                viewport: { selector: 'body', padding: 0 },
+                                            });
+                                        });
+                                    </script>
+
+                            </tr>
+                            </table>
+                            <p class="text-right">수정 하시겠습니까?</p>
+                            <div class="modal-footer">
+                                <button class="btn btn-outline-primary btn-sm" onclick="updateBox()" type="submit">수정</button>
+                                <button type="" class="btn btn-sm btn-outline-danger" data-dismiss="modal">취소</button>
+                            </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
+    </div>
+</div>
+
+<!-- account dummy-->
+<script>
+    var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+    function account_dummy_pass() {
+        var account_pass = $("#u_account_pass").val();
+        account_dummy_pass_ajax(account_pass);
+    }
+
+    function account_dummy_pass_ajax(account_pass) {
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'account:account_dummy_pass' %}",
+            data: {
+                'csrfmiddlewaretoken': token,
+                'account_pass': account_pass,
+            },
+            success: more_account_dummy_pass_ajax,
+            dataType: 'html'
+        });
+    }
+
+    function more_account_dummy_pass_ajax(data, textStatus, jqXHR) {
+        $('#account_dummy_pass').html(data);
+    }
+
+</script>
+
+<!-- loading control -->
+<script>
+$(document).ready(function(){
+    $('#spinners').hide();
+})
+
+.ajaxStart(function(){
+    $('#spinners').fadeIn(10);
+
+})
+
+.ajaxStop(function(){
+    $('#spinners').fadeOut(10);
+});
+</script>
+
+<!-- account Multi DML ajax script -->
+<script>
+    function MultiUpdateBox() {
+        var retVal = confirm("수정 하시겠습니까?");
+        if (retVal == true ){
+            var page = parseInt($("#page").val());
+            var dml_type = 'update'
+            multi_dml_callMoreListAjax(page, dml_type);
+            $("#page").val(parseInt(page));
+        }else{
+            return false;
+        }
+    }
+
+    function MultiDeleteBox() {
+        var retVal = confirm("삭제 하시겠습니까?");
+        if (retVal == true ){
+            var page = parseInt($("#page").val());
+            var dml_type = 'delete'
+            multi_dml_callMoreListAjax(page, dml_type);
+            $("#page").val(parseInt(page));
+        }else{
+            return false;
+        }
+    }
+
+    function multi_dml_callMoreListAjax(page, dml_type) {
+        var s_account_requestor = $("#s_account_requestor").val();
+        var s_account_devteam = $("#s_account_devteam").val();
+        var s_account_svr = $("#s_account_svr").val();
+        var s_account_user = $("#s_account_user").val();
+        var s_account_host = $("#s_account_host").val();
+        var s_account_grant = $("#s_account_grant").val();
+        var s_account_db = $("#s_account_db").val();
+        var s_account_table = $("#s_account_table").val();
+        var s_account_url = $("#s_account_url").val();
+
+        var mu_type = $("#mu_type").val();
+        var mu_value = $("#mu_value").val();
+        var md_account_del_reason = $("#md_account_del_reason").val();
+        var md_account_del_note = $("#md_account_del_note").val();
+
+        var checkboxValues = [];
+        $("input[name='checkbox']:checked").each(function(i) {
+            checkboxValues.push($(this).val());
+        });
+
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'account:account_multi_dml' %}",
+            data: {
+                'checkboxValues[]': checkboxValues,
+                'dml_type': dml_type,
+                'mu_type': mu_type,
+                'mu_value': mu_value,
+                'md_account_del_reason': md_account_del_reason,
+                'md_account_del_note': md_account_del_note,
+                's_account_requestor': s_account_requestor,
+                's_account_devteam': s_account_devteam,
+                's_account_svr': s_account_svr,
+                's_account_user': s_account_user,
+                's_account_host': s_account_host,
+                's_account_grant': s_account_grant,
+                's_account_db': s_account_db,
+                's_account_table': s_account_table,
+                's_account_url': s_account_url,
+                'page': page,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreAccountAjax,
+            dataType: 'html'
+        });
+    }
+</script>
+
+<!-- search_sql_List ajax script. 다중 SQL 확인 -->
+<script>
+    function search_sql_list() {
+        var page = parseInt($("#page").val());
+        $('#myModal_sql').modal("hide");
+        search_sql_list_callMoreListAjax(page);
+    }
+
+    function search_sql_list_callMoreListAjax(page, dml_type) {
+        var s_account_requestor = $("#s_account_requestor").val();
+        var s_account_devteam = $("#s_account_devteam").val();
+        var s_account_svr = $("#s_account_svr").val();
+        var s_account_user = $("#s_account_user").val();
+        var s_account_host = $("#s_account_host").val();
+        var s_account_grant = $("#s_account_grant").val();
+        var s_account_db = $("#s_account_db").val();
+        var s_account_table = $("#s_account_table").val();
+        var s_account_url = $("#s_account_url").val();
+
+        var checkboxValues = [];
+        $("input[name='checkbox']:checked").each(function(i) {
+            checkboxValues.push($(this).val());
+        });
+
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'account:account_search_sql_list' %}",
+            data: {
+                'checkboxValues[]': checkboxValues,
+                's_account_requestor': s_account_requestor,
+                's_account_devteam': s_account_devteam,
+                's_account_svr': s_account_svr,
+                's_account_user': s_account_user,
+                's_account_host': s_account_host,
+                's_account_grant': s_account_grant,
+                's_account_db': s_account_db,
+                's_account_table': s_account_table,
+                's_account_url': s_account_url,
+                'page': page,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreAccountAjax,
+            dataType: 'html'
+        });
+    }
+
+</script>
+
+<!-- Modal window option script -->
+<script>
+$('#myModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var id = button.data('id');
+    var account_create_dt = button.data('account_create_dt');
+    var account_update_dt = button.data('account_update_dt');
+    var account_end_dt = button.data('account_end_dt');
+    var account_requestor = button.data('account_requestor');
+    var account_svr = button.data('account_svr');
+    var account_user = button.data('account_user');
+    var account_devteam = button.data('account_devteam');
+    var account_host = button.data('account_host');
+    var account_pass = button.data('account_pass');
+    var account_hash = button.data('account_hash');
+    var account_grant = button.data('account_grant');
+    var account_grant_with = button.data('account_grant_with');
+    var account_db = button.data('account_db');
+    var account_table = button.data('account_table');
+    var account_info = button.data('account_info');
+    var account_sql = button.data('account_sql');
+    var account_url = button.data('account_url');
+    var account_del_yn = button.data('account_del_yn');
+    var account_del_dt = button.data('account_del_dt');
+    var account_del_reason = button.data('account_del_reason');
+    var account_del_note = button.data('account_del_note');
+
+    var s_account_requestor = $("#s_account_requestor").val();
+    var s_account_devteam = $("#s_account_devteam").val();
+    var s_account_svr = $("#s_account_svr").val();
+    var s_account_user = $("#s_account_user").val();
+    var s_account_host = $("#s_account_host").val();
+    var s_account_grant = $("#s_account_grant").val();
+    var s_account_db = $("#s_account_db").val();
+    var s_account_table = $("#s_account_table").val();
+    var s_account_url = $("#s_account_url").val();
+
+    var page = $("#page").val();
+    var scrollHeight = $(window).scrollTop();
+
+    var modal = $('#deleteTab')
+
+    modal.find('#id').val(id);
+    modal.find('#d_account_create_dt').val(account_create_dt);
+    modal.find('#d_account_update_dt').val(account_update_dt);
+    modal.find('#d_account_end_dt').val(account_end_dt);
+    modal.find('#d_account_requestor').val(account_requestor);
+    modal.find('#d_account_svr').val(account_svr);
+    modal.find('#d_account_user').val(account_user);
+    modal.find('#d_account_devteam').val(account_devteam);
+    modal.find('#d_account_host').val(account_host);
+    modal.find('#d_account_pass').val(account_pass);
+    modal.find('#d_account_hash').val(account_hash);
+    modal.find('#d_account_grant').val(account_grant);
+    modal.find('#d_account_grant_with').val(account_grant_with);
+    modal.find('#d_account_db').val(account_db);
+    modal.find('#d_account_table').val(account_table);
+    modal.find('#d_account_info').val(account_info);
+    modal.find('#d_account_sql').val(account_sql);
+    modal.find('#d_account_url').val(account_url);
+    modal.find('#d_account_del_yn').val(account_del_yn);
+    modal.find('#d_account_del_dt').val(account_del_dt);
+    modal.find('#d_account_del_reason').val(account_del_reason);
+    modal.find('#d_account_del_note').val(account_del_note);
+    modal.find('#page').val(page);
+    modal.find('#scrollHeight').val(scrollHeight);
+
+    modal.find('#s_account_requestor').val(s_account_requestor);
+    modal.find('#s_account_devteam').val(s_account_devteam);
+    modal.find('#s_account_svr').val(s_account_svr);
+    modal.find('#s_account_user').val(s_account_user);
+    modal.find('#s_account_host').val(s_account_host);
+    modal.find('#s_account_grant').val(s_account_grant);
+    modal.find('#s_account_db').val(s_account_db);
+    modal.find('#s_account_table').val(s_account_table);
+    modal.find('#s_account_url').val(s_account_url);
 
 
+    var modal = $('#updateTab')
+
+    modal.find('#id').val(id);
+    modal.find('#u_account_create_dt').val(account_create_dt);
+    modal.find('#u_account_update_dt').val(account_update_dt);
+    modal.find('#u_account_end_dt').val(account_end_dt);
+    modal.find('#u_account_requestor').val(account_requestor);
+    modal.find('#u_account_svr').val(account_svr);
+    modal.find('#u_account_user').val(account_user);
+    modal.find('#u_account_devteam').val(account_devteam);
+    modal.find('#u_account_host').val(account_host);
+    modal.find('#u_account_pass').val(account_pass);
+    modal.find('#u_account_hash').val(account_hash);
+    modal.find('#u_account_grant').val(account_grant);
+    modal.find('#u_account_grant_with').val(account_grant_with);
+    modal.find('#u_account_db').val(account_db);
+    modal.find('#u_account_table').val(account_table);
+    modal.find('#u_account_info').val(account_info);
+    modal.find('#u_account_sql').val(account_sql);
+    modal.find('#u_account_url').val(account_url);
+    modal.find('#u_account_del_yn').val(account_del_yn);
+    modal.find('#u_account_del_dt').val(account_del_dt);
+    modal.find('#u_account_del_reason').val(account_del_reason);
+    modal.find('#u_account_del_note').val(account_del_note);
+    modal.find('#page').val(page);
+    modal.find('#scrollHeight').val(scrollHeight);
+
+    modal.find('#s_account_requestor').val(s_account_requestor);
+    modal.find('#s_account_devteam').val(s_account_devteam);
+    modal.find('#s_account_svr').val(s_account_svr);
+    modal.find('#s_account_user').val(s_account_user);
+    modal.find('#s_account_host').val(s_account_host);
+    modal.find('#s_account_grant').val(s_account_grant);
+    modal.find('#s_account_db').val(s_account_db);
+    modal.find('#s_account_table').val(s_account_table);
+    modal.find('#s_account_url').val(s_account_url);
+
+    // account_dummy_pass Null로 호출하기 위함
+    account_dummy_pass_ajax('NULL');
+
+    $('html').css({'overflow': 'hidden', 'height': '100%'}); // 모달팝업 중 html,body의 scroll을 hidden시킴
+    $('#element').on('scroll touchmove mousewheel', function(event) { // 터치무브와 마우스휠 스크롤 방지
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+    });
+})
+
+$('#myModal').on('hidden.bs.modal', function (event) {
+    $('html').css({'overflow': 'auto', 'height': '100%'}); //scroll hidden 해제
+    $('#element').off('scroll touchmove mousewheel'); // 터치무브 및 마우스휠 스크롤 가능
+})
+</script>
+
+<!-- account insert ajax script -->
+<script>
+function insertBox() {
+    var retVal = confirm("입력하시겠습니까?");
+    if (retVal == true ){
+        var page = parseInt($("#page").val());
+        insert_callMoreListAjax(page);
+        $("#page").val(parseInt(page));
+    }else{
+        return false;
+    }
+}
+
+function insertBox_del() {
+    document.insertForm.reset();
+}
+
+function insert_callMoreListAjax(page) {
+    var i_account_requestor = $("#i_account_requestor").val();
+    var i_account_devteam = $("#i_account_devteam").val();
+    var i_account_info = $("#i_account_info").val();
+    var i_account_url = $("#i_account_url").val();
+    var i_account_svr = $("#i_account_svr").val();
+    var i_account_user = $("#i_account_user").val();
+    var i_account_host = $("#i_account_host").val();
+    var i_account_pass = $("#i_account_pass").val();
+    var i_account_db = $("#i_account_db").val();
+    var i_account_table = $("#i_account_table").val();
+    var i_account_grant = $("#i_account_grant").val();
+    var i_account_grant_with = $("#i_account_grant_with").val();
+    var i_account_grant_direct = $("#i_account_grant_direct").val();
+
+    var s_account_requestor = $("#s_account_requestor").val();
+    var s_account_devteam = $("#s_account_devteam").val();
+    var s_account_svr = $("#s_account_svr").val();
+    var s_account_user = $("#s_account_user").val();
+    var s_account_host = $("#s_account_host").val();
+    var s_account_grant = $("#s_account_grant").val();
+    var s_account_db = $("#s_account_db").val();
+    var s_account_table = $("#s_account_table").val();
+    var s_account_url = $("#s_account_url").val();
+
+    // 강제 입력여부
+    var forceinsert_flag = 'False';
+    $("input[name='forceinsert_flag']:checked").each(function(i) {
+        forceinsert_flag = 'True';
+    });
+
+    $.ajax( {
+        type : 'POST',
+        url: "{% url 'account:account_insert' %}",
+        data: {
+            'i_account_requestor': i_account_requestor,
+            'i_account_devteam': i_account_devteam,
+            'i_account_info': i_account_info,
+            'i_account_url': i_account_url,
+            'i_account_svr': i_account_svr,
+            'i_account_user': i_account_user,
+            'i_account_host': i_account_host,
+            'i_account_pass': i_account_pass,
+            'i_account_db': i_account_db,
+            'i_account_table': i_account_table,
+            'i_account_grant': i_account_grant,
+            'i_account_grant_with': i_account_grant_with,
+            'i_account_grant_direct': i_account_grant_direct,
+            'forceinsert_flag': forceinsert_flag,
+            's_account_requestor': s_account_requestor,
+            's_account_devteam': s_account_devteam,
+            's_account_svr': s_account_svr,
+            's_account_user': s_account_user,
+            's_account_host': s_account_host,
+            's_account_grant': s_account_grant,
+            's_account_db': s_account_db,
+            's_account_table': s_account_table,
+            's_account_url': s_account_url,
+            'page': page,
+            'csrfmiddlewaretoken': token,
+        },
+        success: addMoreAccountAjax,
+        dataType: 'html'
+    });
+}
+
+</script>
+
+<!-- account delete ajax script -->
+<script>
+    function deleteBox() {
+        var page = parseInt($("#page").val());
+        delete_callMoreListAjax(page);
+        $("#page").val(parseInt(page));
+        $('#myModal').modal("hide");
+    }
+
+    function delete_callMoreListAjax(page) {
+        var d_id = $("#id").val();
+        var d_account_requestor = $("#d_account_requestor").val();
+        var d_account_svr = $("#d_account_svr").val();
+        var d_account_user = $("#d_account_user").val();
+        var d_account_devteam = $("#d_account_devteam").val();
+        var d_account_host = $("#d_account_host").val();
+        var d_account_pass = $("#d_account_pass").val();
+        var d_account_grant = $("#d_account_grant").val();
+        var d_account_grant_with = $("#d_account_grant_with").val();
+        var d_account_db = $("#d_account_db").val();
+        var d_account_table = $("#d_account_table").val();
+        var d_account_info = $("#d_account_info").val();
+        var d_account_url = $("#d_account_url").val();
+        var d_account_del_reason = $("#d_account_del_reason").val();
+        var d_account_del_note = $("#d_account_del_note").val();
+
+        var s_account_requestor = $("#s_account_requestor").val();
+        var s_account_devteam = $("#s_account_devteam").val();
+        var s_account_svr = $("#s_account_svr").val();
+        var s_account_user = $("#s_account_user").val();
+        var s_account_host = $("#s_account_host").val();
+        var s_account_grant = $("#s_account_grant").val();
+        var s_account_db = $("#s_account_db").val();
+        var s_account_table = $("#s_account_table").val();
+        var s_account_url = $("#s_account_url").val();
+
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'account:account_delete' %}",
+            data: {
+                'd_id': d_id,
+                'd_account_requestor': d_account_requestor,
+                'd_account_svr': d_account_svr,
+                'd_account_user': d_account_user,
+                'd_account_devteam': d_account_devteam,
+                'd_account_host': d_account_host,
+                'd_account_pass': d_account_pass,
+                'd_account_grant': d_account_grant,
+                'd_account_grant_with': d_account_grant_with,
+                'd_account_db': d_account_db,
+                'd_account_table': d_account_table,
+                'd_account_info': d_account_info,
+                'd_account_url': d_account_url,
+                'd_account_del_reason': d_account_del_reason,
+                'd_account_del_note': d_account_del_note,
+                's_account_requestor': s_account_requestor,
+                's_account_devteam': s_account_devteam,
+                's_account_svr': s_account_svr,
+                's_account_user': s_account_user,
+                's_account_host': s_account_host,
+                's_account_grant': s_account_grant,
+                's_account_db': s_account_db,
+                's_account_table': s_account_table,
+                's_account_url': s_account_url,
+                'page': page,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreAccountAjax,
+            dataType: 'html'
+        });
+    }
+</script>
+
+<!-- account update ajax script -->
+<script>
+    function updateBox() {
+        var page = parseInt($("#page").val());
+        update_callMoreListAjax(page);
+        $("#page").val(parseInt(page));
+        $('#myModal').modal("hide");
+    }
+
+    function update_callMoreListAjax(page) {
+        var u_id = $("#id").val();
+        var u_account_requestor = $("#u_account_requestor").val();
+        var u_account_svr = $("#u_account_svr").val();
+        var u_account_user = $("#u_account_user").val();
+        var u_account_devteam = $("#u_account_devteam").val();
+        var u_account_host = $("#u_account_host").val();
+        var u_account_pass = $("#u_account_pass").val();
+        var u_account_grant = $("#u_account_grant").val();
+        var u_account_grant_with = $("#u_account_grant_with").val();
+        var u_account_db = $("#u_account_db").val();
+        var u_account_table = $("#u_account_table").val();
+        var u_account_info = $("#u_account_info").val();
+        var u_account_url = $("#u_account_url").val();
+
+        var s_account_requestor = $("#s_account_requestor").val();
+        var s_account_devteam = $("#s_account_devteam").val();
+        var s_account_svr = $("#s_account_svr").val();
+        var s_account_user = $("#s_account_user").val();
+        var s_account_host = $("#s_account_host").val();
+        var s_account_grant = $("#s_account_grant").val();
+        var s_account_db = $("#s_account_db").val();
+        var s_account_table = $("#s_account_table").val();
+        var s_account_url = $("#s_account_url").val();
+
+        // 강제 수정여부
+        var forceupdate_flag = 'False';
+        $("input[name='forceupdate_flag']:checked").each(function(i) {
+            forceupdate_flag = 'True';
+        });
+
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'account:account_update' %}",
+            data: {
+                'u_id': u_id,
+                'u_account_requestor': u_account_requestor,
+                'u_account_svr': u_account_svr,
+                'u_account_user': u_account_user,
+                'u_account_devteam': u_account_devteam,
+                'u_account_host': u_account_host,
+                'u_account_pass': u_account_pass,
+                'u_account_grant': u_account_grant,
+                'u_account_grant_with': u_account_grant_with,
+                'u_account_db': u_account_db,
+                'u_account_table': u_account_table,
+                'u_account_info': u_account_info,
+                'u_account_url': u_account_url,
+                's_account_requestor': s_account_requestor,
+                's_account_devteam': s_account_devteam,
+                's_account_svr': s_account_svr,
+                's_account_user': s_account_user,
+                's_account_host': s_account_host,
+                's_account_grant': s_account_grant,
+                's_account_db': s_account_db,
+                's_account_table': s_account_table,
+                's_account_url': s_account_url,
+                'forceupdate_flag': forceupdate_flag,
+                'page': page,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreAccountAjax,
+            dataType: 'html'
+        });
+    }
+</script>
+
+<!-- account select ajax script -->
+<script>
+    var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+
+    $('#search').click(function(){
+        // 검색 버튼을 누를 경우엔, page 1로 초기화
+        var page = 1
+        callMoreListAjax(page);
+        $("#page").val(parseInt(page));
+    });
+
+    $('#account_list_ajax').load('dummy',function(){
+        var page = $("#page").val();
+        var scrollHeight = $("#scrollHeight").val();
+        $('#myModal_sql').modal("hide");
+
+        callMoreListAjax(page);
+        $("#page").val(parseInt(page));
+        $('html').animate({scrollTop: scrollHeight}, 500);
+    });
+
+    $(window).scroll(function(){
+        var scrollHeight = $(window).scrollTop() + $(window).height();
+        var documentHeight = $(document).height();
+
+        if (scrollHeight + 500 >= documentHeight){
+            var page = $("#page").val();
+            var page_max = $("#page_max").val();
+            if (parseInt(page) <= parseInt(page_max)){
+                callMoreListAjax(page);
+                $("#page").val(parseInt(page)+1);
+            }
+        }
+    });
+
+    function callMoreListAjax(page) {
+        var s_account_requestor = $("#s_account_requestor").val();
+        var s_account_devteam = $("#s_account_devteam").val();
+        var s_account_svr = $("#s_account_svr").val();
+        var s_account_user = $("#s_account_user").val();
+        var s_account_host = $("#s_account_host").val();
+        var s_account_grant = $("#s_account_grant").val();
+        var s_account_db = $("#s_account_db").val();
+        var s_account_table = $("#s_account_table").val();
+        var s_account_url = $("#s_account_url").val();
+
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'account:account_select' %}",
+            async: false,
+            data: {
+                's_account_requestor': s_account_requestor,
+                's_account_devteam': s_account_devteam,
+                's_account_svr': s_account_svr,
+                's_account_user': s_account_user,
+                's_account_host': s_account_host,
+                's_account_grant': s_account_grant,
+                's_account_db': s_account_db,
+                's_account_table': s_account_table,
+                's_account_url': s_account_url,
+                'page': page,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreAccountAjax,
+            dataType: 'html'
+        });
+    }
+</script>
+
+<!-- common ajax script -->
+<script>
+    function addMoreAccountAjax(data, textStatus, jqXHR) {
+        $('#account_list_ajax').html(data);
+    }
+</script>
 {% endblock %}
