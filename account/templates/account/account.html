@@ -32,7 +32,7 @@
                 <th class="">권한</th>
                 <th class="">DB</th>
                 <th class="">TABLE</th>
-                <th class="">URL</th>
+                <th class="">요청 URL</th>
                 <th class="rounded-right"></th>
             </tr>
             <tr>
@@ -211,17 +211,17 @@
                             <td>
                                 <div class="input-group input-group-sm">
                                     <select class="custom-select" id="mu_type" name="mu_type">
-                                        <option value="account_requestor" selected>요청자(requestor)</option>
-                                        <option value="account_devteam">요청팀(devteam)</option>
-                                        <option value="account_svr">서버(svr)</option>
-                                        <option value="account_user">아이디(user)</option>
-                                        <option value="account_host">허용호스트(host)</option>
-                                        <option value="account_pass">패스워드(passwd)</option>
-                                        <option value="account_grant">권한(grant)</option>
+                                        <option value="account_requestor" selected>요청자</option>
+                                        <option value="account_devteam">요청팀</option>
+                                        <option value="account_svr">서버</option>
+                                        <option value="account_user">아이디</option>
+                                        <option value="account_host">허용호스트</option>
+                                        <option value="account_pass">패스워드</option>
+                                        <option value="account_grant">권한</option>
                                         <option value="account_db">DB</option>
                                         <option value="account_table">TABLE</option>
-                                        <option value="account_info">용도(info)</option>
-                                        <option value="account_url">Jira(URL)</option>
+                                        <option value="account_info">비고</option>
+                                        <option value="account_url">요청 URL</option>
                                     </select>
                                 </div>
                             </td>
@@ -247,7 +247,7 @@
                         {% csrf_token %}
                         <tr class="bg-secondary text-white">
                             <th style="width: 62%" class="rounded-left">삭제 사유</th>
-                            <th style="width: 30%" class="">삭제 URL(JIRA)</th>
+                            <th style="width: 30%" class="">요청 URL</th>
                             <th style="width: 8%" class="rounded-right"></th>
                         <tr class="">
                             <td><input class="form-control form-control-sm" id="md_account_del_reason" name="md_account_del_reason" type="text"></td>
@@ -286,15 +286,15 @@
             <!-- Modal Header -->
             <div class="modal-header small">
                 <!-- Nav tabs -->
-                <ul class="nav nav-pills" role="tablist">
+                <ul class="nav nav-tabs" role="tablist">
                     <li>
-                        <a class="nav-link active btn-outline-dark" href="#updateTab" aria-controls="updateTab" role="tab" aria-selected="true" data-toggle="tab">수정</a>
+                        <a class="nav-link active" href="#updateTab" aria-controls="updateTab" role="tab" aria-selected="true" data-bs-toggle="tab">수정하기</a>
                     </li>
                     <li>
-                        <a class="nav-link btn-outline-dark" href="#deleteTab" aria-controls="deleteTab" role="tab" data-toggle="tab">삭제</a>
+                        <a class="nav-link" href="#deleteTab" aria-controls="deleteTab" role="tab" data-bs-toggle="tab">삭제하기</a>
                     </li>
                 </ul>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <!-- Modal Body -->
@@ -325,67 +325,67 @@
                                     <table class="w-100">
                                         <tr>
                                             <td>
-                                                <a>- 삭제 사유 및 삭제 URL (JIRA)를 기재해주세요. (ex. ARCH-번호)<a>
+                                                <a>- 삭제 사유 및 요청 URL을 기재해주세요. (ex. 아지트-번호)<a>
                                             </td>
                                         </tr>
                                     </table>
                                 </div>
 
                             <table class="table table-sm table-hover text-center">
-                            <tr class="">
+                            <tr>
                                 <!-- hidden -->
                                 <input class="form-control form-control-sm" id="page" name="page" type="hidden">
                                 <input class="form-control form-control-sm" id="scrollHeight" name="scrollHeight" type="hidden">
 
-                                <td class="bg-dark text-white align-middle" style="width: 12%">생성일</td>
+                                <td class="bg-secondary text-white align-middle" style="width: 12%">생성일</td>
                                 <td style="width: 38%"><input class="form-control form-control-sm" id="d_account_create_dt" name="d_account_create_dt" type="text" readonly></td>
-                                <td class="bg-dark text-white align-middle" style="width: 12%">변경일</td>
+                                <td class="bg-secondary text-white align-middle" style="width: 12%">변경일</td>
                                 <td style="width: 38%"><input class="form-control form-control-sm" id="d_account_update_dt" name="d_account_update_dt" type="text" readonly></td>
                             </tr>
                             <tr>
-                                <td class="bg-dark text-white align-middle">만료일</td>
+                                <td class="bg-secondary text-white align-middle">만료일</td>
                                 <td><input class="form-control form-control-sm" id="d_account_end_dt" name="d_account_end_dt" type="text" readonly></td>
-                                <td class="bg-dark text-white align-middle">요청자명</td>
+                                <td class="bg-secondary text-white align-middle">요청자명</td>
                                 <td><input class="form-control form-control-sm" id="d_account_requestor" name="d_account_requestor" type="text" readonly></td>
                             </tr>
-                            <tr class="">
-                                <td class="bg-dark text-white align-middle">요청팀</td>
+                            <tr>
+                                <td class="bg-secondary text-white align-middle">요청팀</td>
                                 <td><input class="form-control form-control-sm" id="d_account_devteam" name="d_account_devteam" type="text" readonly></td>
-                                <td class="bg-dark text-white align-middle">호스트명</td>
+                                <td class="bg-secondary text-white align-middle">호스트명</td>
                                 <td><input class="form-control form-control-sm" id="d_account_svr" name="d_account_svr" type="text" readonly></td>
                             </tr>
                             <tr>
-                                <td class="bg-dark text-white align-middle">아이디</td>
+                                <td class="bg-secondary text-white align-middle">아이디</td>
                                 <td><input class="form-control form-control-sm" id="d_account_user" name="d_account_user" type="text" readonly></td>
-                                <td class="bg-dark text-white align-middle">허용호스트</td>
+                                <td class="bg-secondary text-white align-middle">허용호스트</td>
                                 <td><input class="form-control form-control-sm" id="d_account_host" name="d_account_host" type="text" readonly></td>
                             </tr>
-                            <tr class="">
-                                <td class="bg-dark text-white align-middle">패스워드</td>
+                            <tr>
+                                <td class="bg-secondary text-white align-middle">패스워드</td>
                                 <td><input class="form-control form-control-sm" id="d_account_pass" name="d_account_pass" type="text" readonly></td>
-                                <td class="bg-dark text-white align-middle">해쉬</td>
+                                <td class="bg-secondary text-white align-middle">해쉬</td>
                                 <td><input class="form-control form-control-sm" id="d_account_hash" name="d_account_hash" type="text" readonly></td>
                             </tr>
                             <tr>
-                                <td class="bg-dark text-white align-middle">권한</td>
+                                <td class="bg-secondary text-white align-middle">권한</td>
                                 <td><input class="form-control form-control-sm" id="d_account_grant" name="d_account_grant" type="text" readonly></td>
-                                <td class="bg-dark text-white align-middle">grant with</td>
+                                <td class="bg-secondary text-white align-middle">GRANT WITH</td>
                                 <td><input class="form-control form-control-sm" id="d_account_grant_with" name="d_account_grant_with" type="text" readonly></td>
                             </tr>
-                            <tr class="">
-                                <td class="bg-dark text-white align-middle">db</td>
+                            <tr>
+                                <td class="bg-secondary text-white align-middle">DB</td>
                                 <td><input class="form-control form-control-sm" id="d_account_db" name="d_account_db" type="text" readonly></td>
-                                <td class="bg-dark text-white align-middle">table</td>
+                                <td class="bg-secondary text-white align-middle">TABLE</td>
                                 <td><input class="form-control form-control-sm" id="d_account_table" name="d_account_table" type="text" readonly></td>
                             </tr>
                             <tr>
-                                <td class="bg-dark text-white align-middle">용도</td>
+                                <td class="bg-secondary text-white align-middle">비고</td>
                                 <td><input class="form-control form-control-sm" id="d_account_info" name="d_account_info" type="text" readonly></td>
-                                <td class="bg-dark text-white align-middle">URL</td>
+                                <td class="bg-secondary text-white align-middle">요청 URL</td>
                                 <td><input class="form-control form-control-sm" id="d_account_url" name="d_account_url" type="text" readonly></td>
                             </tr>
-                            <tr class="">
-                                <td class="bg-dark text-white align-middle">SQL</td>
+                            <tr>
+                                <td class="bg-secondary text-white align-middle">SQL</td>
                                 <td colspan="3">
                                     <input class="form-control form-control-sm" id="d_account_sql" name="d_account_sql" type="text" readonly title="클릭 : 클립보드 복사" data-toggle="tooltip" readonly onclick="d_copy_clipboard()">
                                 </td>
@@ -411,14 +411,14 @@
                                     });
                                 </script>
                             </tr>
-                            <tr class="">
-                                <td class="bg-dark text-white align-middle">삭제 사유</td>
+                            <tr>
+                                <td class="bg-secondary text-white align-middle">삭제 사유</td>
                                 <td colspan="3">
                                     <input class="form-control form-control-sm" id="d_account_del_reason" name="d_account_del_reason" type="text">
                                 </td>
                             </tr>
-                            <tr class="">
-                                <td class="bg-dark text-white align-middle">삭제 JIRA</td>
+                            <tr>
+                                <td class="bg-secondary text-white align-middle">요청 URL</td>
                                 <td colspan="3">
                                     <input class="form-control form-control-sm" id="d_account_del_note" name="d_account_del_note" type="text">
                                 </td>
@@ -427,8 +427,8 @@
                             <p class="text-right">삭제 하시겠습니까?</p>
 
                             <div class="modal-footer">
-                                <button class="btn btn-outline-primary btn-sm" onclick="deleteBox()" type="submit">삭제</button>
-                                <button type="" class="btn btn-sm btn-outline-danger" data-dismiss="modal">취소</button>
+                                <button type="" class="btn btn-sm btn-secondary" data-dismiss="modal">취소</button>
+                                <button class="btn btn-secondary btn-sm" onclick="deleteBox()" type="submit">삭제</button>
                             </div>
                             </form>
                         </div>
@@ -469,60 +469,60 @@
                             </div>
 
                             <table class="table table-sm table-hover text-center">
-                            <tr class="">
+                            <tr>
                                 <!-- hidden -->
                                 <input class="form-control form-control-sm" id="page" name="page" type="hidden">
                                 <input class="form-control form-control-sm" id="scrollHeight" name="scrollHeight" type="hidden">
 
-                                <td class="bg-dark text-white align-middle" style="width: 12%">생성일</td>
+                                <td class="bg-secondary text-white align-middle" style="width: 12%">생성일</td>
                                 <td style="width: 38%"><input class="form-control form-control-sm" id="u_account_create_dt" name="u_account_create_dt" type="text" readonly></td>
-                                <td class="bg-dark text-white align-middle" style="width: 12%">변경일</td>
+                                <td class="bg-secondary text-white align-middle" style="width: 12%">변경일</td>
                                 <td style="width: 38%"><input class="form-control form-control-sm" id="u_account_update_dt" name="u_account_update_dt" type="text" readonly></td>
                             </tr>
                             <tr>
-                                <td class="bg-dark text-white align-middle" >만료일</td>
+                                <td class="bg-secondary text-white align-middle" >만료일</td>
                                 <td><input class="form-control form-control-sm" id="u_account_end_dt" name="u_account_end_dt" type="text" readonly></td>
-                                <td class="bg-dark text-white align-middle">요청자명</td>
+                                <td class="bg-secondary text-white align-middle">요청자명</td>
                                 <td><input class="form-control form-control-sm" id="u_account_requestor" name="u_account_requestor" type="text"></td>
                             </tr>
-                            <tr class="">
-                                <td class="bg-dark text-white align-middle">요청팀</td>
+                            <tr>
+                                <td class="bg-secondary text-white align-middle">요청팀</td>
                                 <td><input class="form-control form-control-sm" id="u_account_devteam" name="u_account_devteam" type="text"></td>
-                                <td class="bg-dark text-white align-middle">호스트명</td>
+                                <td class="bg-secondary text-white align-middle">호스트명</td>
                                 <td><input class="form-control form-control-sm" id="u_account_svr" name="u_account_svr" type="text"></td>
                             </tr>
                             <tr>
-                                <td class="bg-dark text-white align-middle">아이디</td>
+                                <td class="bg-secondary text-white align-middle">아이디</td>
                                 <td><input class="form-control form-control-sm" id="u_account_user" name="u_account_user" type="text"></td>
-                                <td class="bg-dark text-white align-middle">허용호스트</td>
+                                <td class="bg-secondary text-white align-middle">허용호스트</td>
                                 <td><input class="form-control form-control-sm" id="u_account_host" name="u_account_host" type="text"></td>
                             </tr>
-                            <tr class="">
-                                <td class="bg-dark text-white align-middle">패스워드</td>
+                            <tr>
+                                <td class="bg-secondary text-white align-middle">패스워드</td>
                                 <td><input class="form-control form-control-sm" id="u_account_pass" name="u_account_pass" type="text"></td>
-                                <td class="bg-dark text-white align-middle">해쉬</td>
+                                <td class="bg-secondary text-white align-middle">해쉬</td>
                                 <td><input class="form-control form-control-sm" id="u_account_hash" name="u_account_hash" type="text" readonly></td>
                             </tr>
                             <tr>
-                                <td class="bg-dark text-white align-middle">권한</td>
+                                <td class="bg-secondary text-white align-middle">권한</td>
                                 <td><input class="form-control form-control-sm" id="u_account_grant" name="u_account_grant" type="text"></td>
-                                <td class="bg-dark text-white align-middle">grant with</td>
+                                <td class="bg-secondary text-white align-middle">GRANT WITH</td>
                                 <td><input class="form-control form-control-sm" id="u_account_grant_with" name="u_account_grant_with" type="text"></td>
                             </tr>
-                            <tr class="">
-                                <td class="bg-dark text-white align-middle">db</td>
+                            <tr>
+                                <td class="bg-secondary text-white align-middle">DB</td>
                                 <td><input class="form-control form-control-sm" id="u_account_db" name="u_account_db" type="text"></td>
-                                <td class="bg-dark text-white align-middle">table</td>
+                                <td class="bg-secondary text-white align-middle">TABLE</td>
                                 <td><input class="form-control form-control-sm" id="u_account_table" name="u_account_table" type="text"></td>
                             </tr>
                             <tr>
-                                <td class="bg-dark text-white align-middle">용도</td>
+                                <td class="bg-secondary text-white align-middle">비고</td>
                                 <td><input class="form-control form-control-sm" id="u_account_info" name="u_account_info" type="text"></td>
-                                <td class="bg-dark text-white align-middle">URL</td>
+                                <td class="bg-secondary text-white align-middle">요청 URL</td>
                                 <td><input class="form-control form-control-sm" id="u_account_url" name="u_account_url" type="text"></td>
                             </tr>
-                            <tr class="">
-                                <td class="bg-dark text-white align-middle">SQL</td>
+                            <tr>
+                                <td class="bg-secondary text-white align-middle">SQL</td>
                                 <td colspan="3">
                                     <input class="form-control form-control-sm" id="u_account_sql" name="u_account_sql" type="text" data-placement="bottom" title="클릭 : 클립보드 복사" data-toggle="tooltip" readonly onclick="u_copy_clipboard()">
                                 </td>
@@ -551,13 +551,13 @@
                             </tr>
                             </table>
                             <p class="text-right">수정 하시겠습니까?</p>
+                            <!-- Modal Footer -->
                             <div class="modal-footer">
-                                <button class="btn btn-outline-primary btn-sm" onclick="updateBox()" type="submit">수정</button>
-                                <button type="" class="btn btn-sm btn-outline-danger" data-dismiss="modal">취소</button>
+                                <button type="" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+                                <button class="btn btn-secondary btn-sm" onclick="updateBox()" type="submit">수정</button>
                             </div>
                             </form>
                         </div>
-
                     </div>
                 </div>
             </div>
