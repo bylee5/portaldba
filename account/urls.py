@@ -19,8 +19,11 @@ urlpatterns = [
     path('dummy', views.account_dummy, name='account_dummy'),
     # account Repository Manage 
     path('repository', views.account_repository, name='account_repository'),
-    path('repository/select', views.account_repository_select, name='account_repository_select'),
-    path('repository/insert', views.account_repository_insert, name='account_repository_insert'),
-    path('repository/update', views.account_repository_update, name='account_repository_update'),
-    path('repository/dummy', views.account_dummy, name='account_dummy'),
+    path('repository_select', views.account_repository_select, name='account_repository_select'),
+    path('repository_insert', views.account_repository_insert, name='account_repository_insert'),
+    path('repository_update', views.account_repository_update, name='account_repository_update'),
+    # account remove
+    path('account_remove', views.account_remove, name='account_remove'),
+    path('account_remove_select', views.account_remove_select, name='account_remove_select'),
+    path('account_remove_recover_account_list', views.account_remove_recover_account_list, name='account_remove_recover_account_list'),
 ]

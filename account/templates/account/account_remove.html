@@ -1,1 +1,480 @@
-account_remove.html
+{% extends 'base.html' %}
+{% block content %}
+<!-- 네비게이션바 -->
+{% include "navbar-account.html" %}
+<!-- MAIN -->
+<div class="d-grid gap-2 d-md-flex justify-content-center">
+    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSelect" aria-expanded="false" aria-controls="collapseSelect">계정삭제 검색</button>
+</div>
+<!-- 검색란 -->
+<div class="collapse show" id="collapseSelect" style="font-size: 12px;">
+    <div class="card card-body bg-light mb-0 pb-0">
+        <h6>삭제계정 검색란</h6>
+        <table class="mb-2">
+        <tr>
+            <td>
+                <a>- 서버명은 <font color="red"><b>=</b></font> 검색, 이외 항목은 기본적으로 <font color="red"><b>like</b></font> 검색을 제공하고 있습니다.</a>
+            </td>
+        </tr>
+        </table>
+
+        <table class="table table-sm text-center mb-0 pb-0" style="table-layout: fixed">
+            <tr class="bg-secondary text-white">
+                <th class="rounded-left">요청자명</th>
+                <th class="">요청팀</th>
+                <th class="">서버</th>
+                <th class="">아이디</th>
+                <th class="">허용 호스트</th>
+                <th class="">권한</th>
+                <th class="">DB</th>
+                <th class="">TABLE</th>
+                <th class="">URL</th>
+                <th class="rounded-right"></th>
+            </tr>
+            <tr>
+                <form class="form-inline" onsubmit="return false" name="selectForm">
+                    {% csrf_token %}
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_account_requestor" name="s_account_requestor" value="{{ account_requestor }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_account_devteam" name="s_account_devteam" value="{{ account_devteam }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <div class="input-group input-group-sm">
+                            <select class="custom-select" id="s_account_svr" name="s_account_svr">
+                                <option value="">All</option>
+                                {% if account_svr_list %}
+                                {% for account_svr_lists in account_svr_list %}
+                                <option {% if account_svr == account_svr_lists.account_svr %} selected {% endif %} value="{{ account_svr_lists.account_svr }}">{{ account_svr_lists.account_svr }}</option>
+                                {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_account_user" name="s_account_user" value="{{ account_user }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_account_host" name="s_account_host" value="{{ account_host }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_account_grant" name="s_account_grant" value="{{ account_grant }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_account_db" name="s_account_db" value="{{ account_db }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_account_table" name="s_account_table" value="{{ account_table }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_account_url" name="s_account_url" value="{{ account_url }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <button id="search" class="btn btn-secondary btn-sm">검색</button>
+                    </td>
+                </form>
+            </tr>
+        </table>
+    </div>
+</div>
+
+
+<!-- 결과란 -->
+<div>
+    {% if page is none %}
+        <input id="page" name="page" type="hidden" value="1">
+    {% else %}
+        <input id="page" name="page" type="hidden" value="{{ page }}">
+    {% endif %}
+
+    {% if scrollHeight is none %}
+        <input id="scrollHeight" name="scrollHeight" type="hidden" value="0">
+    {% else %}
+        <input id="scrollHeight" name="scrollHeight" type="hidden" value="{{ scrollHeight }}">
+    {% endif %}
+</div>
+<div class="board small" id="account_list_ajax" style="font-size: 12px;"></div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header small">
+                <!-- <h4 class="modal-title" id="myModalLabel">Modal title</h4> -->
+
+                <!-- Nav tabs -->
+                <ul class="nav nav-pills" role="tablist">
+                    <li>
+                        <a class="nav-link active btn-outline-dark" href="#updateTab" aria-controls="updateTab" role="tab" aria-selected="true" data-toggle="tab">확인</a>
+                    </li>
+                </ul>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body small">
+                <div role="tabpanel">
+
+                    <!-- Modal Tab panes -->
+                    <div class="tab-content">
+
+                        <!-- Modal Update -->
+                        <div role="tabpanel" class="tab-pane active fade show" id="updateTab">
+                            {% csrf_token %}
+                            <!-- hidden value (pk) -->
+                            <!-- view에 조회 데이터 넘기기 및 페이징 처리 원위치 이동을 위해 구현-->
+                            <input class="form-control form-control-sm" id="id" name="id" type="hidden">
+                            <input class="form-control form-control-sm" id="page" name="page" value="{{ page }}" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_requestor" name="s_account_requestor" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_devteam" name="s_account_devteam" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_svr" name="s_account_svr" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_user" name="s_account_user" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_host" name="s_account_host" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_grant" name="s_account_grant" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_db" name="s_account_db" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_table" name="s_account_table" type="hidden">
+                            <input class="form-control form-control-sm" id="s_account_url" name="s_account_url" type="hidden">
+
+                            <table class="table table-sm table-hover text-center">
+                                <tr>
+                                    <td>
+                                <input class="form-control form-control-sm" id="page" name="page" type="hidden" readonly>
+                                    </td>
+                                    <td>
+                                <input class="form-control form-control-sm" id="scrollHeight" name="scrollHeight" type="hidden" readonly>
+                                    </td>
+                                </tr>
+                            <tr class="">
+                                <td class="bg-dark text-white align-middle" style="width: 12%">생성일</td>
+                                <td style="width: 38%"><input class="form-control form-control-sm" id="u_account_create_dt" name="u_account_create_dt" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle" style="width: 12%">변경일</td>
+                                <td style="width: 38%"><input class="form-control form-control-sm" id="u_account_update_dt" name="u_account_update_dt" type="text" readonly></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-dark text-white align-middle" >만료일</td>
+                                <td><input class="form-control form-control-sm" id="u_account_end_dt" name="u_account_end_dt" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle">요청자명</td>
+                                <td><input class="form-control form-control-sm" id="u_account_requestor" name="u_account_requestor" type="text" readonly></td>
+                            </tr>
+                            <tr class="">
+                                <td class="bg-dark text-white align-middle">요청팀</td>
+                                <td><input class="form-control form-control-sm" id="u_account_devteam" name="u_account_devteam" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle">호스트명</td>
+                                <td><input class="form-control form-control-sm" id="u_account_svr" name="u_account_svr" type="text" readonly></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-dark text-white align-middle">아이디</td>
+                                <td><input class="form-control form-control-sm" id="u_account_user" name="u_account_user" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle">허용호스트</td>
+                                <td><input class="form-control form-control-sm" id="u_account_host" name="u_account_host" type="text" readonly></td>
+                            </tr>
+                            <tr class="">
+                                <td class="bg-dark text-white align-middle">패스워드</td>
+                                <td><input class="form-control form-control-sm" id="u_account_pass" name="u_account_pass" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle">해쉬</td>
+                                <td><input class="form-control form-control-sm" id="u_account_hash" name="u_account_hash" type="text" readonly></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-dark text-white align-middle">권한</td>
+                                <td><input class="form-control form-control-sm" id="u_account_grant" name="u_account_grant" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle">grant with</td>
+                                <td><input class="form-control form-control-sm" id="u_account_grant_with" name="u_account_grant_with" type="text" readonly></td>
+                            </tr>
+                            <tr class="">
+                                <td class="bg-dark text-white align-middle">db</td>
+                                <td><input class="form-control form-control-sm" id="u_account_db" name="u_account_db" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle">table</td>
+                                <td><input class="form-control form-control-sm" id="u_account_table" name="u_account_table" type="text" readonly></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-dark text-white align-middle">용도</td>
+                                <td><input class="form-control form-control-sm" id="u_account_info" name="u_account_info" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle">URL</td>
+                                <td><input class="form-control form-control-sm" id="u_account_url" name="u_account_url" type="text" readonly></td>
+                            </tr>
+                            <tr class="">
+                                <td class="bg-dark text-white align-middle">SQL</td>
+                                <td colspan="3">
+                                    <input class="form-control form-control-sm" id="u_account_sql" name="u_account_sql" type="text" data-placement="bottom" title="클릭 : 클립보드 복사" data-toggle="tooltip" readonly onclick="copy_clipboard()">
+                                </td>
+                                <!-- 클립보드 복사 -->
+                                    <script>
+                                        function copy_clipboard() {
+                                            var copyText = document.getElementById("u_account_sql");
+                                            copyText.select();
+                                            document.execCommand("Copy");
+                                        }
+
+                                        $(function(){
+                                            $('#u_account_sql').tooltip({
+                                                animation: true,
+                                                container: false,
+                                                delay: {show:50, hide:50},
+                                                html: false,
+                                                selector: false,
+                                                template: '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
+                                                trigger: 'hover focus',
+                                                viewport: { selector: 'body', padding: 0 },
+                                            });
+                                        });
+                                    </script>
+
+                            </tr>
+                            <tr>
+                                <td class="bg-dark text-white align-middle">삭제일</td>
+                                <td><input class="form-control form-control-sm" id="u_account_del_dt" name="u_account_del_dt" type="text" readonly></td>
+                                <td class="bg-dark text-white align-middle">삭제비고</td>
+                                <td><input class="form-control form-control-sm" id="u_account_del_note" name="u_account_del_note" type="text" readonly></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-dark text-white align-middle">삭제사유</td>
+                                <td colspan="3"><input class="form-control form-control-sm" id="u_account_del_reason" name="u_account_del_reason" type="text" readonly></td>
+                            </tr>
+                            </table>
+                            <p class="text-right">삭제된 계정의 상세정보입니다.</p>
+
+                            <div class="modal-footer">
+                                <button type="" class="btn btn-sm btn-outline-primary" data-dismiss="modal">확인</button>
+                            </div>
+                            <!--
+                            </form>
+                            -->
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- dummy ajax. 백단 작업 필요 시 활용.-->
+<div id="dummy_ajax"></div>
+
+    <!-- loading control -->
+<script>
+$(document).ready(function(){
+    $('#spinners').hide();
+})
+
+.ajaxStart(function(){
+    $('#spinners').fadeIn(10);
+})
+
+.ajaxStop(function(){
+    $('#spinners').fadeOut(10);
+});
+</script>
+
+<!-- recover_account_list -->
+<script>
+var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+function recover_account_list() {
+    var retVal = confirm("복구 하시겠습니까?");
+
+    if (retVal == true ){
+        var checkboxValues = [];
+        $("input[name='checkbox']:checked").each(function(i) {
+            checkboxValues.push($(this).val());
+        });
+
+        // 체크가 하나라도 있으면 ajax 동작
+        if (checkboxValues != '' ){
+            var page = parseInt($("#page").val());
+            var s_account_requestor = $("#s_account_requestor").val();
+            var s_account_devteam = $("#s_account_devteam").val();
+            var s_account_svr = $("#s_account_svr").val();
+            var s_account_user = $("#s_account_user").val();
+            var s_account_host = $("#s_account_host").val();
+            var s_account_grant = $("#s_account_grant").val();
+            var s_account_db = $("#s_account_db").val();
+            var s_account_table = $("#s_account_table").val();
+            var s_account_url = $("#s_account_url").val();
+
+            $.ajax( {
+                type : 'POST',
+                url: "{% url 'account:account_remove_recover_account_list' %}",
+                data: {
+                    's_account_requestor': s_account_requestor,
+                    's_account_devteam': s_account_devteam,
+                    's_account_svr': s_account_svr,
+                    's_account_user': s_account_user,
+                    's_account_host': s_account_host,
+                    's_account_grant': s_account_grant,
+                    's_account_db': s_account_db,
+                    's_account_table': s_account_table,
+                    's_account_url': s_account_url,
+                    'page': page,
+                    'checkboxValues[]': checkboxValues,
+                    'csrfmiddlewaretoken': token,
+                },
+                success: addMoreAccountAjax,
+                dataType: 'html'
+            });
+        } // success: addMoreAccountAjax
+
+    }else{
+        return false;
+    }
+}
+
+function dummy_ajax(data, textStatus, jqXHR) {
+    $('#dummy_ajax').html(data);
+}
+</script>
+
+<!-- Modal window option script -->
+<script>
+$('#myModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var id = button.data('id');
+    var account_create_dt = button.data('account_create_dt');
+    var account_update_dt = button.data('account_update_dt');
+    var account_end_dt = button.data('account_end_dt');
+    var account_requestor = button.data('account_requestor');
+    var account_svr = button.data('account_svr');
+    var account_user = button.data('account_user');
+    var account_devteam = button.data('account_devteam');
+    var account_host = button.data('account_host');
+    var account_pass = button.data('account_pass');
+    var account_hash = button.data('account_hash');
+    var account_grant = button.data('account_grant');
+    var account_grant_with = button.data('account_grant_with');
+    var account_db = button.data('account_db');
+    var account_table = button.data('account_table');
+    var account_info = button.data('account_info');
+    var account_sql = button.data('account_sql');
+    var account_url = button.data('account_url');
+    var account_del_yn = button.data('account_del_yn');
+    var account_del_dt = button.data('account_del_dt');
+    var account_del_reason = button.data('account_del_reason');
+    var account_del_note = button.data('account_del_note');
+
+    var s_account_requestor = $("#s_account_requestor").val();
+    var s_account_devteam = $("#s_account_devteam").val();
+    var s_account_svr = $("#s_account_svr").val();
+    var s_account_user = $("#s_account_user").val();
+    var s_account_host = $("#s_account_host").val();
+    var s_account_grant = $("#s_account_grant").val();
+    var s_account_db = $("#s_account_db").val();
+    var s_account_table = $("#s_account_table").val();
+    var s_account_url = $("#s_account_url").val();
+
+    var page = $("#page").val();
+    var scrollHeight = $(window).scrollTop();
+
+
+    var modal = $('#updateTab')
+
+    modal.find('#id').val(id);
+    modal.find('#u_account_create_dt').val(account_create_dt);
+    modal.find('#u_account_update_dt').val(account_update_dt);
+    modal.find('#u_account_end_dt').val(account_end_dt);
+    modal.find('#u_account_requestor').val(account_requestor);
+    modal.find('#u_account_svr').val(account_svr);
+    modal.find('#u_account_user').val(account_user);
+    modal.find('#u_account_devteam').val(account_devteam);
+    modal.find('#u_account_host').val(account_host);
+    modal.find('#u_account_pass').val(account_pass);
+    modal.find('#u_account_hash').val(account_hash);
+    modal.find('#u_account_grant').val(account_grant);
+    modal.find('#u_account_grant_with').val(account_grant_with);
+    modal.find('#u_account_db').val(account_db);
+    modal.find('#u_account_table').val(account_table);
+    modal.find('#u_account_info').val(account_info);
+    modal.find('#u_account_sql').val(account_sql);
+    modal.find('#u_account_url').val(account_url);
+    modal.find('#u_account_del_yn').val(account_del_yn);
+    modal.find('#u_account_del_dt').val(account_del_dt);
+    modal.find('#u_account_del_reason').val(account_del_reason);
+    modal.find('#u_account_del_note').val(account_del_note);
+    modal.find('#page').val(page);
+    modal.find('#scrollHeight').val(scrollHeight);
+
+    modal.find('#s_account_requestor').val(s_account_requestor);
+    modal.find('#s_account_devteam').val(s_account_devteam);
+    modal.find('#s_account_svr').val(s_account_svr);
+    modal.find('#s_account_user').val(s_account_user);
+    modal.find('#s_account_host').val(s_account_host);
+    modal.find('#s_account_grant').val(s_account_grant);
+    modal.find('#s_account_db').val(s_account_db);
+    modal.find('#s_account_table').val(s_account_table);
+    modal.find('#s_account_url').val(s_account_url);
+
+})
+</script>
+
+<!-- account select ajax script -->
+<script>
+    var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+
+    $('#search').click(function(){
+        var page = parseInt($("#page").val());
+        callMoreListAjax(page);
+        $("#page").val(parseInt(page));
+    });
+
+    $('#account_list_ajax').load('dummy',function(){
+        var page = $("#page").val();
+        var scrollHeight = $("#scrollHeight").val();
+
+        callMoreListAjax(page);
+        $("#page").val(parseInt(page));
+        $('html').animate({scrollTop: scrollHeight}, 400);
+    });
+
+    $(window).scroll(function(){
+        var scrollHeight = $(window).scrollTop() + $(window).height();
+        var documentHeight = $(document).height();
+
+        if (scrollHeight + 400 >= documentHeight){
+            var page = $("#page").val();
+            var page_max = $("#page_max").val();
+            if (parseInt(page) <= parseInt(page_max)){
+                callMoreListAjax(page);
+                $("#page").val(parseInt(page)+1);
+            }
+        }
+    });
+
+    function callMoreListAjax(page) {
+        var s_account_requestor = $("#s_account_requestor").val();
+        var s_account_devteam = $("#s_account_devteam").val();
+        var s_account_svr = $("#s_account_svr").val();
+        var s_account_user = $("#s_account_user").val();
+        var s_account_host = $("#s_account_host").val();
+        var s_account_grant = $("#s_account_grant").val();
+        var s_account_db = $("#s_account_db").val();
+        var s_account_table = $("#s_account_table").val();
+        var s_account_url = $("#s_account_url").val();
+
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'account:account_remove_select' %}",
+            async: false,
+            data: {
+                's_account_requestor': s_account_requestor,
+                's_account_devteam': s_account_devteam,
+                's_account_svr': s_account_svr,
+                's_account_user': s_account_user,
+                's_account_host': s_account_host,
+                's_account_grant': s_account_grant,
+                's_account_db': s_account_db,
+                's_account_table': s_account_table,
+                's_account_url': s_account_url,
+                'page': page,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreAccountAjax,
+            dataType: 'html'
+        });
+    }
+
+    function addMoreAccountAjax(data, textStatus, jqXHR) {
+        $('#account_list_ajax').html(data);
+    }
+</script>
+{% endblock %}

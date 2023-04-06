@@ -1989,3 +1989,196 @@ def account_repository_update(request):
 
     else:
         return render(request, 'account/account_repository.html')
+
+
+#########################################################################
+# Account remove page. account_del_yn='Y'
+#########################################################################
+
+@login_required
+def account_remove(request):
+    account_svr_list = Account.objects.all().filter(account_del_yn='Y').order_by('account_svr').values('account_svr').distinct()
+
+    context = {
+        'account_svr_list': account_svr_list
+    }
+
+    return render(request, 'account/account_remove.html', context)
+
+@login_required
+def account_remove_select(request):
+    if request.method == 'POST':
+        account_requestor = request.POST.get('s_account_requestor')
+        account_devteam = request.POST.get('s_account_devteam')
+        account_svr = request.POST.get('s_account_svr')
+        account_user = request.POST.get('s_account_user')
+        account_host = request.POST.get('s_account_host')
+        account_grant = request.POST.get('s_account_grant')
+        account_db = request.POST.get('s_account_db')
+        account_table = request.POST.get('s_account_table')
+        account_url = request.POST.get('s_account_url')
+        callmorepostFlag = 'true'
+
+        if account_svr == '':
+            print("전체서버 검색")
+            account_list = Account.objects.filter(
+                account_requestor__contains=account_requestor,
+                account_devteam__contains=account_devteam,
+                account_user__contains=account_user,
+                account_host__contains=account_host,
+                account_grant__contains=account_grant,
+                account_db__contains=account_db,
+                account_table__contains=account_table,
+                account_url__contains=account_url,
+                account_del_yn='Y'
+            ).order_by('-account_del_dt')
+        else:
+            print("특정 서버 검색")
+            account_list = Account.objects.filter(
+                account_requestor__contains=account_requestor,
+                account_devteam__contains=account_devteam,
+                account_svr=account_svr,
+                account_user__contains=account_user,
+                account_host__contains=account_host,
+                account_grant__contains=account_grant,
+                account_db__contains=account_db,
+                account_table__contains=account_table,
+                account_url__contains=account_url,
+                account_del_yn='Y'
+            ).order_by('-account_del_dt')
+
+        page = int(request.POST.get('page'))
+        total_count = account_list.count()
+        page_max = math.ceil(total_count / 35)
+        paginator = Paginator(account_list, page * 35)
+
+        try:
+            if int(page) >= page_max : # 마지막 페이지 멈춤 구현
+                account_list = paginator.get_page(1)
+                callmorepostFlag = 'false'
+            else:
+                account_list = paginator.get_page(1)
+        except PageNotAnInteger:
+            account_list = paginator.get_page(1)
+        except EmptyPage:
+            account_list = paginator.get_page(paginator.num_pages)
+
+        context = {
+            'account_requestor': account_requestor,
+            'account_devteam': account_devteam,
+            'account_svr': account_svr,
+            'account_user': account_user,
+            'account_host': account_host,
+            'account_grant': account_grant,
+            'account_db': account_db,
+            'account_table': account_table,
+            'account_url': account_url,
+            'account_list': account_list,
+            'total_count': total_count, 'callmorepostFlag': callmorepostFlag,
+            'page_max': page_max
+        }
+
+        return render(request, 'account/account_remove_select.html', context)
+
+    else:
+        return render(request, 'account/account_remove.html')
+
+@login_required
+def account_remove_recover_account_list(request):
+    if request.method == 'POST':
+        checkboxValues = request.POST.getlist('checkboxValues[]')
+        account_id_list = ",".join(repr(e) for e in checkboxValues).replace("'", "")  # QUERY에 쓰일 서버명
+
+        u_query = "/*RECOVER DELETE ACCOUNT*/" + \
+                  " UPDATE dbadmin.account_account SET account_del_yn='N', account_del_dt=NULL, account_del_reason='', account_del_note='' " + \
+                  " WHERE id in (" + account_id_list + ")"
+
+        try:
+            cursor = connections['default'].cursor()
+            cursor.execute(u_query)
+            connection.commit()
+
+            # 성공 후 데일리 백업 체크, 히스토리 로깅
+            create_daily_backup_table(request, 'account')
+            log_history_insert(request, "'" + account_id_list + "'", 'account', 'update', u_query)
+        except:
+            connection.rollback()
+        finally:
+            cursor.close()
+
+
+            ########################################## 페이지 원래대로
+            account_requestor = request.POST.get('s_account_requestor')
+            account_devteam = request.POST.get('s_account_devteam')
+            account_svr = request.POST.get('s_account_svr')
+            account_user = request.POST.get('s_account_user')
+            account_host = request.POST.get('s_account_host')
+            account_grant = request.POST.get('s_account_grant')
+            account_db = request.POST.get('s_account_db')
+            account_table = request.POST.get('s_account_table')
+            account_url = request.POST.get('s_account_url')
+            callmorepostFlag = 'true'
+
+            if account_svr == '':
+                print("전체서버 검색")
+                account_list = Account.objects.filter(
+                    account_requestor__contains=account_requestor,
+                    account_devteam__contains=account_devteam,
+                    account_user__contains=account_user,
+                    account_host__contains=account_host,
+                    account_grant__contains=account_grant,
+                    account_db__contains=account_db,
+                    account_table__contains=account_table,
+                    account_url__contains=account_url,
+                    account_del_yn='Y'
+                ).order_by('-account_del_dt')
+            else:
+                print("특정 서버 검색")
+                account_list = Account.objects.filter(
+                    account_requestor__contains=account_requestor,
+                    account_devteam__contains=account_devteam,
+                    account_svr=account_svr,
+                    account_user__contains=account_user,
+                    account_host__contains=account_host,
+                    account_grant__contains=account_grant,
+                    account_db__contains=account_db,
+                    account_table__contains=account_table,
+                    account_url__contains=account_url,
+                    account_del_yn='Y'
+                ).order_by('-account_del_dt')
+
+            page = int(request.POST.get('page'))
+            total_count = account_list.count()
+            page_max = math.ceil(total_count / 35)
+            paginator = Paginator(account_list, page * 35)
+
+            try:
+                if int(page) >= page_max:  # 마지막 페이지 멈춤 구현
+                    account_list = paginator.get_page(1)
+                    callmorepostFlag = 'false'
+                else:
+                    account_list = paginator.get_page(1)
+            except PageNotAnInteger:
+                account_list = paginator.get_page(1)
+            except EmptyPage:
+                account_list = paginator.get_page(paginator.num_pages)
+
+            context = {
+                'account_requestor': account_requestor,
+                'account_devteam': account_devteam,
+                'account_svr': account_svr,
+                'account_user': account_user,
+                'account_host': account_host,
+                'account_grant': account_grant,
+                'account_db': account_db,
+                'account_table': account_table,
+                'account_url': account_url,
+                'account_list': account_list,
+                'total_count': total_count, 'callmorepostFlag': callmorepostFlag,
+                'page_max': page_max
+            }
+
+            return render(request, 'account/account_remove_select.html', context)
+
+    else:
+        return render(request, 'account/account_remove.html')
