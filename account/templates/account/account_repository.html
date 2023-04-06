@@ -136,11 +136,15 @@
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
-
             <!-- Modal Header -->
             <div class="modal-header small">
-                <h4 class="modal-title" id="myModalLabel">수정하기</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <!-- Nav tabs -->
+					<ul class="nav nav-tabs" role="tablist">
+						<li>
+							<a class="nav-link active" href="#updateTab" aria-controls="updateTab" role="tab" aria-selected="true" data-bs-toggle="tab">수정하기</a>
+						</li>
+					</ul>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <!-- Modal Body -->
@@ -202,17 +206,16 @@
                                         <td><input class="form-control form-control-sm" id="u_url" name="u_url" type="text"></td>
                                     </tr>
                                 </table>
+                                <p class="text-right">수정 하시겠습니까?</p>
+                                <!-- Modal Footer -->
+                                <div class="modal-footer">
+                                    <button type="" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">취소</button>
+                                    <button class="btn btn-secondary btn-sm" onclick="updateBox()" type="submit">수정</button>
+                                </div>
                             </form>
                         </div>
-
                     </div>
                 </div>
-            </div>
-            <!-- Modal Footer -->
-            <div class="modal-footer">
-                <p class="text-right">수정 하시겠습니까?</p>
-                <button type="" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">취소</button>
-                <button class="btn btn-secondary btn-sm" onclick="updateBox()" type="submit">수정</button>
             </div>
         </div>
     </div>
