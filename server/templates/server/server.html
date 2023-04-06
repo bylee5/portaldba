@@ -1,88 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
-
-<div class="container-fluid">
-    <table class="table">
-        <thead>
-        <tr class="table-dark">
-            <th>ID</th>
-            <th>DB서버</th>
-            <th>DB버전</th>
-            <th>용도</th>
-            <th>가상ip</th>
-            <th>사설ip</th>
-            <th>공용ip</th>
-            <th>포트번호</th>
-            <th>분류</th>
-            <th>정 담당</th>
-            <th>부 담당</th>
-            <th>생성일</th>
-            <th>변경일</th>
-        </tr>
-        </thead>
-        <tbody>
-            {% if server_list %}
-            {% for server in server_list %}
-            <tr>
-                <td>{{ server.id }}</td>
-                <td> {{ server.svr }}</td>
-                <td> {{ server.ver }}</td>
-                <td>{{ server.usg }}</td>
-                <td>{{ server.vip }}</td>
-                <td>{{ server.pri_ip }}</td>
-                <td>{{ server.pub_ip }}</td>
-                <td> {{ server.port1 }}</td>
-                <td>{{ server.priority }}</td>
-                <td>{{ server.manager1 }}</td>
-                <td>{{ server.manager2 }}</td>
-                <td> {{ server.created_at }}</td>
-                <td>{{ server.updated_at }}</td>
-            </tr>
-            {% endfor %}
-            {% else %}
-            <tr>
-                <td colspan="3">내용이 없습니다.</td>
-            </tr>
-            {% endif %}
-            </tbody>
-    </table>
-    <!-- 페이징처리 시작 -->
-    <ul class="pagination justify-content-center">
-        <!-- 이전페이지 -->
-        {% if server_list.has_previous %}
-        <li class="page-item">
-            <a class="page-link" href="?page={{ server_list.previous_page_number }}">이전</a>
-        </li>
-        {% else %}
-        <li class="page-item disabled">
-            <a class="page-link" tabindex="-1" aria-disabled="true" href="#">이전</a>
-        </li>
-        {% endif %}
-        <!-- 페이지리스트 -->
-        {% for page_number in server_list.paginator.page_range %}
-        {% if page_number >= server_list.id|add:-5 and page_number <= server_list.id|add:5 %}
-        {% if page_number == server_list.id %}
-        <li class="page-item active" aria-current="page">
-            <a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a>
-        </li>
-        {% else %}
-        <li class="page-item">
-            <a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a>
-        </li>
-        {% endif %}
-        {% endif %}
-        {% endfor %}
-        <!-- 다음페이지 -->
-        {% if server_list.has_next %}
-        <li class="page-item">
-            <a class="page-link" href="?page={{ server_list.next_page_number }}">다음</a>
-        </li>
-        {% else %}
-        <li class="page-item disabled">
-            <a class="page-link" tabindex="-1" aria-disabled="true" href="#">다음</a>
-        </li>
-        {% endif %}
-    </ul>
+<!-- 네비게이션바 -->
+{% include "navbar-server.html" %}
+<!-- MAIN -->
+<div class="d-grid gap-2 d-md-flex justify-content-center">
+    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSelect" aria-expanded="false" aria-controls="collapseSelect">서버 검색</button>
+    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInsert" aria-expanded="false" aria-controls="collapseInsert">서버 입력</button>
+    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUpdateMulti" aria-expanded="false" aria-controls="collapseUpdateMulti">서버 수정/삭제</button>
 </div>
 
 {% endblock %}
