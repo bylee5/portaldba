@@ -1701,3 +1701,291 @@ def account_select(request):
 @login_required
 def account_dummy(request):
     return render(request, 'account/dummy_ajax.html')
+
+
+#########################################################################
+# Account repository page
+#########################################################################
+
+@login_required
+def account_repository(request):
+    return render(request, 'account/account_repository.html')
+
+@login_required
+def account_repository_select(request):
+    if request.method == 'POST':
+        s_repository_team = request.POST.get('s_repository_team')
+        s_repository_type = request.POST.get('s_repository_type')
+        s_repository_name = request.POST.get('s_repository_name')
+        s_repository_url = request.POST.get('s_repository_url')
+        s_account_user = request.POST.get('s_account_user')
+        s_url = request.POST.get('s_url')
+        s_info = request.POST.get('s_info')
+
+        # print("============= page : ")
+        # print(request.POST.get('page'))
+
+        repository_list = AccountRepository.objects.filter(
+            repository_team__contains=s_repository_team,
+            repository_type__startswith=s_repository_type,
+            repository_name__contains=s_repository_name,
+            repository_url__contains=s_repository_url,
+            account_user__contains=s_account_user,
+            url__contains=s_url,
+            info__contains=s_info
+        ).order_by('-id')
+
+        page = int(request.POST.get('page'))
+        s_total_count = repository_list.count()
+        page_max = math.ceil(s_total_count / 40)
+        paginator = Paginator(repository_list, page * 40)
+
+        try:
+            if int(page) >= page_max:  # 마지막 페이지 멈춤 구현
+                repository_list = paginator.get_page(1)
+                callmorepostFlag = 'false'
+            else:
+                repository_list = paginator.get_page(1)
+        except PageNotAnInteger:
+            repository_list = paginator.get_page(1)
+        except EmptyPage:
+            repository_list = paginator.get_page(paginator.num_pages)
+
+        print("page_max : " + str(page_max))
+
+        context = {
+            'repository_list': repository_list,
+            'repository_team': s_repository_team,
+            'repository_type': s_repository_type,
+            'repository_name': s_repository_name,
+            'repository_url': s_repository_url,
+            'account_user': s_account_user,
+            'url': s_url,
+            'info': s_info,
+            'total_count': s_total_count,
+            'page_max': page_max
+        }
+
+        return render(request, 'account/account_repository_select.html', context)
+
+    else:
+        return render(request, 'account/account_repository.html')
+
+@login_required
+def account_repository_insert(request):
+    if request.method == 'POST':
+        i_repository_team = request.POST.get('i_repository_team')
+        i_repository_type = request.POST.get('i_repository_type')
+        i_repository_name = request.POST.get('i_repository_name')
+        i_repository_url = request.POST.get('i_repository_url')
+        i_account_user = request.POST.get('i_account_user')
+        i_url = request.POST.get('i_url')
+        i_info = request.POST.get('i_info')
+
+        insert_sql = "INSERT INTO account_repository(create_dt, repository_team, repository_type, " + \
+                    "repository_name, repository_url, account_user, url, info) VALUES(" + \
+                    "now(), " + \
+                    "'" + i_repository_team + "', " + \
+                    "'" + i_repository_type + "', " + \
+                    "'" + i_repository_name + "', " + \
+                    "'" + i_repository_url + "', " + \
+                    "'" + i_account_user + "', " + \
+                    "'" + i_url + "', " + \
+                    "'" + i_info + "')"
+
+        # print(insert_sql)
+
+        try:
+            cursor = connections['default'].cursor()
+            cursor.execute(insert_sql)
+            connection.commit()
+
+            # 성공 후 데일리 백업 체크, 히스토리 로깅
+            create_daily_backup_table(request, 'repository')
+            log_history_insert(request, 'null', 'repository', 'insert', insert_sql)
+        except:
+            connection.rollback()
+        finally:
+            cursor.close()
+
+        # 마지막 수정값
+        last_modify_dt = timezone.now().strftime("%Y/%m/%d %H:%M:%S")
+
+        s_repository_team = request.POST.get('s_repository_team')
+        s_repository_type = request.POST.get('s_repository_type')
+        s_repository_name = request.POST.get('s_repository_name')
+        s_repository_url = request.POST.get('s_repository_url')
+        s_account_user = request.POST.get('s_account_user')
+        s_url = request.POST.get('s_url')
+        s_info = request.POST.get('s_info')
+
+        # print("-----------------------------------------------")
+        # print(i_repository_team)
+        # print(i_repository_type)
+        # print(i_repository_name)
+        # print(i_repository_url)
+        # print(i_account_user)
+        # print(i_url)
+        # print(i_info)
+        #
+        # print(s_repository_team)
+        # print(s_repository_name)
+        # print(s_repository_url)
+        # print(s_account_user)
+        # print(s_url)
+        # print(s_info)
+        # print("-----------------------------------------------")
+
+        repository_list = AccountRepository.objects.filter(
+            repository_team__contains=s_repository_team,
+            repository_type__startswith=s_repository_type,
+            repository_name__contains=s_repository_name,
+            repository_url__contains=s_repository_url,
+            account_user__contains=s_account_user,
+            url__contains=s_url,
+            info__contains=s_info
+        ).order_by('-id')
+
+        page = int(request.POST.get('page'))
+        s_total_count = repository_list.count()
+        page_max = math.ceil(s_total_count / 40)
+        paginator = Paginator(repository_list, page * 40)
+
+        try:
+            if int(page) >= page_max:  # 마지막 페이지 멈춤 구현
+                repository_list = paginator.get_page(1)
+                callmorepostFlag = 'false'
+            else:
+                repository_list = paginator.get_page(1)
+        except PageNotAnInteger:
+            repository_list = paginator.get_page(1)
+        except EmptyPage:
+            repository_list = paginator.get_page(paginator.num_pages)
+
+        context = {
+            'repository_list': repository_list,
+            'repository_team': s_repository_team,
+            'repository_type': s_repository_type,
+            'repository_name': s_repository_name,
+            'repository_url': s_repository_url,
+            'account_user': s_account_user,
+            'url': s_url,
+            'info': s_info,
+            'total_count': s_total_count,
+            'page_max': page_max
+        }
+
+        return render(request, 'account/account_repository_select.html', context)
+
+    else:
+        return render(request, 'account/account_repository.html')
+
+@login_required
+def account_repository_update(request):
+    if request.method == 'POST':
+        u_id = request.POST.get('u_id')
+        u_repository_team = request.POST.get('u_repository_team')
+        u_repository_type = request.POST.get('u_repository_type')
+        u_repository_name = request.POST.get('u_repository_name')
+        u_repository_url = request.POST.get('u_repository_url')
+        u_account_user = request.POST.get('u_account_user')
+        u_url = request.POST.get('u_url')
+        u_info = request.POST.get('u_info')
+
+        update_sql = "UPDATE account_repository SET " + \
+                     "repository_team = " + "'" + u_repository_team + "'" + \
+                     ", repository_type = " + "'" + u_repository_type + "'" + \
+                     ", repository_name = " + "'" + u_repository_name + "'" + \
+                     ", repository_url = " + "'" + u_repository_url + "'" + \
+                     ", account_user = " + "'" + u_account_user + "'" + \
+                     ", url = " + "'" + u_url + "'" + \
+                     ", info = " + "'" + u_info + "'" + \
+                     " WHERE id = " + u_id + ";"
+
+        # print(update_sql)
+
+        try:
+            cursor = connections['default'].cursor()
+            cursor.execute(update_sql)
+            connection.commit()
+
+            # 성공 후 데일리 백업 체크, 히스토리 로깅
+            create_daily_backup_table(request, 'repository')
+            log_history_insert(request, u_id, 'repository', 'update', update_sql)
+
+        except:
+            connection.rollback()
+
+        finally:
+            cursor.close()
+
+        # 마지막 수정값
+        last_modify_dt = timezone.now().strftime("%Y/%m/%d %H:%M:%S")
+
+        s_repository_team = request.POST.get('s_repository_team')
+        s_repository_type = request.POST.get('s_repository_type')
+        s_repository_name = request.POST.get('s_repository_name')
+        s_repository_url = request.POST.get('s_repository_url')
+        s_account_user = request.POST.get('s_account_user')
+        s_url = request.POST.get('s_url')
+        s_info = request.POST.get('s_info')
+
+        # print("-----------------------------------------------")
+        # print(u_repository_team)
+        # print(u_repository_name)
+        # print(u_repository_url)
+        # print(u_account_user)
+        # print(u_url)
+        # print(u_info)
+        #
+        # print(s_repository_team)
+        # print(s_repository_name)
+        # print(s_repository_url)
+        # print(s_account_user)
+        # print(s_url)
+        # print(s_info)
+        # print("-----------------------------------------------")
+
+        repository_list = AccountRepository.objects.filter(
+            repository_team__contains=s_repository_team,
+            repository_type__startswith=s_repository_type,
+            repository_name__contains=s_repository_name,
+            repository_url__contains=s_repository_url,
+            account_user__contains=s_account_user,
+            url__contains=s_url,
+            info__contains=s_info
+        ).order_by('-id')
+
+        page = int(request.POST.get('page'))
+        s_total_count = repository_list.count()
+        page_max = math.ceil(s_total_count / 40)
+        paginator = Paginator(repository_list, page * 40)
+
+        try:
+            if int(page) >= page_max:  # 마지막 페이지 멈춤 구현
+                repository_list = paginator.get_page(1)
+                callmorepostFlag = 'false'
+            else:
+                repository_list = paginator.get_page(1)
+        except PageNotAnInteger:
+            repository_list = paginator.get_page(1)
+        except EmptyPage:
+            repository_list = paginator.get_page(paginator.num_pages)
+
+        context = {
+            'repository_list': repository_list,
+            'repository_team': s_repository_team,
+            'repository_type': s_repository_type,
+            'repository_name': s_repository_name,
+            'repository_url': s_repository_url,
+            'account_user': s_account_user,
+            'url': s_url,
+            'info': s_info,
+            'total_count': s_total_count,
+            'page_max': page_max
+        }
+
+        return render(request, 'account/account_repository_select.html', context)
+
+    else:
+        return render(request, 'account/account_repository.html')

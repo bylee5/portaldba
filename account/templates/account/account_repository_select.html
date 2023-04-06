@@ -1,1 +1,161 @@
-account_repository_select.html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<!-- ajax 추가 부분 -->
+<hr>
+<< 총 ⁝ <span class="badge text-bg-secondary">{{ total_count }}</span> 건의 데이터 >>
+    <table class="table table-bordered table-sm table-hover">
+        <tr class="bg-secondary text-white">
+            <th style="width: 2%;">ID</th>
+            <th style="width: 4%;">생성일</th>
+            <th style="width: 8%;">요청팀</th>
+            <th style="width: 10%;">레파지토리 타입(구분)</th>
+            <th style="width: 15%;">레파지토리 명</th>
+            <th style="width: 26%;">레파지토리 URL</th>
+            <th style="width: 7%;">계정명</th>
+            <th style="width: 21%;">비고</th>
+            <th style="width: 6%;" class="rounded-right">요청 URL</th>
+        </tr>
+
+    {% if repository_list %}
+        {% for repository in repository_list %}
+
+        {% if repository.create_dt|date:'Y/m/d H:i:s' == last_modify_dt %}
+        <tr style="background-color: #FFDEAD">
+        {% else %}
+        <tr>
+        {% endif %}
+            <td style = "cursor:pointer;" id="{{ repository.id }}" name="{{ repository.id }}" data-bs-toggle="repository_id" data-bs-target="#myModal" data-placement="right" title="입력란 복사">
+                {{ repository.id }}
+            <!-- 입력란 복사 script-->
+            <script>
+                $(function () {
+                    $('[data-bs-toggle="repository_id"]').tooltip()
+                })
+                $('#{{ repository.id }}').click(function(){
+                    $("#i_repository_team").val('{{ repository.repository_team }}');
+                    $("#i_repository_type").val('{{ repository.repository_type }}');
+                    $("#i_repository_name").val('{{ repository.repository_name }}');
+                    $("#i_repository_url").val('{{ repository.repository_url }}');
+                    $("#i_account_user").val('{{ repository.account_user }}');
+                    $("#i_info").val('{{ repository.url }}');
+                    $("#i_url").val('{{ repository.info }}');
+                });
+            </script>
+            </td>
+            <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal"
+                data-id="{{ repository.id }}"
+                data-create_dt="{{ repository.create_dt|date:'Y/m/d' }}"
+                data-repository_team="{{ repository.repository_team }}"
+                data-repository_type="{{ repository.repository_type}}"
+                data-repository_name="{{ repository.repository_name }}"
+                data-repository_url="{{ repository.repository_url }}"
+                data-account_user="{{ repository.account_user }}"
+                data-url="{{ repository.url }}"
+                data-info="{{ repository.info }}">
+                {{ repository.create_dt|date:'Y/m/d' }}
+            </td>
+            <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal"
+                data-id="{{ repository.id }}"
+                data-create_dt="{{ repository.create_dt|date:'Y/m/d' }}"
+                data-repository_team="{{ repository.repository_team }}"
+                data-repository_type="{{ repository.repository_type}}"
+                data-repository_name="{{ repository.repository_name }}"
+                data-repository_url="{{ repository.repository_url }}"
+                data-account_user="{{ repository.account_user }}"
+                data-url="{{ repository.url }}"
+                data-info="{{ repository.info }}">
+                {{ repository.repository_team }}
+            </td>
+            <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal"
+                data-id="{{ repository.id }}"
+                data-create_dt="{{ repository.create_dt|date:'Y/m/d' }}"
+                data-repository_team="{{ repository.repository_team }}"
+                data-repository_type="{{ repository.repository_type}}"
+                data-repository_name="{{ repository.repository_name }}"
+                data-repository_url="{{ repository.repository_url }}"
+                data-account_user="{{ repository.account_user }}"
+                data-url="{{ repository.url }}"
+                data-info="{{ repository.info }}">
+                {{ repository.repository_type}}
+            </td>
+            <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal"
+                data-id="{{ repository.id }}"
+                data-create_dt="{{ repository.create_dt|date:'Y/m/d' }}"
+                data-repository_team="{{ repository.repository_team }}"
+                data-repository_type="{{ repository.repository_type}}"
+                data-repository_name="{{ repository.repository_name }}"
+                data-repository_url="{{ repository.repository_url }}"
+                data-account_user="{{ repository.account_user }}"
+                data-url="{{ repository.url }}"
+                data-info="{{ repository.info }}">
+                {{ repository.repository_name }}
+            </td>
+            <td style = "cursor:pointer;" id="repository_url" name="repository_url" data-bs-toggle="repository_url" data-placement="bottom" title="URL 이동" onClick="window.open('https://kakaovx.agit.in/g/300065103/wall/{{ repository.repository_url }}')">
+                {{ repository.repository_url | slice:":400" }}
+            </td>
+            <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal"
+                data-id="{{ repository.id }}"
+                data-create_dt="{{ repository.create_dt|date:'Y/m/d' }}"
+                data-repository_team="{{ repository.repository_team }}"
+                data-repository_type="{{ repository.repository_type}}"
+                data-repository_name="{{ repository.repository_name }}"
+                data-repository_url="{{ repository.repository_url }}"
+                data-account_user="{{ repository.account_user }}"
+                data-url="{{ repository.url }}"
+                data-info="{{ repository.info }}">
+                {{ repository.account_user}}
+            </td>
+            <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal" data-placement="bottom" title="{{ repository.info }}"
+                data-id="{{ repository.id }}"
+                data-create_dt="{{ repository.create_dt|date:'Y/m/d' }}"
+                data-repository_team="{{ repository.repository_team }}"
+                data-repository_type="{{ repository.repository_type}}"
+                data-repository_name="{{ repository.repository_name }}"
+                data-repository_url="{{ repository.repository_url }}"
+                data-account_user="{{ repository.account_user }}"
+                data-url="{{ repository.url }}"
+                data-info="{{ repository.info }}">
+
+                {% if repository.info|length <= 33 %}
+                    {{ repository.info }}
+                {% else %}
+                    {{ repository.info | slice:":33"| add:"..." }}
+                {% endif %}
+            </td>
+            <td style = "cursor:pointer;" id="url" name="url" data-bs-toggle="url" data-placement="bottom" title="URL 이동" onClick="window.open('https://kakaovx.agit.in/g/300065103/wall/{{ repository.url }}')">
+                {{ repository.url }}
+            </td>
+            <script>
+                $(function () {
+                    $('[data-bs-toggle="url"]').tooltip();
+                    $('[data-bs-toggle="repository_url"]').tooltip({"html":true});
+                    $('[data-bs-toggle="modal"]').tooltip();
+                })
+            </script>
+            <style>
+                repository_url.tooltip-inner {
+                    max-width: 500px;
+                    width: 100px;
+                }
+            </style>
+
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    <div>
+   		{% if page_max is none %}
+			<input id="page_max" name="page_max" type="hidden" value="1">
+		{% else %}
+			<input id="page_max" name="page_max" type="hidden" value="{{ page_max }}">
+		{% endif %}
+    </div>
+
+</body>
+</html>

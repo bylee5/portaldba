@@ -17,4 +17,10 @@ urlpatterns = [
     path('update', views.account_update, name='account_update'),
     path('select', views.account_select, name='account_select'),
     path('dummy', views.account_dummy, name='account_dummy'),
+    # account Repository Manage 
+    path('repository', views.account_repository, name='account_repository'),
+    path('repository/select', views.account_repository_select, name='account_repository_select'),
+    path('repository/insert', views.account_repository_insert, name='account_repository_insert'),
+    path('repository/update', views.account_repository_update, name='account_repository_update'),
+    path('repository/dummy', views.account_dummy, name='account_dummy'),
 ]
