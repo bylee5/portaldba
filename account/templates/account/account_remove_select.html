@@ -43,7 +43,7 @@
                 });
                 </script>
             </td>
-            <td data-toggle="modal" data-target="#myModal"
+            <td data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_del_dt="{{ account.account_del_dt|date:'Y/m/d H:i:s' }}"
@@ -71,7 +71,7 @@
             data-account_del_reason="{{ account.account_del_reason }}"
             data-account_del_note="{{ account.account_del_note }}" style = "width: 3%; cursor:pointer;">
             {{ account.id }}</td>
-            <td data-toggle="modal" data-target="#myModal"
+            <td data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_del_dt="{{ account.account_del_dt|date:'Y/m/d H:i:s' }}"
@@ -99,7 +99,7 @@
             data-account_del_reason="{{ account.account_del_reason }}"
             data-account_del_note="{{ account.account_del_note }}" style = "width: 7%; cursor:pointer;">
             {{ account.account_del_dt|date:'Y/m/d H:i:s' }}</td>
-            <td data-toggle="modal" data-target="#myModal"
+            <td data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_del_dt="{{ account.account_del_dt|date:'Y/m/d H:i:s' }}"
@@ -130,7 +130,7 @@
             <td style="cursor:pointer; width: 7%;" id="{{ account.account_del_note }}" name="{{ account.account_del_note }}" data-bs-toggle="account_del_note" data-placement="right" title="URL 이동" onClick="window.open('https://kakaovx.agit.in/g/300065103/wall/{{ account.account_del_note }}')">
                 {{ account.account_del_note }}
             </td>
-            <td data-toggle="modal" data-target="#myModal"
+            <td data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_del_dt="{{ account.account_del_dt|date:'Y/m/d H:i:s' }}"
@@ -158,7 +158,7 @@
             data-account_del_reason="{{ account.account_del_reason }}"
             data-account_del_note="{{ account.account_del_note }}" style = "width: 5%; cursor:pointer;">
             {{ account.account_requestor }}</td>
-            <td data-toggle="modal" data-target="#myModal"
+            <td data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_del_dt="{{ account.account_del_dt|date:'Y/m/d H:i:s' }}"
@@ -186,7 +186,7 @@
             data-account_del_reason="{{ account.account_del_reason }}"
             data-account_del_note="{{ account.account_del_note }}" style = "width: 6%; cursor:pointer;">
             {{ account.account_devteam }}</td>
-            <td data-toggle="modal" data-target="#myModal"
+            <td data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_del_dt="{{ account.account_del_dt|date:'Y/m/d H:i:s' }}"
@@ -214,7 +214,7 @@
             data-account_del_reason="{{ account.account_del_reason }}"
             data-account_del_note="{{ account.account_del_note }}" style = "width: 7%; cursor:pointer;">
             {{ account.account_svr }}</td>
-            <td data-toggle="modal" data-target="#myModal"
+            <td data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_del_dt="{{ account.account_del_dt|date:'Y/m/d H:i:s' }}"
@@ -242,7 +242,7 @@
             data-account_del_reason="{{ account.account_del_reason }}"
             data-account_del_note="{{ account.account_del_note }}" style = "width: 8%; cursor:pointer;">
             {{ account.account_user }}</td>
-            <td data-toggle="modal" data-target="#myModal"
+            <td data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_del_dt="{{ account.account_del_dt|date:'Y/m/d H:i:s' }}"
@@ -270,7 +270,7 @@
             data-account_del_reason="{{ account.account_del_reason }}"
             data-account_del_note="{{ account.account_del_note }}" style = "width: 7%; cursor:pointer;">
             {{ account.account_host }}</td>
-            <td data-toggle="modal" data-target="#myModal"
+            <td data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_del_dt="{{ account.account_del_dt|date:'Y/m/d H:i:s' }}"
@@ -303,7 +303,7 @@
                 {{ account.account_grant| slice:":35"| add:"..." }}
             {% endif %}
             </td>
-            <td data-toggle="modal" data-target="#myModal"
+            <td data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_del_dt="{{ account.account_del_dt|date:'Y/m/d H:i:s' }}"
@@ -331,7 +331,7 @@
             data-account_del_reason="{{ account.account_del_reason }}"
             data-account_del_note="{{ account.account_del_note }}" style = "width: 6%; cursor:pointer;">
             {{ account.account_db }}</td>
-            <td data-toggle="modal" data-target="#myModal"
+            <td data-bs-toggle="modal" data-bs-target="#myModal"
             data-id="{{ account.id }}"
             data-account_create_dt="{{ account.account_create_dt|date:'Y/m/d H:i:s' }}"
             data-account_del_dt="{{ account.account_del_dt|date:'Y/m/d H:i:s' }}"
@@ -364,8 +364,8 @@
             </td>
             <script>
                 $(function () {
-                    $('[data-toggle="account_del_note"]').tooltip()
-                    $('[data-toggle="account_url"]').tooltip()
+                    $('[data-bs-toggle="account_del_note"]').tooltip()
+                    $('[data-bs-toggle="account_url"]').tooltip()
                 })
             </script>
         </tr>
