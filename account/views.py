@@ -11,8 +11,6 @@ from .models import Account, AccountRepository, Account_hash
 import math
 import struct, socket
 
-
-
 @login_required
 def account(request):
     account_svr_list = account_svr_list = Account.objects.all().filter(account_del_yn='N').order_by('account_svr').values('account_svr').distinct()
@@ -130,15 +128,10 @@ def account_select_fast(request):
 def account_dummy_pass(request):
     if request.method == 'POST':
         account_pass = request.POST.get('account_pass')
-        # print("=============== 왔나? =======================")
-        # print(account_pass)
-        # print("======================================")
 
         if account_pass == 'NULL':
-            # print("NULL")
             account_pass = None
         else:
-            # print("NOT NULL")
             account_pass = get_password_decrypt(account_pass)
         
         context = {
@@ -152,7 +145,6 @@ def account_dummy_pass(request):
 def get_password_decrypt(account_pass):
     query = "SELECT AES_DECRYPT(UNHEX('" + account_pass + "'), '" + get_key() + "') as pass"
 
-    # print(query)
     with connections['default'].cursor() as cursor:
         cursor.execute(query)
         row = cursor.fetchone()
@@ -165,14 +157,8 @@ def get_password_decrypt(account_pass):
 
 # Encrypt key
 def get_key():
-    #file_path = os.path.join(settings.KEY_URL, 'other/keyfile.lst')
-    #with open(file_path, encoding='utf-8') as txtfile:
-    #    for row in txtfile.readlines():
-    #        key = row
     key = settings.ENC_KEY
-
     return key
-
 
 @login_required
 def account_multi_dml(request):
@@ -206,12 +192,6 @@ def account_multi_dml(request):
                         if is_password_encrypt_yn(account_pass) == True:  # 암호화가 되있다면
                             account_pass = get_password_decrypt(account_pass)
 
-                        # *** 2021-01-13 OLD ***
-                        # put_password(account_pass)
-                        # account_hash = get_password_hash(account_pass)
-                        # account_pass = get_password_encrypt(account_pass)
-
-                        # *** 2021-01-13 NEW ***
                         # account_hash 신규 해시값 등록 -> account_has, account_pass 세팅
                         # True리턴 : 8버전이상, Fasle 리턴 : 8버전 이하
                         # 8이상이거나 강제입력 활성화 경우, 대체 패스워드 함수 사용
@@ -231,14 +211,6 @@ def account_multi_dml(request):
                                     mu_type + " = '" + account_pass + "', account_hash ='" + account_hash +"' WHERE id IN(" + account_id_list + ")"
 
                         print(u_query)
-
-                    # print("==========================================================")
-                    # print("업데이트가 들어왔네")
-                    # print(account_id_list)
-                    # print(mu_type)
-                    # print(mu_value)
-                    # print(u_query)
-                    # print("==========================================================")
 
                     try:
                         cursor = connections['default'].cursor()
@@ -267,14 +239,6 @@ def account_multi_dml(request):
                                  ", account_del_note = " + "'" + md_account_del_note + "'" + \
                                  " WHERE id IN(" + account_id_list + ")"
 
-                    # print("==========================================================")
-                    # print("삭제가 들어왔네")
-                    # print(account_id_list)
-                    # print(md_account_del_reason)
-                    # print(md_account_del_note)
-                    # print(d_query)
-                    # print("==========================================================")
-
                     try:
                         cursor = connections['default'].cursor()
                         cursor.execute(d_query)
@@ -302,9 +266,6 @@ def account_multi_dml(request):
 
         finally:
             print("")
-
-
-        ########################################## 페이지 원래대로
 
         account_requestor = request.POST.get('s_account_requestor')
         account_devteam = request.POST.get('s_account_devteam')
@@ -394,14 +355,9 @@ def is_password_encrypt_yn(account_pass):
         cursor.execute(query)
         row = cursor.fetchone()
 
-    # print("--------------------------------------------------------------------------------")
-    # print("패스워드 암호화 여부를 체크합니다...")
-    # print("--------------------------------------------------------------------------------")
     if row[0] is None: # 패스워드 암호화가 안되있는경우. False 리턴
-        # print("암호화가 안되어 있네요..")
         return False
     else: # 패스워드 암호화가 되어있는경우. True 리턴
-        # print("암호화가 되있군요!!")
         return True    
 
 # mysql 버전 체크. 8. 미만의 버전인경우 False, 이상인경우 True 반환.
@@ -410,14 +366,10 @@ def is_password_encrypt_yn(account_pass):
 def get_mysql_version_flag():
     query = "SELECT @@version"
 
-    # print(query)
     with connections['default'].cursor() as cursor:
         cursor.execute(query)
         row = cursor.fetchone()
 
-    print("=버전체크=============================================================")
-    print(row[0])
-    print("==============================================================")
     if row[0].startswith("5.6") or row[0].startswith("5.7"):
        return False
     else:
@@ -489,7 +441,6 @@ def create_daily_backup_table(request, backup_type):
         print("일간 백업 동작")
         for table in table_list:
             s_query = "SELECT table_name FROM information_schema.tables WHERE table_schema='" + db_schema_target + "' and table_name LIKE '" + table + "%" + current_dt + "%'"
-            # print(s_query)
 
             with connections['default'].cursor() as cursor:
                 cursor.execute(s_query)
@@ -515,10 +466,10 @@ def create_daily_backup_table(request, backup_type):
                 finally:
                     cursor.close()
 
-            print("아무일도 없었다고 한다...")
+            print("아무일도 없었다고 한다.")
 
     else:
-        print("백업 테이블 테스트. 거짓말같이 아무일도 없었다고 한다...")    
+        print("백업 테이블 테스트. 거짓말같이 아무일도 없었다고 한다.")    
 
 
 # 로깅 히스토리
@@ -529,15 +480,6 @@ def log_history_insert(request, related_id, menu_type, sql_type, execute_sql):
     ip = request.META.get('REMOTE_ADDR')
     who_writer = struct.unpack("!I", socket.inet_aton(ip))[0]  # IP 10진수
     # ip_re = socket.inet_ntoa(struct.pack('!I', who_writer))  # IP 10진수 원복 IP
-
-    # print("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
-    # print(who_updated)
-    # print(who_writer)
-    # print(related_id)
-    # print(menu_type)
-    # print(sql_type)
-    # print(execute_sql)
-    # print("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
 
     i_query = "INSERT INTO " + table + "(related_id, who_updated, who_writer, menu_type, sql_type, execute_sql) VALUES(" + \
                related_id + ",'" + who_updated + "'," + str(who_writer) + ",'" + menu_type + "','" + sql_type + "'," + '"' + execute_sql + '");'
@@ -557,7 +499,6 @@ def log_history_insert(request, related_id, menu_type, sql_type, execute_sql):
 # account_sql 재세팅
 def recreate_account_sql(request, account_id_list):
     print(account_id_list)
-    # for account_id in account_id_list.split(','):
 
     u_query = "/*RE-CREATE ACCOUNT_SQL*/UPDATE account_account set account_sql = " + \
     "CONCAT('/*',account_svr,'*/ USE mysql; /*',account_url,'*/ " + \
@@ -582,23 +523,15 @@ def recreate_account_sql(request, account_id_list):
     finally:
         cursor.close()
 
-
 @login_required
 def account_search_sql_list(request):
     if request.method == 'POST':
         checkboxValues = request.POST.getlist('checkboxValues[]')
         account_id_list = ",".join( repr(e) for e in checkboxValues).replace("'","")
 
-        # print("================================================================")
-        # print(checkboxValues)
-        # print(account_id_list)
-
         if len(checkboxValues) != 0:
-            # print("있다닛")
             s_query = "SELECT id, account_sql FROM account_account WHERE id IN(" + account_id_list + ") order by id desc"
-            # print(s_query)
 
-            # print("-------------------------------------------------------------")
             with connections['default'].cursor() as cursor:
                 account_sql_lists = []
                 cursor.execute(s_query)
@@ -606,12 +539,9 @@ def account_search_sql_list(request):
                 account_sql_lists = namedtuplefetchall(cursor)
 
         else:
-            # print("없다닛")
+            # 없다.
             account_sql_flag = 'false'
             account_sql_lists = ""
-
-        # print(account_sql_lists)
-        # print("================================================================")
 
         account_requestor = request.POST.get('s_account_requestor')
         account_devteam = request.POST.get('s_account_devteam')
@@ -695,7 +625,7 @@ def account_search_sql_list(request):
 # 컬럼명으로 리턴 해주는 함수
 #########################################################################
 def namedtuplefetchall(cursor):
-    #"Return all rows from a cursor as a namedtuple"
+    # Return all rows from a cursor as a namedtuple
     desc = cursor.description
     nt_result = namedtuple('Result', [col[0] for col in desc])
     return [nt_result(*row) for row in cursor.fetchall()]    
@@ -725,13 +655,6 @@ def account_insert(request):
         if account_grant == '':  # 권한 직접 입력인경우
             account_grant = request.POST.get('i_account_grant_direct').upper()
 
-        # print("= 테스트 =================================================================")
-        # print(account_pass)
-        # print(account_grant_with)
-        # print(account_pass.startswith('*'))
-        # print(len(account_pass))
-        # print("==================================================================")
-
         ######################################################################################################
         # 패스워드 암호화 처리
         # 해시값을 받는 경우. 암호화값으로 전환
@@ -745,9 +668,6 @@ def account_insert(request):
             print("삐빅 암호화값 입력 걸림")
             account_pass = get_password_decrypt(account_pass)
         ######################################################################################################
-
-        # print("최종 변환된 패스워드 : " + str(account_pass))
-        # print("--------------------------------------------------------------------------------")
 
         # insert 수행 조건 : 패스워드 해시, 암호화값이 정상이거나 널 아닌경우
         # 또는 강제입력 활성화라면 수행
@@ -770,32 +690,12 @@ def account_insert(request):
                     account_hash = get_password_hash(account_pass)
                     account_pass = get_password_encrypt(account_pass)
 
-                # print("============================================================")
-                # print("입력란 테스트 선입니다.")
-                # print("============================================================")
-                # print(account_requestor)
-                # print(account_devteam)
-                # print(account_info)
-                # print(account_url)
-                # print(account_svr)
-                # print(account_user)
-                # print(account_host)
-                # print(account_pass)
-                # print(account_db)
-                # print(account_table)
-                # print(account_grant)
-                # print(account_grant_with)
-                # print(account_hash)
-                # print("강제 입력 여부 : " + str(forceinsert_flag))
-                # print("============================================================")
-
                 # HOST, SVR, DB, TABLE 여러대역 처리. 중첩루프
                 account_host_lists = account_host.split(',')
                 account_svr_lists = account_svr.split(',')
                 account_db_lists = account_db.split(',')
                 account_table_lists = account_table.split(',')
 
-                # print("--------------------------------------------------------------------------------")
                 for account_host_list in account_host_lists:
                     account_host = account_host_list.replace(" ", "")
 
@@ -818,7 +718,6 @@ def account_insert(request):
                                                 " IDENTIFIED WITH ''mysql_native_password'' AS ''" + account_hash + "'';" + \
                                                 "GRANT " + account_grant  + " ON " + account_db + "." + account_table + \
                                                 " TO " + "''" + account_user + "''@''" + account_host + "''" + account_grant_with_str
-                                #print("sql : " + account_sql)
 
                                 insert_sql = "INSERT INTO account_account(account_create_dt, account_update_dt, " + \
                                              "account_requestor, account_devteam, account_svr, account_user, " + \
@@ -842,11 +741,6 @@ def account_insert(request):
                                              "'" + account_url + "', " + \
                                              "'N', '', '')"
 
-                                #print("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
-                                #print("insert_sql : ")
-                                #print(insert_sql)
-                                #print("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
-
                                 # 강제 입력 여부. True면 정합성 체크 안함
                                 if forceinsert_flag == 'True':
                                     print("강제 입력 동작합니다")
@@ -854,14 +748,9 @@ def account_insert(request):
                                     alert_message = ""
 
                                 else:
-                                    # print("강제 입력 동작 XXXXX !!!!")
+                                    # 강제 입력 동작
                                     # 계정 정합성 체크. ERR_0 리턴 외 다른값이면 정합성간 문제 발생하여 쿼리 수행 안함
                                     alert_type, alert_message = check_account_consistency(account_svr, account_user, account_host, account_pass, account_db, account_table, account_grant)
-
-                                # 쿼리 수행
-                                # print("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
-                                # print("alert_type : " + alert_type)
-                                # print("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
 
                                 if alert_type == "ERR_0":
                                     try:
@@ -879,14 +768,13 @@ def account_insert(request):
                                     finally:
                                         cursor.close()
 
-            # print("--------------------------------------------------------------------------------")
             # 패스워드 미입력 또는 잘못된 값으로 인한 공백 또는 NULL 일경우
             else:
                 alert_type = "ERR_3"
                 alert_message = "패스워드를 미입력 또는 잘못된 패스워드를 입력하셨습니다. 다시 입력해주세요. (= 암호화 및 해시값 해당 없는 패스워드)"
 
                 ####################################################################################################
-                # ex) /*ARCG-9999*/grant select, insert, update, delete on admdb.* to 'deal_detail'@'10.11.12.%' identified by 'password';
+                # ex) /*JIRA-9999*/grant select, insert, update, delete on admdb.* to 'deal_detail'@'10.11.12.%' identified by 'password';
                 #print(modify_form.account_sql)
 
                 # 계정 생성 예제
@@ -910,8 +798,6 @@ def account_insert(request):
         finally:
             print("")
 
-        ########################################## 페이지 원래대로
-
         account_requestor = request.POST.get('s_account_requestor')
         account_devteam = request.POST.get('s_account_devteam')
         account_svr = request.POST.get('s_account_svr')
@@ -922,19 +808,6 @@ def account_insert(request):
         account_table = request.POST.get('s_account_table')
         account_url = request.POST.get('s_account_url')
         callmorepostFlag = 'true'
-
-        # print("검색란 리턴값 테스트 선입니다.")
-        # print("============================================================")
-        # print(account_requestor)
-        # print(account_devteam)
-        # print(account_svr)
-        # print(account_user)
-        # print(account_host)
-        # print(account_grant)
-        # print(account_db)
-        # print(account_table)
-        # print(account_url)
-        # print("============================================================")
 
         if account_svr == '':
             print("전체서버 검색")
@@ -1094,7 +967,6 @@ def check_overlap_password(svr, user, password):
 
         cursor.close()
 
-    # print("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
     return alert_type, alert_message
 
 # 2. 계정 중복 여부 체크
@@ -1102,7 +974,7 @@ def check_overlap_password(svr, user, password):
 # 체크값 : 서버, 아이디, 패스워드, 호스트, 권한, DB, TABLE
 def check_overlap_account(svr, user, host, password, grant, db, table):
     print("--------------------------------------------------------------------------------")
-    print("계정 중복을 체크합니다...")
+    print("계정 중복을 체크합니다.")
     print("--------------------------------------------------------------------------------")
     query = "SELECT count(*) AS cnt FROM account_account WHERE 1=1" \
             " AND account_svr='" + svr + "'" \
@@ -1183,7 +1055,6 @@ def check_account_consistency(svr, user, host, password, db, table, grant):
 def account_delete(request):
     if request.method == 'POST':
 
-        #### DELETE
         d_id = request.POST.get('d_id')
         d_account_requestor = request.POST.get('d_account_requestor')
         d_account_svr = request.POST.get('d_account_svr')
@@ -1200,26 +1071,6 @@ def account_delete(request):
         d_account_del_reason = request.POST.get('d_account_del_reason')
         d_account_del_note = request.POST.get('d_account_del_note')
 
-        # print("============================================================")
-        # print("DELETE 리턴값 테스트 선입니다.")
-        # print("============================================================")
-        # print(d_id)
-        # print(d_account_requestor)
-        # print(d_account_devteam)
-        # print(d_account_info)
-        # print(d_account_url)
-        # print(d_account_svr)
-        # print(d_account_user)
-        # print(d_account_host)
-        # print(d_account_pass)
-        # print(d_account_db)
-        # print(d_account_table)
-        # print(d_account_grant)
-        # print(d_account_grant_with)
-        # print(d_account_del_reason)
-        # print(d_account_del_note)
-        # print("============================================================")
-
         delete_sql = "/*ACCOUNT DEL_YN=Y*/ UPDATE account_account " + \
         "SET account_del_dt = now() " + \
         ", account_del_yn = 'Y' " + \
@@ -1228,7 +1079,6 @@ def account_delete(request):
         " WHERE id = " + d_id + ";"
 
         print(delete_sql)
-        # print("============================================================")
 
         try:
             cursor = connections['default'].cursor()
@@ -1244,8 +1094,6 @@ def account_delete(request):
         finally:
             cursor.close()
 
-        ########################################## 페이지 원래대로
-
         account_requestor = request.POST.get('s_account_requestor')
         account_devteam = request.POST.get('s_account_devteam')
         account_svr = request.POST.get('s_account_svr')
@@ -1256,19 +1104,6 @@ def account_delete(request):
         account_table = request.POST.get('s_account_table')
         account_url = request.POST.get('s_account_url')
         callmorepostFlag = 'true'
-
-        # print("검색란 리턴값 테스트 선입니다.")
-        # print("============================================================")
-        # print(account_requestor)
-        # print(account_devteam)
-        # print(account_svr)
-        # print(account_user)
-        # print(account_host)
-        # print(account_grant)
-        # print(account_db)
-        # print(account_table)
-        # print(account_url)
-        # print("============================================================")
 
         if account_svr == '':
             print("전체서버 검색")
@@ -1341,7 +1176,6 @@ def account_delete(request):
 def account_update(request):
     if request.method == 'POST':
 
-        #### UPDATE
         u_id = request.POST.get('u_id')
         u_account_requestor = request.POST.get('u_account_requestor')
         u_account_svr = request.POST.get('u_account_svr')
@@ -1381,12 +1215,7 @@ def account_update(request):
 
         try:
             if (u_account_pass is not None and u_account_pass != '') or forceupdate_flag == 'True':
-                # *** 2021-01-13 OLD ***
-                # put_password(u_account_pass)
-                # u_account_hash = get_password_hash(u_account_pass)
-                # u_account_pass = get_password_encrypt(u_account_pass)
 
-                # *** 2021-01-13 NEW ***
                 # account_hash 신규 해시값 등록 -> account_has, account_pass 세팅
                 # True리턴 : 8버전이상, Fasle 리턴 : 8버전 이하
                 # 8이상이거나 강제입력 활성화 경우, 대체 패스워드 함수 사용
@@ -1433,29 +1262,6 @@ def account_update(request):
                 ", account_hash = " + "'" + u_account_hash + "'" + \
                 " WHERE id = " + u_id + ";"
 
-                # print("============================================================")
-                # print("UPDATE 리턴값 테스트 선입니다.")
-                # print("============================================================")
-                # print(u_id)
-                # print(u_account_requestor)
-                # print(u_account_devteam)
-                # print(u_account_info)
-                # print(u_account_url)
-                # print(u_account_svr)
-                # print(u_account_user)
-                # print(u_account_host)
-                # print(u_account_pass)
-                # print(u_account_db)
-                # print(u_account_table)
-                # print(u_account_grant)
-                # print(u_account_grant_with)
-                # print("============================================================")
-                # print("수정본 u_account_sql : " + u_account_sql)
-                # print("수정본 account_hash: " + u_account_hash)
-                # print(update_sql)
-                # print("forceupdate_flag : " + str(forceupdate_flag))
-                # print("============================================================")
-
                 # 정합성 체크간 업데이트 중복계정 이슈로 못하던 문제 예외처리
                 # 하나라도 정합성 체크에 필요한 항목이 업데이트 항목에 포함되있다면
                 old_account = Account.objects.get(id=u_id)
@@ -1486,11 +1292,6 @@ def account_update(request):
                     alert_type = "ERR_0"
                     alert_message = ""
 
-
-                # 쿼리 수행
-                # print("alert_type : " + alert_type)
-                # print("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
-
                 if alert_type == "ERR_0":
                     try:
                         cursor = connections['default'].cursor()
@@ -1518,9 +1319,6 @@ def account_update(request):
         finally:
             print("")
 
-
-        ########################################## 페이지 원래대로
-
         account_requestor = request.POST.get('s_account_requestor')
         account_devteam = request.POST.get('s_account_devteam')
         account_svr = request.POST.get('s_account_svr')
@@ -1531,19 +1329,6 @@ def account_update(request):
         account_table = request.POST.get('s_account_table')
         account_url = request.POST.get('s_account_url')
         callmorepostFlag = 'true'
-
-        # print("검색란 리턴값 테스트 선입니다.")
-        # print("============================================================")
-        # print(account_requestor)
-        # print(account_devteam)
-        # print(account_svr)
-        # print(account_user)
-        # print(account_host)
-        # print(account_grant)
-        # print(account_db)
-        # print(account_table)
-        # print(account_url)
-        # print("============================================================")
 
         if account_svr == '':
             print("전체서버 검색")
@@ -1672,11 +1457,6 @@ def account_select(request):
         except EmptyPage:
             account_list = paginator.get_page(paginator.num_pages)
 
-        # print("=================================")
-        # print("page : " + str(page))
-        # print("pagemax : " + str(page_max))
-        # print("=================================")
-
         context = {
             'account_requestor': account_requestor,
             'account_devteam': account_devteam,
@@ -1793,8 +1573,6 @@ def account_repository_insert(request):
                     "'" + i_url + "', " + \
                     "'" + i_info + "')"
 
-        # print(insert_sql)
-
         try:
             cursor = connections['default'].cursor()
             cursor.execute(insert_sql)
@@ -1818,23 +1596,6 @@ def account_repository_insert(request):
         s_account_user = request.POST.get('s_account_user')
         s_url = request.POST.get('s_url')
         s_info = request.POST.get('s_info')
-
-        # print("-----------------------------------------------")
-        # print(i_repository_team)
-        # print(i_repository_type)
-        # print(i_repository_name)
-        # print(i_repository_url)
-        # print(i_account_user)
-        # print(i_url)
-        # print(i_info)
-        #
-        # print(s_repository_team)
-        # print(s_repository_name)
-        # print(s_repository_url)
-        # print(s_account_user)
-        # print(s_url)
-        # print(s_info)
-        # print("-----------------------------------------------")
 
         repository_list = AccountRepository.objects.filter(
             repository_team__contains=s_repository_team,
@@ -1902,8 +1663,6 @@ def account_repository_update(request):
                      ", info = " + "'" + u_info + "'" + \
                      " WHERE id = " + u_id + ";"
 
-        # print(update_sql)
-
         try:
             cursor = connections['default'].cursor()
             cursor.execute(update_sql)
@@ -1929,22 +1688,6 @@ def account_repository_update(request):
         s_account_user = request.POST.get('s_account_user')
         s_url = request.POST.get('s_url')
         s_info = request.POST.get('s_info')
-
-        # print("-----------------------------------------------")
-        # print(u_repository_team)
-        # print(u_repository_name)
-        # print(u_repository_url)
-        # print(u_account_user)
-        # print(u_url)
-        # print(u_info)
-        #
-        # print(s_repository_team)
-        # print(s_repository_name)
-        # print(s_repository_url)
-        # print(s_account_user)
-        # print(s_url)
-        # print(s_info)
-        # print("-----------------------------------------------")
 
         repository_list = AccountRepository.objects.filter(
             repository_team__contains=s_repository_team,
@@ -2106,8 +1849,6 @@ def account_remove_recover_account_list(request):
         finally:
             cursor.close()
 
-
-            ########################################## 페이지 원래대로
             account_requestor = request.POST.get('s_account_requestor')
             account_devteam = request.POST.get('s_account_devteam')
             account_svr = request.POST.get('s_account_svr')

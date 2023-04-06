@@ -8,7 +8,6 @@
     <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInsert" aria-expanded="false" aria-controls="collapseInsert">계정 입력</button>
     <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUpdateMulti" aria-expanded="false" aria-controls="collapseUpdateMulti">계정 수정/삭제</button>
 </div>
-
 <!-- 검색 -->
 <div class="collapse show"  id="collapseSelect" style="font-size: 12px;">
     <div class="card card-body bg-light mb-0 pb-0">
@@ -155,25 +154,24 @@
 
                             <!-- input grant 직접입력 구현 -->
                             <script>
-
-                            $('#i_account_grant').change(function(){
-                                $("#i_account_grant option:selected").each(function () {
-                                    if($(this).val() == ''){
-                                        $("#i_account_grant_direct").show();
-                                        $("#i_account_grant_direct").val('');
-                                        $("#i_account_grant_direct").attr("disabled",false);
-                                        $("#i_account_grant").hide();
-                                    }else{
-                                        $("#i_account_grant").show();
-                                        $("#i_account_grant_direct").hide();
-                                    }
+                                $('#i_account_grant').change(function(){
+                                    $("#i_account_grant option:selected").each(function () {
+                                        if($(this).val() == ''){
+                                            $("#i_account_grant_direct").show();
+                                            $("#i_account_grant_direct").val('');
+                                            $("#i_account_grant_direct").attr("disabled",false);
+                                            $("#i_account_grant").hide();
+                                        }else{
+                                            $("#i_account_grant").show();
+                                            $("#i_account_grant_direct").hide();
+                                        }
+                                    });
                                 });
-                            });
 
-                            $('#i_account_grant_direct').load('dummy',function(){
-                                $("#i_account_grant").show();
-                                $("#i_account_grant_direct").hide();
-                            });
+                                $('#i_account_grant_direct').load('dummy',function(){
+                                    $("#i_account_grant").show();
+                                    $("#i_account_grant_direct").hide();
+                                });
                             </script>
                     </div>
                 </td>
@@ -306,7 +304,6 @@
                         <div role="tabpanel" class="tab-pane fade" id="deleteTab">
                             <form class="" onsubmit="return false;" name="deleteForm">
                             {% csrf_token %}
-
                             <!-- hidden value (pk) -->
                             <!-- view에 조회 데이터 넘기기 및 페이징 처리 원위치 이동을 위해 구현-->
                             <input class="form-control form-control-sm" id="id" name="id" type="hidden">
