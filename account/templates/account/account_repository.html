@@ -133,21 +133,14 @@
 
 
 <!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
 
             <!-- Modal Header -->
             <div class="modal-header small">
-                <!-- <h4 class="modal-title" id="myModalLabel">Modal title</h4> -->
-
-                <!-- Nav tabs -->
-                <ul class="nav nav-pills" role="tablist">
-                    <li>
-                        <a class="nav-link active btn-outline-dark" href="#updateTab" aria-controls="updateTab" role="tab" aria-selected="true" data-toggle="tab">수정</a>
-                    </li>
-                </ul>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">수정하기</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <!-- Modal Body -->
@@ -177,49 +170,49 @@
 
                                 <table class="table table-sm table-hover text-center">
                                     <tr class="">
-                                        <td style="width: 20%" class="bg-dark text-white align-middle">생성일자</td>
+                                        <td style="width: 20%" class="bg-secondary text-white align-middle">생성일</td>
                                         <td style="width: 80%"><input class="form-control form-control-sm" id="u_create_dt" name="u_create_dt" type="text" readonly></td>
                                     </tr>
                                     <tr>
-                                        <td class="bg-dark text-white align-middle">연관부서</td>
+                                        <td class="bg-secondary text-white align-middle">요청팀</td>
                                         <td><input class="form-control form-control-sm" id="u_repository_team" name="u_repository_team" type="text"></td>
                                     </tr>
                                     <tr>
-                                        <td class="bg-dark text-white align-middle">레포지토리 타입(구분)</td>
+                                        <td class="bg-secondary text-white align-middle">레포지토리 타입(구분)</td>
                                         <td><input class="form-control form-control-sm" id="u_repository_type" name="u_repository_type" type="text"></td>
                                     </tr>
                                     <tr class="">
-                                        <td class="bg-dark text-white align-middle">레포지토리 명</td>
+                                        <td class="bg-secondary text-white align-middle">레포지토리 명</td>
                                         <td><input class="form-control form-control-sm" id="u_repository_name" name="u_repository_name" type="text"></td>
                                     </tr>
                                     <tr>
-                                        <td class="bg-dark text-white align-middle">레포지토리 URL</td>
+                                        <td class="bg-secondary text-white align-middle">레포지토리 URL</td>
                                         <td><input class="form-control form-control-sm" id="u_repository_url" name="u_repository_url" type="text"></td>
                                     </tr>
                                     <tr class="">
-                                        <td class="bg-dark text-white align-middle">계정명</td>
+                                        <td class="bg-secondary text-white align-middle">계정명</td>
                                         <td><input class="form-control form-control-sm" id="u_account_user" name="u_account_user" type="text"></td>
                                     </tr>
                                     <tr class="">
-                                        <td class="bg-dark text-white align-middle">비고</td>
+                                        <td class="bg-secondary text-white align-middle">비고</td>
                                         <td><input class="form-control form-control-sm" id="u_info" name="u_info" type="text"></td>
                                     </tr>
                                     <tr>
-                                        <td class="bg-dark text-white align-middle">요청 URL</td>
+                                        <td class="bg-secondary text-white align-middle">요청 URL</td>
                                         <td><input class="form-control form-control-sm" id="u_url" name="u_url" type="text"></td>
                                     </tr>
                                 </table>
-                                <p class="text-right">수정 하시겠습니까?</p>
-
-                                <div class="modal-footer">
-                                    <button class="btn btn-outline-primary btn-sm" onclick="updateBox()" type="submit">수정</button>
-                                    <button type="" class="btn btn-sm btn-outline-danger" data-dismiss="modal">취소</button>
-                                </div>
                             </form>
                         </div>
 
                     </div>
                 </div>
+            </div>
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <p class="text-right">수정 하시겠습니까?</p>
+                <button type="" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">취소</button>
+                <button class="btn btn-secondary btn-sm" onclick="updateBox()" type="submit">수정</button>
             </div>
         </div>
     </div>
