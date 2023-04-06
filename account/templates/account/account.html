@@ -4,13 +4,13 @@
 {% include "navbar-account.html" %}
 <!-- MAIN -->
 <div class="d-grid gap-2 d-md-flex justify-content-center">
-    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSelect" aria-expanded="false" aria-controls="collapseSelect">검색</button>
-    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInsert" aria-expanded="false" aria-controls="collapseInsert">입력</button>
-    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUpdateMulti" aria-expanded="false" aria-controls="collapseUpdateMulti">수정/삭제</button>
+    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSelect" aria-expanded="false" aria-controls="collapseSelect">계정 검색</button>
+    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInsert" aria-expanded="false" aria-controls="collapseInsert">계정 입력</button>
+    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUpdateMulti" aria-expanded="false" aria-controls="collapseUpdateMulti">계정 수정/삭제</button>
 </div>
 
 <!-- 검색 -->
-<div class="collapse"  id="collapseSelect" style="font-size: 12px;">
+<div class="collapse show"  id="collapseSelect" style="font-size: 12px;">
     <div class="card card-body bg-light mb-0 pb-0">
 
         <h6>검색란</h6>
@@ -23,7 +23,7 @@
         </table>
 
         <table class="table table-sm text-center mb-0 pb-0" style="table-layout: fixed">
-            <tr class="bg-dark text-white">
+            <tr class="bg-secondary text-white">
                 <th class="rounded-left">요청자명</th>
                 <th class="">요청팀</th>
                 <th class="">서버</th>
@@ -75,7 +75,7 @@
                         <input class="form-control form-control-sm" id="s_account_url" name="s_account_url" value="{{ account_url }}" type="text" placeholder="">
                     </td>
                     <td class="">
-                        <button id="search" class="btn btn-outline-primary btn-sm">검색</button>
+                        <button id="search" class="btn btn-secondary btn-sm">검색</button>
                     </td>
                 </form>
             </tr>
@@ -111,19 +111,19 @@
             <form class="form-inline" onsubmit="return false;" name="insertForm">
             {% csrf_token %}
             <tr class="">
-                <td style="width: 5%" class="bg-dark text-white align-middle">요청자명</td>
+                <td style="width: 5%" class="bg-secondary text-white align-middle">요청자명</td>
                 <td style="width: 9%"><input class="form-control form-control-sm" id="i_account_requestor" name="i_account_requestor" value="{{ i_account_requestor }}" type="text"></td>
-                <td style="width: 5%" class="bg-dark text-white align-middle">요청팀</td>
+                <td style="width: 5%" class="bg-secondary text-white align-middle">요청팀</td>
                 <td style="width: 9%"><input class="form-control form-control-sm" id="i_account_devteam" name="i_account_devteam" value="{{ i_account_devteam }}" type="text"></td>
-                <td style="width: 5%" class="bg-dark text-white align-middle">서버</td>
+                <td style="width: 5%" class="bg-secondary text-white align-middle">서버</td>
                 <td style="width: 9%"><input class="form-control form-control-sm" id="i_account_svr" name="i_account_svr" value="{{ i_account_svr }}" type="text"></td>
-                <td style="width: 5%" class="bg-dark text-white align-middle">아이디</td>
+                <td style="width: 5%" class="bg-secondary text-white align-middle">아이디</td>
                 <td style="width: 9%"><input class="form-control form-control-sm" id="i_account_user" name="i_account_user" value="{{ i_account_user }}" type="text"></td>
-                <td style="width: 5%" class="bg-dark text-white align-middle">허용 호스트</td>
+                <td style="width: 5%" class="bg-secondary text-white align-middle">허용 호스트</td>
                 <td colspan="2" style="width: 14%"><input class="form-control form-control-sm" id="i_account_host" name="i_account_host" value="{{ i_account_host }}" type="text"></td>
-                <td style="width: 5%" class="bg-dark text-white align-middle">패스워드</td>
+                <td style="width: 5%" class="bg-secondary text-white align-middle">패스워드</td>
                 <td style="width: 15%"><input class="form-control form-control-sm" id="i_account_pass" name="i_account_pass" value="{{ i_account_pass }}" type="text"></td>
-                <td style="width: 5%" class="bg-dark text-white align-middle">GRANT WITH</td>
+                <td style="width: 5%" class="bg-secondary text-white align-middle">GRANT WITH</td>
                 <td style="width: 4%">
                     <div class="input-group input-group-sm">
                         <select class="custom-select" id="i_account_grant_with" name="i_account_grant_with">
@@ -134,15 +134,15 @@
                 </td>
             </tr>
             <tr class="">
-                <td class="bg-dark text-white align-middle">INFO</td>
+                <td class="bg-secondary text-white align-middle">INFO</td>
                 <td><input class="form-control form-control-sm" id="i_account_info" name="i_account_info" value="{{ i_account_info }}" type="text"></td>
-                <td class="bg-dark text-white align-middle">URL</td>
+                <td class="bg-secondary text-white align-middle">URL</td>
                 <td><input class="form-control form-control-sm" id="i_account_url" name="i_account_url" value="{{ i_account_url }}" type="text"></td>
-                <td class="bg-dark text-white align-middle">DB</td>
+                <td class="bg-secondary text-white align-middle">DB</td>
                 <td><input class="form-control form-control-sm" id="i_account_db" name="i_account_db" value="{{ i_account_db }}" type="text"></td>
-                <td class="bg-dark text-white align-middle">TABLE</td>
+                <td class="bg-secondary text-white align-middle">TABLE</td>
                 <td><input class="form-control form-control-sm" id="i_account_table" name="i_account_table" value="{{ i_account_table }}" type="text"></td>
-                <td class="bg-dark text-white align-middle">권한</td>
+                <td class="bg-secondary text-white align-middle">권한</td>
                 <td colspan="6">
                     <div class="input-group input-group-sm">
                         <select class="custom-select" id="i_account_grant" name="i_account_grant">
@@ -180,8 +180,8 @@
             </tr>
             <tr>
                 <td colspan="2" class="text-left">
-                    <button class="btn btn-outline-danger btn-sm" onclick="insertBox()" type="submit">입력</button>
-                    <input class="btn btn-outline-dark btn-sm" type="button" value="지우기" onClick="insertBox_del()">
+                    <button class="btn btn-secondary btn-sm" onclick="insertBox()" type="submit">입력</button>
+                    <input class="btn btn-secondary btn-sm" type="button" value="지우기" onClick="insertBox_del()">
                 </td>
             </tr>
             </form>
@@ -203,7 +203,7 @@
                 <table class="table table-sm text-center mb-0 pb-0" style="table-layout: fixed">
                     <form class="form-inline" onsubmit="return false;" name="MultiUpdateForm">
                         {% csrf_token %}
-                        <tr class="bg-dark text-white">
+                        <tr class="bg-secondary text-white">
                             <th style="width: 30%" class="rounded-left">변경 항목</th>
                             <th style="width: 62%" class="">변경 값</th>
                             <th style="width: 8%" class="rounded-right"></th>
@@ -227,7 +227,7 @@
                             </td>
                             <td><input class="form-control form-control-sm" id="mu_value" name="mu_value" type="text"></td>
                             <td>
-                                <button class="btn btn-outline-info btn-sm" onclick="MultiUpdateBox()" type="submit">수정</button>
+                                <button class="btn btn-secondary btn-sm" onclick="MultiUpdateBox()" type="submit">수정</button>
                             </td>
                         </tr>
                     </form>
@@ -245,7 +245,7 @@
                 <table class="table table-sm text-center mb-0 pb-0" style="table-layout: fixed">
                     <form class="form-inline" onsubmit="return false;" name="MultiDeleteForm">
                         {% csrf_token %}
-                        <tr class="bg-dark text-white">
+                        <tr class="bg-secondary text-white">
                             <th style="width: 62%" class="rounded-left">삭제 사유</th>
                             <th style="width: 30%" class="">삭제 URL(JIRA)</th>
                             <th style="width: 8%" class="rounded-right"></th>
@@ -253,7 +253,7 @@
                             <td><input class="form-control form-control-sm" id="md_account_del_reason" name="md_account_del_reason" type="text"></td>
                             <td><input class="form-control form-control-sm" id="md_account_del_note" name="md_account_del_note" type="text"></td>
                             <td>
-                                <button class="btn btn-outline-dark btn-sm" onclick="MultiDeleteBox()" type="submit">삭제</button>
+                                <button class="btn btn-secondary btn-sm" onclick="MultiDeleteBox()" type="submit">삭제</button>
                             </td>
                         </tr>
                     </form>
