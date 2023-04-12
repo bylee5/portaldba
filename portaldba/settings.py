@@ -37,6 +37,7 @@ ALLOWED_HOSTS = ['10.12.14.136','127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
+    'process_check.apps.ProcessCheckConfig',
     'server.apps.ServerConfig',
     'login.apps.LoginConfig',
     'home.apps.HomeConfig',

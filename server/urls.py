@@ -7,4 +7,5 @@ urlpatterns = [
     # ex: /server/
     path('', views.server, name='server'),
     path('server_remove', views.server_remove, name='server_remove'),
+    
 ]
