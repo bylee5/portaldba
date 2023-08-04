@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>Title</title>
+</head>
+<body>
+    
+<!-- ajax 추가 부분 -->
+<hr>
+<!-- alert_type에 따른 에러뿌리기 -->
+{% if alert_type != "ERR_0" %}
+<table>
+    <tr>
+        <td>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" id="alertbox" name="alertbox">
+            <h6 class="alert-danger">{{ alert_type }} - 작업에 실패했습니다.</h6>
+            <a style="white-space:pre;">{{ alert_message }}</a>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+        </td>
+    </tr>
+</table>
+{% endif %}
+
+<< 총 ⁝ <span class="badge text-bg-secondary">{{ total_count }}</span> 건의 데이터 >>
+<table class="table table-bordered table-sm table-hover">
+    <tr class="bg-secondary text-white">
+        <th style="width: 1%;" class="check-all rounded-left tmp_bg-light table-borderless">
+            <input type="checkbox" id="checkbox_all" name="checkbox_all" class="check-all">
+        </th>
+        <th style="width: 3%;">ID</th>
+        <th style="width: 3%;">DB종류</th>
+        <th style="width: 3%;">DB환경</th>
+        <th style="width: 3%;">서비스명</th>
+        <th style="width: 8%;">서버명</th>
+        <th style="width: 3%;">DB버전</th>
+        <th style="width: 6%;">용도</th>
+        <th style="width: 3%;">사설IP</th>
+        <th style="width: 3%;">공용IP</th>
+        <th style="width: 3%;">가상IP</th>
+        <th style="width: 3%;">포트</th>
+        <th style="width: 3%;">분류</th>
+        <th style="width: 3%;">담당자1</th>
+        <th style="width: 3%;">담당자2</th>
+        <th style="width: 3%;">감사로그</th>
+        <th style="width: 3%;">생성일</th>
+        <th style="width: 3%;">변경일</th>
+        <th style="width: 5%;" class="rounded-right">URL</th>
+    </tr>
+
+{% if server_list %}
+    {% for server in server_list %}
+
+    {% if server.update_dt|date:'Y/m/d H:i:s' == last_modify_dt %}
+    <tr style="background-color: #FFDEAD">
+    {% else %}
+    <tr>
+    {% endif %}
+
+        <td>
+            <input type="checkbox" id="checkbox" name="checkbox" class="check" value="{{ server.id }}">
+            <!-- 체크박스 전체선택/해제하기 -->
+            <script>
+                $(document).ready(function(){
+                    $('.check-all').click(function(){
+                        $('.check').prop('checked', this.checked);
+                    });
+                });
+            </script>
+        </td>
+        <td style = "cursor:pointer;" id="{{ server.id }}" name="{{ server.id }}" data-bs-toggle="server_id" data-placement="right" title="입력란 복사">
+            {{ server.id }}
+        </td>
+        <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal"
+            data-id="{{ server.id }}"
+            data-dbtype="{{ server.dbtype }}">
+            {{ server.dbtype }}
+        </td>
+        <td>{{ server.dbenv }}</td>
+        <td>{{ server.dbservice }}</td>
+        <td>{{ server.dbsvr }}</td>
+        <td>{{ server.dbver }}</td>
+        <td>{{ server.usg }}</td>
+        <td>{{ server.pri_ip }}</td>
+        <td>{{ server.pub_ip }}</td>
+        <td>{{ server.vip }}</td>
+        <td>{{ server.port1 }}</td>
+        <td>{{ server.priority }}</td>
+        <td>{{ server.manager1 }}</td>
+        <td>{{ server.manager2 }}</td>
+        <td>{{ server.audit_yn }}</td>
+        <td>{{ server.created_at }}</td>
+        <td>{{ server.updated_at }}</td>
+        <td style = "cursor:pointer;" id="{{ server.url }}" name="{{ server.url }}" data-bs-toggle="server_url" data-placement="right" title="URL 이동" onClick="window.open('https://kakaovx.atlassian.net/browse/{{ server.url}}')">
+            {{ server.url }}
+        </td>
+
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+<div>
+    {% if page_max is none %}
+    <input id="page_max" name="page_max" type="hidden" value="1">
+    {% else %}
+    <input id="page_max" name="page_max" type="hidden" value="{{ page_max }}">
+    {% endif %}
+</div>
+
+<input class="form-control form-control-sm" id="alert_type" name="alert_type" value="{{ alert_type }}" type="hidden">
+
+
+</body>
+</html>
