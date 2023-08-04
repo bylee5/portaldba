@@ -39,7 +39,6 @@ def server_select(request):
                 url__contains=url,
                 delete_yn='N'
             ).order_by('-id')
-            print("total_count:", server_list.count())
         else:
             print("특정 서버 검색")
             server_list = Server.objects.filter(

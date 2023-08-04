@@ -92,8 +92,8 @@
         <td>{{ server.manager1 }}</td>
         <td>{{ server.manager2 }}</td>
         <td>{{ server.audit_yn }}</td>
-        <td>{{ server.created_at }}</td>
-        <td>{{ server.updated_at }}</td>
+        <td>{{ server.created_at|date:'Y/m/d H:i:s' }}</td>
+        <td>{{ server.updated_at|date:'Y/m/d H:i:s' }}</td>
         <td style = "cursor:pointer;" id="{{ server.url }}" name="{{ server.url }}" data-bs-toggle="server_url" data-placement="right" title="URL 이동" onClick="window.open('https://kakaovx.atlassian.net/browse/{{ server.url}}')">
             {{ server.url }}
         </td>
