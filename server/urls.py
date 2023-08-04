@@ -9,5 +9,6 @@ urlpatterns = [
     path('server_remove', views.server_remove, name='server_remove'),
     path('select', views.server_select, name='server_select'),
     path('dummy', views.server_dummy, name='server_dummy'),
+    path('insert', views.server_insert, name='server_insert'),
     
 ]

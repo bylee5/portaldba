@@ -26,10 +26,10 @@
                 <th class="rounded-left">DB종류</th>
                 <th class="">DB환경</th>
                 <th class="">서비스명</th>
-                <th class="">DB서버명</th>
+                <th class="" style="width: 20%;">DB서버명</th>
                 <th class="">DB버전</th>
-                <th class="">감사로그</th>
-                <th class="">요청 URL</th>
+                <th class="" style="width: 5%;">감사</th>
+                <th class="">URL</th>
                 <th class="rounded-right"></th>
             </tr>
             <tr>
@@ -90,6 +90,76 @@
             </tr>
         </table>
     </div>   
+</div>
+<!-- 입력 -->
+<div class="collapse" id="collapseInsert" style="font-size: 12px;">
+    <div class="card card-body mt-2 bg-light mb-0 pb-0">
+        <h6>입력란</h6>
+        <table class="mb-2">
+        <tr>
+            <td>
+                <a>- 불가피한 사유로 서버 입력이 필요하다면 우측 <font color="red"><b>강제입력</b></font> 스위치를 ON 시켜주세요.(미구현)</a>
+            </td>
+            <td class="text-right align-bottom">
+                <a>강제입력 <input type="checkbox" id="forceinsert_flag" name="forceinsert_flag" data-toggle="toggle" data-size="xs" data-style="ios" data-onstyle="danger"  data-offstyle="light" data-height="20" data-width="50" data-on="ON" data-off="Off"></a>
+                <style>
+                    .toggle.ios, .toggle-on.ios, .toggle-off.ios { border-radius: 20rem; }
+                    .toggle.ios .toggle-handle { border-radius: 20rem; }
+                </style>
+            </td>
+        </tr>
+        </table>
+
+        <table class="table table-sm text-center  mb-0 pb-0" style="table-layout: fixed">
+            <form class="form-inline" onsubmit="return false;" name="insertForm">
+            {% csrf_token %}
+            <!-- 첫번째 줄 -->
+            <tr class="">
+                <td style="width: 5%" class="bg-secondary text-white align-middle">DB종류</td>
+                <td style="width: 9%"><input class="form-control form-control-sm" id="i_server_dbtype" name="i_server_dbtype" value="{{ i_server_dbtype }}" type="text"></td>
+                <td style="width: 5%" class="bg-secondary text-white align-middle">DB환경</td>
+                <td style="width: 9%"><input class="form-control form-control-sm" id="i_server_dbenv" name="i_server_dbenv" value="{{ i_server_dbenv }}" type="text"></td>
+                <td style="width: 5%" class="bg-secondary text-white align-middle">서비스명</td>
+                <td style="width: 9%"><input class="form-control form-control-sm" id="i_server_dbservice" name="i_server_dbservice" value="{{ i_server_dbservice }}" type="text"></td>
+                <td style="width: 5%" class="bg-secondary text-white align-middle">서버명</td>
+                <td style="width: 9%"><input class="form-control form-control-sm" id="i_server_dbsvr" name="i_server_dbsvr" value="{{ i_server_dbsvr }}" type="text"></td>
+                <td style="width: 5%" class="bg-secondary text-white align-middle">DB버전</td>
+                <td style="width: 9%"><input class="form-control form-control-sm" id="i_server_dbver" name="i_server_dbver" value="{{ i_server_dbver }}" type="text"></td>
+            <!-- 두번째 줄 -->
+            <tr class="">
+                <td class="bg-secondary text-white align-middle">용도</td>
+                <td><input class="form-control form-control-sm" id="i_server_usg" name="i_server_usg" value="{{ i_server_usg }}" type="text"></td>
+                <td class="bg-secondary text-white align-middle">사설IP</td>
+                <td><input class="form-control form-control-sm" id="i_server_pri_ip" name="i_server_pri_ip" value="{{ i_server_pri_ip }}" type="text"></td>
+                <td class="bg-secondary text-white align-middle">공용IP</td>
+                <td><input class="form-control form-control-sm" id="i_server_pub_ip" name="i_server_pub_ip" value="{{ i_server_pub_ip }}" type="text"></td>
+                <td class="bg-secondary text-white align-middle">가상IP</td>
+                <td><input class="form-control form-control-sm" id="i_server_vip" name="i_server_vip" value="{{ i_server_vip }}" type="text"></td>
+                <td class="bg-secondary text-white align-middle">포트</td>
+                <td><input class="form-control form-control-sm" id="i_server_port1" name="i_server_port1" value="{{ i_server_port1 }}" type="text"></td>
+            </tr>
+            <!-- 세번째 줄 -->
+            <tr class="">
+                <td class="bg-secondary text-white align-middle">분류</td>
+                <td><input class="form-control form-control-sm" id="i_server_priority" name="i_server_priority" value="{{ i_server_priority }}" type="text"></td>
+                <td class="bg-secondary text-white align-middle">담당자1</td>
+                <td><input class="form-control form-control-sm" id="i_server_manager1" name="i_server_manager1" value="{{ i_server_manager1 }}" type="text"></td>
+                <td class="bg-secondary text-white align-middle">담당자2</td>
+                <td><input class="form-control form-control-sm" id="i_server_manager2" name="i_server_manager2" value="{{ i_server_manager2 }}" type="text"></td>
+                <td class="bg-secondary text-white align-middle">감사</td>
+                <td><input class="form-control form-control-sm" id="i_server_audit_yn" name="i_server_audit_yn" value="{{ i_server_audit_yn }}" type="text"></td>
+                <td class="bg-secondary text-white align-middle">URL</td>
+                <td><input class="form-control form-control-sm" id="i_server_url" name="i_server_url" value="{{ i_server_url }}" type="text"></td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-left">
+                    <button class="btn btn-secondary btn-sm" onclick="insertBox()" type="submit">입력</button>
+                    <input class="btn btn-secondary btn-sm" type="button" value="지우기" onClick="insertBox_del()">
+                </td>
+            </tr>
+            </form>
+        </table>
+    </div>
 </div>
 
 <!-- 결과란 -->
@@ -157,6 +227,90 @@
             url: "{% url 'server:server_select' %}",
             async: false,
             data: {
+                's_dbtype': s_dbtype,
+                's_dbenv': s_dbenv,
+                's_dbservice': s_dbservice,
+                's_dbsvr': s_dbsvr,
+                's_dbver': s_dbver,
+                's_audit_yn': s_audit_yn,
+                's_url': s_url,
+                'page': page,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreServerAjax,
+            dataType: 'html'
+        });
+    }
+</script>
+
+<!-- server insert ajax script -->
+<script>
+    function insertBox() {
+        var retVal = confirm("입력하시겠습니까?");
+        if (retVal == true ){
+            var page = parseInt($("#page").val());
+            insert_callMoreListAjax(page);
+            $("#page").val(parseInt(page));
+        }else{
+            return false;
+        }
+    }
+    
+    function insertBox_del() {
+        document.insertForm.reset();
+    }
+    
+    function insert_callMoreListAjax(page) {
+        var i_server_dbtype = $("#i_server_dbtype").val();
+        var i_server_dbenv = $("#i_server_dbenv").val();
+        var i_server_dbservice = $("#i_server_dbservice").val();
+        var i_server_dbsvr = $("#i_server_dbsvr").val();
+        var i_server_dbver = $("#i_server_dbver").val();
+        var i_server_usg = $("#i_server_usg").val();
+        var i_server_pri_ip = $("#i_server_pri_ip").val();
+        var i_server_pub_ip = $("#i_server_pub_ip").val();
+        var i_server_vip = $("#i_server_vip").val();
+        var i_server_port1 = $("#i_server_port1").val();
+        var i_server_priority = $("#i_server_priority").val();
+        var i_server_manager1 = $("#i_server_manager1").val();
+        var i_server_manager2 = $("#i_server_manager2").val();
+        var i_server_audit_yn = $("#i_server_audit_yn").val();
+        var i_server_url = $("#i_server_url").val();
+    
+        var s_dbtype = $("#s_dbtype").val();
+        var s_dbenv = $("#s_dbenv").val();
+        var s_dbservice = $("#s_dbservice").val();
+        var s_dbsvr = $("#s_dbsvr").val();
+        var s_dbver = $("#s_dbver").val();
+        var s_audit_yn = $("#s_audit_yn").val();
+        var s_url = $("#s_url").val();
+    
+        // 강제 입력여부
+        var forceinsert_flag = 'False';
+        $("input[name='forceinsert_flag']:checked").each(function(i) {
+            forceinsert_flag = 'True';
+        });
+    
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'server:server_insert' %}",
+            data: {
+                'i_server_dbtype': i_server_dbtype,
+                'i_server_dbenv': i_server_dbenv,
+                'i_server_dbservice': i_server_dbservice,
+                'i_server_dbsvr': i_server_dbsvr,
+                'i_server_dbver': i_server_dbver,
+                'i_server_usg': i_server_usg,
+                'i_server_pri_ip': i_server_pri_ip,
+                'i_server_pub_ip': i_server_pub_ip,
+                'i_server_vip': i_server_vip,
+                'i_server_port1': i_server_port1,
+                'i_server_priority': i_server_priority,
+                'i_server_manager1': i_server_manager1,
+                'i_server_manager2': i_server_manager2,
+                'i_server_audit_yn': i_server_audit_yn,
+                'i_server_url': i_server_url,
+                'forceinsert_flag': forceinsert_flag,
                 's_dbtype': s_dbtype,
                 's_dbenv': s_dbenv,
                 's_dbservice': s_dbservice,
