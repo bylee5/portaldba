@@ -96,7 +96,7 @@ DATABASES = {
         'HOST': env('DB_HOST'),
         'PORT': env('DB_PORT'),
         'OPTIONS': {
-            'init_command': "SET sql_mode='NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES'"
+            'init_command': "SET sql_mode='NO_ENGINE_SUBSTITUTION'"
         }
     }
 }
