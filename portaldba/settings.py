@@ -37,6 +37,7 @@ ALLOWED_HOSTS = ['10.12.14.136','127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
+    'data_life_cycle.apps.DataLifeCycleConfig',
     'memo.apps.MemoConfig',
     'monitoring.apps.MonitoringConfig',
     'process_check.apps.ProcessCheckConfig',

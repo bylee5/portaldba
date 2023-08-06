@@ -20,6 +20,7 @@ from home import views
 
 urlpatterns = [
     path('', views.index, name='index'),  # '/' 에 해당되는 path
+    path('data_life_cycle/', include('data_life_cycle.urls')),
     path('memo/', include('memo.urls')),
     path('monitoring/', include('monitoring.urls')),
     path('process_check/', include('process_check.urls')),
