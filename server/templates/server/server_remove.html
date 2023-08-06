@@ -1,1 +1,392 @@
-server_remove.html
+{% extends 'base.html' %}
+{% block content %}
+<!-- 네비게이션바 -->
+{% include "navbar-server.html" %}
+<!-- MAIN -->
+<div class="d-grid gap-2 d-md-flex justify-content-center">
+    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSelect" aria-expanded="false" aria-controls="collapseSelect">서버 검색</button>
+</div>
+<!-- 검색 -->
+<div class="collapse show"  id="collapseSelect" style="font-size: 12px;">
+    <div class="card card-body bg-light mb-0 pb-0">
+
+        <h6>서버삭제 검색란</h6>
+        <table class="mb-2">
+        <tr>
+            <td>
+                <a>- 기본적으로 <font color="red"><b>like</b></font> 검색을 제공하고 있습니다.</a>
+            </td>
+        </tr>
+        </table>
+
+        <table class="table table-sm text-center mb-0 pb-0" style="table-layout: fixed">
+            <tr class="bg-secondary text-white">
+                <th class="rounded-left">DB종류</th>
+                <th class="">DB환경</th>
+                <th class="">서비스명</th>
+                <th class="" style="width: 20%;">DB서버명</th>
+                <th class="">DB버전</th>
+                <th class="" style="width: 5%;">감사</th>
+                <th class="">URL</th>
+                <th class="rounded-right"></th>
+            </tr>
+            <tr>
+                <form class="form-inline" onsubmit="return false" name="selectForm">
+                    {% csrf_token %}
+                    <td class="">
+                        <div class="input-group input-group-sm">
+                            <select class="custom-select" id="s_dbtype" name="s_dbtype">
+                                <option value="">All</option>
+                                {% if server_svr_list %}
+                                {% for server_svr_lists in server_svr_list %}
+                                <option {% if account_svr == server_svr_lists.dbtype %} selected {% endif %} value="{{ server_svr_lists.dbtype }}">{{ server_svr_lists.dbtype }}</option>
+                                {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                    </td>
+                    <td class="">
+                        <div class="input-group input-group-sm">
+                            <select class="custom-select" id="s_dbenv" name="s_dbenv">
+                                <option value="">All</option>
+                                {% if server_svr_list %}
+                                {% for server_svr_lists in server_svr_list %}
+                                <option {% if account_svr == server_svr_lists.dbenv %} selected {% endif %} value="{{ server_svr_lists.dbenv }}">{{ server_svr_lists.dbenv }}</option>
+                                {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_dbservice" name="s_dbservice" value="{{ dbservice }}" type="text" placeholder="">
+                    </td>                                                            
+                    <td class="">
+                        <div class="input-group input-group-sm">
+                            <select class="custom-select" id="s_dbsvr" name="s_dbsvr">
+                                <option value="">All</option>
+                                {% if server_svr_list %}
+                                {% for server_svr_lists in server_svr_list %}
+                                <option {% if account_svr == server_svr_lists.dbsvr %} selected {% endif %} value="{{ server_svr_lists.dbsvr }}">{{ server_svr_lists.dbsvr }}</option>
+                                {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_dbver" name="s_dbver" value="{{ dbver }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_audit_yn" name="s_audit_yn" value="{{ audit_yn }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <input class="form-control form-control-sm" id="s_url" name="s_url" value="{{ url }}" type="text" placeholder="">
+                    </td>
+                    <td class="">
+                        <button id="search" class="btn btn-secondary btn-sm">검색</button>
+                    </td>
+                </form>
+            </tr>
+        </table>
+    </div>   
+</div>
+
+<!-- 결과란 -->
+<div>
+    {% if page is none %}
+        <input id="page" name="page" type="hidden" value="1">
+    {% else %}
+        <input id="page" name="page" type="hidden" value="{{ page }}">
+    {% endif %}
+
+    {% if scrollHeight is none %}
+        <input id="scrollHeight" name="scrollHeight" type="hidden" value="0">
+    {% else %}
+        <input id="scrollHeight" name="scrollHeight" type="hidden" value="{{ scrollHeight }}">
+    {% endif %}
+</div>
+<div class="board small" id="server_list_ajax" style="font-size: 12px;"></div>
+
+<!-- Modal(모달) -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header small">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+                    <li>
+                        <a class="nav-link active" href="#updateTab" aria-controls="updateTab" role="tab" aria-selected="true" data-bs-toggle="tab">확인하기</a>
+                    </li>
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body small">
+                <div role="tabpanel">
+                    <!-- Modal Tab panes -->
+                    <div class="tab-content">
+                        <!-- Modal Update-->
+                        <div role="tabpanel" class="tab-pane active fade show" id="updateTab">
+                            <form class="" onsubmit="return false;" name="updateForm">
+                            {% csrf_token %}
+                            <!-- hidden value (pk) -->
+                            <!-- view에 조회 데이터 넘기기 및 페이징 처리 원위치 이동을 위해 구현-->
+                            <input class="form-control form-control-sm" id="id" name="id" type="hidden">
+                            <input class="form-control form-control-sm" id="page" name="page" value="{{ page }}" type="hidden">
+                            <input class="form-control form-control-sm" id="s_dbtype" name="s_dbtype" type="hidden">
+                            <input class="form-control form-control-sm" id="s_dbenv" name="s_dbenv" type="hidden">
+                            <input class="form-control form-control-sm" id="s_dbservice" name="s_dbservice" type="hidden">
+                            <input class="form-control form-control-sm" id="s_dbsvr" name="s_dbsvr" type="hidden">
+                            <input class="form-control form-control-sm" id="s_dbver" name="s_dbver" type="hidden">
+                            <input class="form-control form-control-sm" id="s_audit_yn" name="s_audit_yn" type="hidden">
+                            <input class="form-control form-control-sm" id="s_url" name="s_url" type="hidden">
+
+                            <table class="table table-sm table-hover text-center">
+                                <tr>
+                                    <!-- hidden -->
+                                    <input class="form-control form-control-sm" id="page" name="page" type="hidden">
+                                    <input class="form-control form-control-sm" id="scrollHeight" name="scrollHeight" type="hidden">
+    
+                                    <td class="bg-secondary text-white align-middle" style="width: 12%">생성일</td>
+                                    <td style="width: 38%"><input class="form-control form-control-sm" id="u_server_created_at" name="u_server_created_at" type="text" readonly></td>
+                                    <td class="bg-secondary text-white align-middle" style="width: 12%">변경일</td>
+                                    <td style="width: 38%"><input class="form-control form-control-sm" id="u_server_updated_at" name="u_server_updated_dt" type="text" readonly></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-secondary text-white align-middle">만료일</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_end_dt" name="u_server_end_dt" type="text" readonly></td>
+                                    <td class="bg-secondary text-white align-middle">DB종류</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_dbtype" name="u_server_dbtype" type="text" readonly></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-secondary text-white align-middle">DB환경</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_dbenv" name="u_server_dbenv" type="text" readonly></td>
+                                    <td class="bg-secondary text-white align-middle">서비스명</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_dbservice" name="u_server_dbservice" type="text" readonly></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-secondary text-white align-middle">서버명</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_dbsvr" name="u_server_dbsvr" type="text" readonly></td>
+                                    <td class="bg-secondary text-white align-middle">DB버전</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_dbver" name="u_server_dbver" type="text" readonly></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-secondary text-white align-middle">용도</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_usg" name="u_server_usg" type="text" readonly></td>
+                                    <td class="bg-secondary text-white align-middle">사설IP</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_pri_ip" name="u_server_pri_ip" type="text" readonly></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-secondary text-white align-middle">공용IP</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_pub_ip" name="u_server_pub_ip" type="text" readonly></td>
+                                    <td class="bg-secondary text-white align-middle">가상IP</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_vip" name="u_server_vip" type="text" readonly></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-secondary text-white align-middle">포트</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_port1" name="u_server_port1" type="text" readonly></td>
+                                    <td class="bg-secondary text-white align-middle">분류</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_priority" name="u_server_priority" type="text" readonly></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-secondary text-white align-middle">담당자1</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_manager1" name="u_server_manager1" type="text" readonly></td>
+                                    <td class="bg-secondary text-white align-middle">담당자2</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_manager2" name="u_server_manager2" type="text" readonly></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-secondary text-white align-middle">감사</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_audit_yn" name="u_server_audit_yn" type="text" readonly></td>
+                                    <td class="bg-secondary text-white align-middle">URL</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_url" name="u_server_url" type="text" readonly></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-secondary text-white align-middle">삭제일</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_deleted_at" name="u_server_deleted_at" type="text" readonly></td>
+                                    <td class="bg-secondary text-white align-middle">삭제비고</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_delete_note" name="u_server_delete_note" type="text" readonly></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-secondary text-white align-middle">삭제사유</td>
+                                    <td><input class="form-control form-control-sm" id="u_server_delete_reason" name="u_server_delete_reason" type="text" readonly></td>
+                                </table>
+                            </table>
+                            <p class="text-right">삭제된 서버의 상세정보입니다.</p>
+                            <!-- Modal Footer -->
+                            <div class="modal-footer">
+                                <button type="" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">확인</button>
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 검색결과 클릭시 모달에 검색결과 데이터를 넣는다. 모달 팝업이 실행되지 안된다면 값 오타 확인 필요 -->
+<script>
+    $('#myModal').on('show.bs.modal', function (event) {
+        // server_select.html에서 값을 가져옮
+        var button = $(event.relatedTarget); 
+        var id = button.data('id'); // data-id = id이며 data-을 제거한 문자로 생각하자
+        var server_created_at = button.data('server_created_at');
+        var server_updated_at = button.data('server_updated_at');
+        var server_dbtype = button.data('server_dbtype');
+        var server_dbenv = button.data('server_dbenv');
+        var server_dbservice = button.data('server_dbservice');
+        var server_dbsvr = button.data('server_dbsvr');
+        var server_dbver = button.data('server_dbver');
+        var server_usg = button.data('server_usg');
+        var server_pri_ip = button.data('server_pri_ip');
+        var server_pub_ip = button.data('server_pub_ip');
+        var server_vip = button.data('server_vip');
+        var server_port1 = button.data('server_port1');
+        var server_priority = button.data('server_priority');
+        var server_manager1 = button.data('server_manager1');
+        var server_manager2 = button.data('server_manager2');
+        var server_audit_yn = button.data('server_audit_yn');
+        var server_url = button.data('server_url');
+        var server_delete_yn = button.data('server_delete_yn');
+        var server_deleted_at = button.data('server_deleted_at');
+        var server_delete_reason = button.data('server_delete_reason');
+        var server_delete_note = button.data('server_delete_note');
+    
+        // 검색란 입력 값을 가져옮
+        var s_dbtype = $("#s_dbtype").val();
+        var s_dbenv = $("#s_dbenv").val();
+        var s_dbservice = $("#s_dbservice").val();
+        var s_dbsvr = $("#s_dbsvr").val();
+        var s_dbver = $("#s_dbver").val();
+        var s_audit_yn = $("#s_audit_yn").val();
+        var s_url = $("#s_url").val();
+    
+        var page = $("#page").val();
+        var scrollHeight = $(window).scrollTop();
+    
+        // 모달의 updateTab
+        var modal = $('#updateTab')
+    
+        // 값 넣기
+        modal.find('#id').val(id);
+        modal.find('#u_server_created_at').val(server_created_at);
+        modal.find('#u_server_updated_at').val(server_updated_at);
+        modal.find('#u_server_dbtype').val(server_dbtype);
+        modal.find('#u_server_dbenv').val(server_dbenv);
+        modal.find('#u_server_dbservice').val(server_dbservice);
+        modal.find('#u_server_dbsvr').val(server_dbsvr);
+        modal.find('#u_server_dbver').val(server_dbver);
+        modal.find('#u_server_usg').val(server_usg);
+        modal.find('#u_server_pri_ip').val(server_pri_ip);
+        modal.find('#u_server_pub_ip').val(server_pub_ip);
+        modal.find('#u_server_vip').val(server_vip);
+        modal.find('#u_server_port1').val(server_port1);
+        modal.find('#u_server_priority').val(server_priority);
+        modal.find('#u_server_manager1').val(server_manager1);
+        modal.find('#u_server_manager2').val(server_manager2);
+        modal.find('#u_server_audit_yn').val(server_audit_yn);
+        modal.find('#u_server_url').val(server_url);
+        modal.find('#u_server_delete_yn').val(server_delete_yn);
+        modal.find('#u_server_deleted_at').val(server_deleted_at);
+        modal.find('#u_server_delete_reason').val(server_delete_reason);
+        modal.find('#u_server_delete_note').val(server_delete_note);
+        modal.find('#page').val(page);
+        modal.find('#scrollHeight').val(scrollHeight);
+    
+        modal.find('#s_dbtype').val(s_dbtype);
+        modal.find('#s_dbenv').val(s_dbenv);
+        modal.find('#s_dbservice').val(s_dbservice);
+        modal.find('#s_dbsvr').val(s_dbsvr);
+        modal.find('#s_dbver').val(s_dbver);
+        modal.find('#s_audit_yn').val(s_audit_yn);
+        modal.find('#s_url').val(s_url);
+    
+        $('html').css({'overflow': 'hidden', 'height': '100%'}); // 모달팝업 중 html,body의 scroll을 hidden시킴
+        $('#element').on('scroll touchmove mousewheel', function(event) { // 터치무브와 마우스휠 스크롤 방지
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        });
+    })
+    
+    $('#myModal').on('hidden.bs.modal', function (event) {
+        $('html').css({'overflow': 'auto', 'height': '100%'}); //scroll hidden 해제
+        $('#element').off('scroll touchmove mousewheel'); // 터치무브 및 마우스휠 스크롤 가능
+    })
+</script>
+
+
+<!-- 서버 조회 ajax script -->
+<script>
+    var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+
+    $('#search').click(function(){
+        // 검색 버튼을 누를 경우엔, page 1로 초기화
+        var page = 1
+        callMoreListAjax(page);
+        $("#page").val(parseInt(page));
+    });
+
+    $('#server_list_ajax').load('dummy',function(){
+        var page = $("#page").val();
+        var scrollHeight = $("#scrollHeight").val();
+        $('#myModal_sql').modal("hide");
+
+        callMoreListAjax(page);
+        $("#page").val(parseInt(page));
+        $('html').animate({scrollTop: scrollHeight}, 500);
+    });
+
+    $(window).scroll(function(){
+        var scrollHeight = $(window).scrollTop() + $(window).height();
+        var documentHeight = $(document).height();
+
+        if (scrollHeight + 500 >= documentHeight){
+            var page = $("#page").val();
+            var page_max = $("#page_max").val();
+            if (parseInt(page) <= parseInt(page_max)){
+                callMoreListAjax(page);
+                $("#page").val(parseInt(page)+1);
+            }
+        }
+    });
+
+    function callMoreListAjax(page) {
+        var s_dbtype = $("#s_dbtype").val();
+        var s_dbenv = $("#s_dbenv").val();
+        var s_dbservice = $("#s_dbservice").val();
+        var s_dbsvr = $("#s_dbsvr").val();
+        var s_dbver = $("#s_dbver").val();
+        var s_audit_yn = $("#s_audit_yn").val();
+        var s_url = $("#s_url").val();
+
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'server:server_remove_select' %}",
+            async: false,
+            data: {
+                's_dbtype': s_dbtype,
+                's_dbenv': s_dbenv,
+                's_dbservice': s_dbservice,
+                's_dbsvr': s_dbsvr,
+                's_dbver': s_dbver,
+                's_audit_yn': s_audit_yn,
+                's_url': s_url,
+                'page': page,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreServerAjax,
+            dataType: 'html'
+        });
+    }
+</script>
+
+<!-- common ajax script -->
+<script>
+    function addMoreServerAjax(data, textStatus, jqXHR) {
+        $('#server_list_ajax').html(data);
+    }
+</script>
+{% endblock %}
