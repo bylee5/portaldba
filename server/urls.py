@@ -10,5 +10,8 @@ urlpatterns = [
     path('select', views.server_select, name='server_select'),
     path('dummy', views.server_dummy, name='server_dummy'),
     path('insert', views.server_insert, name='server_insert'),
+    path('delete', views.server_delete, name='server_delete'),
+    path('update', views.server_update, name='server_update'),
+    path('multi_dml', views.server_multi_dml, name='server_multi_dml'),
     
 ]

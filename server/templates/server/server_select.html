@@ -16,8 +16,8 @@
             <div class="alert alert-danger alert-dismissible fade show" role="alert" id="alertbox" name="alertbox">
             <h6 class="alert-danger">{{ alert_type }} - 작업에 실패했습니다.</h6>
             <a style="white-space:pre;">{{ alert_message }}</a>
-            <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                <!-- <span aria-hidden="true">&times;</span> -->
             </button>
             </div>
         </td>
@@ -99,7 +99,31 @@
                 });
             </script>
         </td>
-        <td>{{ server.dbtype }}</td>
+        <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal" 
+            data-id="{{ server.id }}"
+            data-server_created_at="{{ server.created_at|date:'Y-m-d H:i:s' }}"
+            data-server_updated_at="{{ server.updated_at|date:'Y-m-d H:i:s' }}"
+            data-server_dbtype="{{ server.dbtype }}"
+            data-server_dbenv="{{ server.dbenv }}"
+            data-server_dbservice="{{ server.dbservice }}"
+            data-server_dbsvr="{{ server.dbsvr }}"
+            data-server_dbver="{{ server.dbver }}"
+            data-server_usg="{{ server.usg }}"
+            data-server_pri_ip="{{ server.pri_ip }}"
+            data-server_pub_ip="{{ server.pub_ip }}"
+            data-server_vip="{{ server.vip }}"
+            data-server_port1="{{ server.port1 }}"
+            data-server_priority="{{ server.priority }}"
+            data-server_manager1="{{ server.manager1 }}"
+            data-server_manager2="{{ server.manager2 }}"
+            data-server_audit_yn="{{ server.audit_yn }}"
+            data-server_url="{{ server.url }}"
+            data-server_delete_yn="{{ server.delete_yn }}"
+            data-server_deleted_at="{{ server.deleted_at|date:'Y-m-d H:i:s' }}"
+            data-server_delete_reason="{{ server.delete_reason }}"
+            data-server_delete_note="{{ server.delete_note }}">
+            {{ server.dbtype }}
+        </td>
         <td>{{ server.dbenv }}</td>
         <td>{{ server.dbservice }}</td>
         <td>{{ server.dbsvr }}</td>
@@ -132,8 +156,8 @@
     {% endif %}
 </div>
 
+<!-- alert_type -->
 <input class="form-control form-control-sm" id="alert_type" name="alert_type" value="{{ alert_type }}" type="hidden">
-
 
 </body>
 </html>
