@@ -10,7 +10,7 @@ import math
 
 @login_required
 def server(request):
-    server_svr_list = server_svr_list = Server.objects.all().filter(delete_yn='N')
+    server_svr_list = Server.objects.all().filter(delete_yn='N')
     context = {'server_svr_list': server_svr_list}
     return render(request, 'server/server.html', context)
 
