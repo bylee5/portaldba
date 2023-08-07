@@ -1,27 +1,51 @@
 {% extends 'base.html' %}
 {% block content %}
-구현중...
-<form class="form-inline" onsubmit="return false;" name="insertForm">
-    <textarea class="form-control" id="memo_textarea" name="memo_textarea" rows="3"></textarea>
-    <button class="btn btn-secondary btn-sm" onclick="insertBox()" type="submit">저장</button>
-    <input class="btn btn-secondary btn-sm" type="button" value="지우기" onClick="insertBox_del()">
+<p></p>
+<form class="container text-center" onsubmit="return false;" name="insertForm">
+    {% csrf_token %}
+    <textarea class="form-control mb-3" id="memo_textarea" name="memo_textarea" rows="25"> {{ memo_id }} {{ memo_textarea }}</textarea>
+    <button class="btn btn-secondary" onclick="insertBox()" type="submit">저장</button>
+    <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    <input class="btn btn-secondary" type="button" value="지우기" onClick="insertBox_del()">
 </form>
 
 <!-- 메모 저장 ajax script -->
 <script>
+    var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+
     function insertBox() {
         insert_callMoreListAjax();
     }
     
     function insertBox_del() {
-        document.insertForm.reset();
+        var retVal = confirm("모두 지우시겠습니까?");
+        if (retVal == true ){
+            document.insertForm.reset();
+        }
     }
     
     function insert_callMoreListAjax() {
         var memo_textarea = $("#memo_textarea").val();
         console.log(memo_textarea);
+        
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'memo:memo_insert' %}",
+            data: {
+                'memo_textarea': memo_textarea,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreMemoAjax,
+            dataType: 'html'
+        });
     }
 </script>
 
+<!-- common ajax script -->
+<script>
+    function addMoreMemoAjax(data, textStatus, jqXHR) {
+        // DO TO
+    }
+</script>
 
 {% endblock %}
