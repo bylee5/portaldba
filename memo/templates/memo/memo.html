@@ -1,4 +1,27 @@
 {% extends 'base.html' %}
 {% block content %}
 구현중...
+<form class="form-inline" onsubmit="return false;" name="insertForm">
+    <textarea class="form-control" id="memo_textarea" name="memo_textarea" rows="3"></textarea>
+    <button class="btn btn-secondary btn-sm" onclick="insertBox()" type="submit">저장</button>
+    <input class="btn btn-secondary btn-sm" type="button" value="지우기" onClick="insertBox_del()">
+</form>
+
+<!-- 메모 저장 ajax script -->
+<script>
+    function insertBox() {
+        insert_callMoreListAjax();
+    }
+    
+    function insertBox_del() {
+        document.insertForm.reset();
+    }
+    
+    function insert_callMoreListAjax() {
+        var memo_textarea = $("#memo_textarea").val();
+        console.log(memo_textarea);
+    }
+</script>
+
+
 {% endblock %}
