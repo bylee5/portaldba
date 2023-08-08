@@ -16,6 +16,11 @@ def memo(request):
 def memo_select(request, memo_id):
     if request.method == 'GET':
         dba_board = Memo.objects.all().filter(id=memo_id)
+
+        # alert type 초기화
+        alert_type = "ERR_0"
+        alert_message = ""
+
         if dba_board.count() != 1:
             # 더미 데이터 추가
             sql = "REPLACE INTO dba_board (id, board_content) VALUES (%s, %s)"
@@ -78,9 +83,9 @@ def memo_insert(request):
         finally:
             cursor.close()
     
+        dba_board = Memo.objects.all().filter(id=memo_id)
         context = {
-            'memo_id': memo_id,
-            'memo_textarea': board_content,
+            'dba_board': dba_board,
             'alert_type': alert_type,
             'alert_message': alert_message
         }

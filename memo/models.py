@@ -9,4 +9,4 @@ class Memo(models.Model):
 		db_table = 'dba_board'
 
 	def __str__(self):
-		return self.last_writer
+		return self.board_content

@@ -27,16 +27,14 @@
     function insertBox_del() {
         var retVal = confirm("모두 지우시겠습니까?");
         if (retVal == true ){
-            document.insertForm.reset();
+            // document.insertForm.reset();
+            $("#memo_textarea").val('');
         }
     }
     
     function insert_callMoreListAjax() {
         var memo_id = $("#memo_id").val();
         var memo_textarea = $("#memo_textarea").val();
-        console.log("memo_id:",memo_id);
-        console.log("memo_textarea:",memo_textarea);
-
         
         $.ajax( {
             type : 'POST',
