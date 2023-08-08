@@ -8,15 +8,34 @@ from .models import Memo
 
 @login_required
 def memo(request):
-    dba_board = Memo.objects.all().filter(dba_board_seqno=1)
+    dba_board = Memo.objects.all().filter(id=1)
     context = {'dba_board': dba_board}
     return render(request, 'memo/memo.html', context)
 
 @login_required
 def memo_select(request, memo_id):
     if request.method == 'GET':
-        print("memo_id:", memo_id)
         dba_board = Memo.objects.all().filter(id=memo_id)
+        if dba_board.count() != 1:
+            # 더미 데이터 추가
+            sql = "REPLACE INTO dba_board (id, board_content) VALUES (%s, %s)"
+            try: 
+                cursor = connections['default'].cursor()
+                cursor.execute(sql, (memo_id, ''))
+                connection.commit()
+
+                # DO TO
+                # 성공 후 데일리 백업 체크, 히스토리 로깅
+                print("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
+                print("로그히스토리용 sql : " + sql)
+                print("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
+
+            except Exception as e:
+                connection.rollback()
+                alert_type = "ERR_3"
+                alert_message = e
+            finally:
+                cursor.close()
         context = {'dba_board': dba_board}
         return render(request, 'memo/memo.html', context)
     return render(request, 'memo/memo.html') 
@@ -24,7 +43,7 @@ def memo_select(request, memo_id):
 @login_required
 def memo_insert(request):
     if request.method == 'POST':
-        dba_board_seqno = request.POST.get('memo_id')
+        memo_id = request.POST.get('memo_id')
         board_content = request.POST.get('memo_textarea')
 
         # 수정 일시년월일 (또는 입력일시)
@@ -34,16 +53,16 @@ def memo_insert(request):
         alert_type = "ERR_0"
         alert_message = ""
 
-        print("dba_board_seqno:", dba_board_seqno)
-        print("board_content:", board_content)
+        # 기본 PK 조회
+        if memo_id == '':
+            memo_id = "1"
 
         # insert 쿼리
-        insert_sql = "REPLACE INTO dba_board (dba_board_seqno, last_writer) VALUES (" + \
-                        "'" + dba_board_seqno + "'," + \
-                        "'" + board_content + "');" 
+        insert_sql = "REPLACE INTO dba_board (id, board_content) VALUES (%s, %s)"
+
         try: 
             cursor = connections['default'].cursor()
-            cursor.execute(insert_sql)
+            cursor.execute(insert_sql, (memo_id, board_content))
             connection.commit()
 
             # DO TO
@@ -60,7 +79,7 @@ def memo_insert(request):
             cursor.close()
     
         context = {
-            'memo_id': dba_board_seqno,
+            'memo_id': memo_id,
             'memo_textarea': board_content,
             'alert_type': alert_type,
             'alert_message': alert_message

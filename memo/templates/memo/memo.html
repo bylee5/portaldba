@@ -1,17 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
 <p></p>
-{% if dba_board %}
-{% for board in dba_board %}
-    {{ board.dba_board_seqno }}
-    {{ board.board_content }}
-{% endfor %}
-{% endif %}
-
 <form class="container text-center" onsubmit="return false;" name="insertForm">
     {% csrf_token %}
-    <input class="form-control form-control-sm" id="memo_id" name="memo_id" value="{{ dba_board.dba_board_seqno }}" type="hidden">
-    <textarea class="form-control mb-3" id="memo_textarea" name="memo_textarea" rows="25" value="{{ dba_board.board_content }}"></textarea>
+    {% if dba_board %}
+    {% for board in dba_board %}
+    <input class="form-control form-control-sm" id="memo_id" name="memo_id" value="{{ board.id }}" type="hidden">
+    <textarea class="form-control mb-3" id="memo_textarea" name="memo_textarea" rows="25" value="{{ board.board_content }}">{{ board.board_content }}</textarea>
+    {% endfor %}
+    {% endif %}
     <button class="btn btn-secondary" onclick="insertBox()" type="submit">저장</button>
     <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
     <input class="btn btn-secondary" type="button" value="지우기" onClick="insertBox_del()">
