@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-<p></p>
+<hr>
+<p>메모장 사용법: URL -> ip:port/memo/원하는숫자 입력</p>
 <form class="container text-center" onsubmit="return false;" name="insertForm">
     {% csrf_token %}
     {% if dba_board %}
