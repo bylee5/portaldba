@@ -8,15 +8,24 @@ from .models import Memo
 
 @login_required
 def memo(request):
-    memo_id = Memo.objects.all().filter(id=1)
-    context = {'memo_id': '1', 'memo_textarea': '\n memo_textarea \n 내용'}
+    dba_board = Memo.objects.all().filter(dba_board_seqno=1)
+    context = {'dba_board': dba_board}
     return render(request, 'memo/memo.html', context)
 
 @login_required
-def memo_insert(request, memo_id):
-    print(memo_id)
+def memo_select(request, memo_id):
+    if request.method == 'GET':
+        print("memo_id:", memo_id)
+        dba_board = Memo.objects.all().filter(id=memo_id)
+        context = {'dba_board': dba_board}
+        return render(request, 'memo/memo.html', context)
+    return render(request, 'memo/memo.html') 
+
+@login_required
+def memo_insert(request):
     if request.method == 'POST':
-        memo_textarea = request.POST.get('memo_textarea')
+        dba_board_seqno = request.POST.get('memo_id')
+        board_content = request.POST.get('memo_textarea')
 
         # 수정 일시년월일 (또는 입력일시)
         last_modify_dt = timezone.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -24,10 +33,15 @@ def memo_insert(request, memo_id):
         # alert type 초기화
         alert_type = "ERR_0"
         alert_message = ""
-        print(memo_textarea)
+
+        print("dba_board_seqno:", dba_board_seqno)
+        print("board_content:", board_content)
+
         # insert 쿼리
-        insert_sql = "select 1"
-        try:
+        insert_sql = "REPLACE INTO dba_board (dba_board_seqno, last_writer) VALUES (" + \
+                        "'" + dba_board_seqno + "'," + \
+                        "'" + board_content + "');" 
+        try: 
             cursor = connections['default'].cursor()
             cursor.execute(insert_sql)
             connection.commit()
@@ -46,11 +60,12 @@ def memo_insert(request, memo_id):
             cursor.close()
     
         context = {
-            'memo_id': '1',
+            'memo_id': dba_board_seqno,
+            'memo_textarea': board_content,
             'alert_type': alert_type,
             'alert_message': alert_message
         }
-        return render(request, 'memo/memo.html', context)
+        return render(request, 'memo/dummy_ajax.html', context)
     else:
         return render(request, 'memo/memo.html') 
  

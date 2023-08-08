@@ -1,13 +1,23 @@
 {% extends 'base.html' %}
 {% block content %}
 <p></p>
+{% if dba_board %}
+{% for board in dba_board %}
+    {{ board.dba_board_seqno }}
+    {{ board.board_content }}
+{% endfor %}
+{% endif %}
+
 <form class="container text-center" onsubmit="return false;" name="insertForm">
     {% csrf_token %}
-    <textarea class="form-control mb-3" id="memo_textarea" name="memo_textarea" rows="25"> {{ memo_id }} {{ memo_textarea }}</textarea>
+    <input class="form-control form-control-sm" id="memo_id" name="memo_id" value="{{ dba_board.dba_board_seqno }}" type="hidden">
+    <textarea class="form-control mb-3" id="memo_textarea" name="memo_textarea" rows="25" value="{{ dba_board.board_content }}"></textarea>
     <button class="btn btn-secondary" onclick="insertBox()" type="submit">저장</button>
     <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
     <input class="btn btn-secondary" type="button" value="지우기" onClick="insertBox_del()">
 </form>
+
+<div class="board small" id="memo_ajax" style="font-size: 12px;"></div>
 
 <!-- 메모 저장 ajax script -->
 <script>
@@ -25,13 +35,17 @@
     }
     
     function insert_callMoreListAjax() {
+        var memo_id = $("#memo_id").val();
         var memo_textarea = $("#memo_textarea").val();
-        console.log(memo_textarea);
+        console.log("memo_id:",memo_id);
+        console.log("memo_textarea:",memo_textarea);
+
         
         $.ajax( {
             type : 'POST',
-            url: "{% url 'memo:memo_insert' %}",
+            url: '{% url "memo:memo_insert" %}',
             data: {
+                'memo_id': memo_id,
                 'memo_textarea': memo_textarea,
                 'csrfmiddlewaretoken': token,
             },
@@ -44,7 +58,7 @@
 <!-- common ajax script -->
 <script>
     function addMoreMemoAjax(data, textStatus, jqXHR) {
-        // DO TO
+        $('#memo_ajax').html(data);
     }
 </script>
 
