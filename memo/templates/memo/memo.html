@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
 {% block content %}
 <hr>
-<p>메모장 사용법: URL -> ip:port/memo/원하는숫자 입력</p>
 <form class="container text-center" onsubmit="return false;" name="insertForm">
     {% csrf_token %}
+    <a>메모장 사용법: URL -> ip:port/memo/원하는숫자 입력</a>
     {% if dba_board %}
     {% for board in dba_board %}
     <input class="form-control form-control-sm" id="memo_id" name="memo_id" value="{{ board.id }}" type="hidden">
     <textarea class="form-control mb-3" id="memo_textarea" name="memo_textarea" rows="25" value="{{ board.board_content }}">{{ board.board_content }}</textarea>
     {% endfor %}
     {% endif %}
-    <button class="btn btn-secondary" onclick="insertBox()" type="submit">저장</button>
+    <button class="btn btn-secondary" onclick="updateBox()" type="submit">갱신</button>
     <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
-    <input class="btn btn-secondary" type="button" value="지우기" onClick="insertBox_del()">
+    <input class="btn btn-secondary" type="button" value="초기화" onClick="updateBox_del()">
 </form>
 
 <div class="board small" id="memo_ajax" style="font-size: 12px;"></div>
@@ -21,19 +21,18 @@
 <script>
     var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
 
-    function insertBox() {
-        insert_callMoreListAjax();
+    function updateBox() {
+        update_callMoreListAjax();
     }
     
-    function insertBox_del() {
+    function updateBox_del() {
         var retVal = confirm("모두 지우시겠습니까?");
         if (retVal == true ){
-            // document.insertForm.reset();
             $("#memo_textarea").val('');
         }
     }
     
-    function insert_callMoreListAjax() {
+    function update_callMoreListAjax() {
         var memo_id = $("#memo_id").val();
         var memo_textarea = $("#memo_textarea").val();
         
