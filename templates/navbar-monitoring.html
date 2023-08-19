@@ -2,6 +2,12 @@
 <nav class="navbar navbar-expand-lg bg-light" style="height: 30px;">
     <ul class="navbar-nav px-2">
     <li class="nav-item">
+        <a class="nav-link" href="">모니터링조회</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="">모니터링삭제이력</a>
+    </li>
+    <li class="nav-item">
         <a class="nav-link" href="{% url 'monitoring:threads_connected' %}">커넥션</a>
     </li>
     <li class="nav-item">
@@ -23,16 +29,13 @@
         <a class="nav-link" href="">응답시간지연</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="">에러로그</a>
-    </li>
-    <li class="nav-item">
         <a class="nav-link" href="">수동쿼리킬</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="">집계</a>
+        <a class="nav-link" href="">집계(사이즈)</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="">서비스(주문,판매)급증</a>
+        <a class="nav-link" href="">서비스통계(주문)</a>
     </li>
     </ul>
 </nav>
