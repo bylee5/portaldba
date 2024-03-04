@@ -24,9 +24,13 @@ class Account(models.Model):
 	account_del_reason = models.CharField(null=True, blank=True, max_length=100, default='')     			# 삭제사유
 	account_del_note = models.CharField(null=True, blank=True, max_length=100, default='')       			# 삭제비고
 
+	# Meta 클래스는 모델에 대한 메타데이터를 정의한다.
 	class Meta:
-		db_table = 'account_account'
+		db_table = 'account_account' # 데이터베이스 이름을 사용자가 지정
+		# ordering = ['-account_create_dt'] # 기본 정렬 순서 정의하며 -표시는 내림차순을 표현
+		# indexes = [models.Index(fields=['-account_create_dt']),] # 인덱스 생성이며 -표시는 MySQL에서 미지원
 
+	# 객체를 표현하는 문자열을 반환
 	def __str__(self):
 		return self.account_svr
 
