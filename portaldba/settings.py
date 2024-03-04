@@ -30,12 +30,12 @@ ENC_KEY = 'kvxdba'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+# ALLOWED_HOSTS는 DEBUG = True와 테스트가 동작 중일 때는 적용되지 않는다.
 ALLOWED_HOSTS = ['10.12.14.136','127.0.0.1']
 
 
 # Application definition
-
+# INSTALLED_APPS은 어떤 애플리케이션을 활성화할지 알려준다.
 INSTALLED_APPS = [
     'data_life_cycle.apps.DataLifeCycleConfig',
     'memo.apps.MemoConfig',
@@ -45,14 +45,15 @@ INSTALLED_APPS = [
     'login.apps.LoginConfig',
     'home.apps.HomeConfig',
     'account.apps.AccountConfig',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    'django.contrib.admin',                         # 관리 사이트
+    'django.contrib.auth',                          # 인증 프레임워크
+    'django.contrib.contenttypes',                  # 콘텐츠 유형을 처리하기 위한 프레임워크
+    'django.contrib.sessions',                      # 세션 프레임워크
+    'django.contrib.messages',                      # 메시징 프레임워크
+    'django.contrib.staticfiles',                   # 정적 파일 관리를 위한 프레임워크
 ]
 
+# MIDDLEWARE는 실행할 미들웨어가 포함된 목록이다.
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -63,6 +64,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# ROOT_URLCONF는 애플리케이션의 루트 URL 패턴이 정의된 파이썬 모듈을 가리킨다.
 ROOT_URLCONF = 'portaldba.urls'
 
 TEMPLATES = [
@@ -90,6 +92,8 @@ WSGI_APPLICATION = 'portaldba.wsgi.application'
 env = environ.Env()
 environ.Env.read_env(BASE_DIR / '.env')
 
+# 프로젝트에서 사용할 모든 데이터베이스 설정을 포함하는 딕셔너리이다.
+# 항상 default가 있어야 한다.
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -127,10 +131,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
+# 기본 언어 코드를 정의한다.
 LANGUAGE_CODE = 'ko-KR'
 
 TIME_ZONE = 'Asia/Seoul'
 
+# 시간대 지원을 활성화/비활성화하도록 지시한다.
+# 시간대를 인식하는 datatime을 지원한다.
 USE_TZ = False
 
 
