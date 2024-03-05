@@ -9,9 +9,7 @@ MySQL 8.0.32 버전
 ```
 라이브러리
 ```
-pip3 install django~=5.0.3
-pip3 install pymysql
-pip3 install django-environ
+pip3 install -r requirements.txt
 ```
 DB 접속 정보
 ```
