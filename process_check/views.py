@@ -222,11 +222,8 @@ def server_list_delete_svr_use_yn_ajax(request):
         # print("-------------------------------------------------------------------------------------------------------")
 
         try:
-            cursor = connections['default'].cursor()
-            cursor.execute(query)
-            cursor.commit()
-        except:
-            cursor.rollback()
+            with connections['default'].cursor() as cursor:
+                cursor.execute(query)
         finally:
             cursor.close()
 
@@ -277,11 +274,8 @@ def server_list_update_svr_use_yn_ajax(request):
         # print("------------------------------------------------------------------------------------------------------")
 
         try:
-            cursor = connections['default'].cursor()
-            cursor.execute(query)
-            cursor.commit()
-        except:
-            cursor.rollback()
+            with connections['default'].cursor() as cursor:
+                cursor.execute(query)
         finally:
             cursor.close()
 
