@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>left_ajax</title>
@@ -8,34 +8,32 @@
     <!-- main -->
     {% if svr_info_lists|length != 0 %}
     <!-- 드래그바 -->
-    <div id="dragbar" style="height: 100%; width: 3px; background-color: black; cursor: col-resize; position: absolute; right: 0px; top: 0px;"></div>
+    <div id="dragbar" style="height: 100%; width: 0px; background-color: black; cursor: col-resize; position: absolute; right: 0px; top: 0px;"></div>
 
     <div class="text-center">
         <h6>
-            <span class="badge badge-warning" type="button" onclick="all_click({{ svr_info_lists|length }})">모두 선택/해제</span>
-            <span class="badge badge-light">TOTAL CNT</span>
-            <span class="badge badge-dark">ON CNT</span>
+            <span class="badge text-bg-primary" type="button" onclick="all_click({{ svr_info_lists|length }})">모두 선택/해제</span>
+            <span class="badge text-bg-info">등록 잡 수</span>
+            <span class="badge text-bg-success">활성 잡 수</span>
         </h6>
     </div>
-    <div class="btn-group-toggle" data-toggle="buttons">
+    <div class="btn-group-toggle" data-bs-toggle="buttons">
         {% for svr_info_list in svr_info_lists %}
         {% if svr_info_list.svr_info_name in svr_info_name_checked_list %}
-        <label class="btn btn-secondary btn-sm w-100 active">
+        <label class="btn btn-outline-secondary btn-sm w-100 active">
             <input type="checkbox" id="checkbox" name="checkbox" checked class="check" value="{{ svr_info_list.svr_info_name }}">
         {% else %}
-            <label class="btn btn-secondary btn-sm w-100">
-                <input type="checkbox" id="checkbox" name="checkbox" class="check" value="{{ svr_info_list.svr_info_name }}">
+        <label class="btn btn-outline-secondary btn-sm w-100">
+            <input type="checkbox" id="checkbox" name="checkbox" class="check" value="{{ svr_info_list.svr_info_name }}">
         {% endif %}
-
-<!--                <div id="" style="width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-->
                 <div style="font-size: 12px;">
                     {% if svr_info_list.svr_info_name|length <= 25 %}
                     {{ svr_info_list.svr_info_name }}
                     {% else %}
                     {{ svr_info_list.svr_info_name| slice:":25"| add:".." }}
                     {% endif %}
-                    <span class="badge badge-light">{{ svr_info_list.svr_total}}</span>
-                    <span class="badge badge-dark">{{ svr_info_list.svr_use_total}}</span>
+                    <span class="badge text-bg-info">{{ svr_info_list.svr_total}}</span>
+                    <span class="badge text-bg-success">{{ svr_info_list.svr_use_total}}</span>
                 </div>
                 </input>
             </label>
@@ -52,14 +50,14 @@
                         <input id="s_svr_name" name="s_svr_name" type="hidden" value="{{ s_svr_name }}">
                         {% csrf_token %}
                         {% if s_job is None %}
-                        <input type="text" class="form-control form-control-sm" id="s_job" name="" placeholder="job_name" style="width: 135px;">
+                        <input type="text" class="form-control form-control-sm" id="s_job" name="" placeholder="잡명" style="width: 135px;">
                         {% else %}
-                        <input type="text" class="form-control form-control-sm" id="s_job" name="" placeholder="job_name" style="width: 135px;" value="{{ s_job }}">
+                        <input type="text" class="form-control form-control-sm" id="s_job" name="" placeholder="잡명" style="width: 135px;" value="{{ s_job }}">
                         {% endif %}
                     </form>
                 </td>
                 <td>
-                    <button id="job_search" class="btn btn-outline-dark btn-sm">검색</button>
+                    <button id="job_search" class="btn btn-secondary btn-sm">검색</button>
                 </td></tr></table>
 
         <table class="" style="font-size: 12px;">
@@ -67,13 +65,13 @@
                 <td>
                     <div class="custom-control custom-checkbox my-1 mr-sm-2">
                         <input type="checkbox" class="custom-control-input" {% if checkbox_unregister == 'ON' %} checked {% endif %} id="checkbox_unregister">
-                        <label class="custom-control-label" for="checkbox_unregister">등록 잡만</label>
+                        <label class="custom-control-label" for="checkbox_unregister">등록 잡만 보기</label>
                     </div>
                 </td>
                 <td>
                     <div class="custom-control custom-checkbox my-1 mr-sm-2">
                         <input type="checkbox" class="custom-control-input" {% if checkbox_off == 'ON' %} checked {% endif %} id="checkbox_off">
-                        <label class="custom-control-label" for="checkbox_off">스위치 ON만</label>
+                        <label class="custom-control-label" for="checkbox_off">활성 잡만 보기</label>
                     </div>
                 </td>
             </tr>
@@ -87,7 +85,7 @@
     {% endif %}
 
     <!-- left ajax -->
-    <!-- 체크 모두 선택 / 모두해제 -->
+    <!-- 체크박스 모두선택/모두해제-->
     <script>
         function all_click(svr_info_lists_cnt) {
             // 체크횟수 파악
@@ -130,7 +128,7 @@
 		}
 	</script>
 
-    <!-- 서버 클릭. checkbox -->
+    <!-- 서버 checkbox -->
     <script>
         var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
         $("#s_job").keydown(function(key) {
@@ -159,19 +157,7 @@
         });
     </script>
 
-    <!-- 초기 right ajax script -->
-    <script>
-        $('#right_ajax').load('dummy',function(){
-            var svr_info_name = [];
-            $("input[name='checkbox']:checked").each(function(i) {
-                svr_info_name.push($(this).val());
-            });
-
-            call_svr_info_name_ajax(svr_info_name);
-        });
-    </script>
-
-    <!-- ajax common script -->
+    <!-- 등록 잡만 보기 / 활성 잡만 보기 -->
     <script>
         var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
         function call_svr_info_name_ajax(svr_info_name) {
@@ -191,8 +177,6 @@
             }else{
                 var checkbox_off = "OFF";
             }
-
-            //alert(s_svr + " / " + checkbox_unregister + " / " + checkbox_off);
 
             $.ajax( {
                 type : 'POST',
@@ -252,7 +236,18 @@
             var barheight= $('#job_name_search').offset().top - 200;
             $('#dragbar').css("height", barheight);
         });
+    </script>
 
+    <!-- right ajax -->
+    <script>
+        $('#right_ajax').load('dummy',function(){
+            var svr_info_name = [];
+            $("input[name='checkbox']:checked").each(function(i) {
+                svr_info_name.push($(this).val());
+            });
+
+            call_svr_info_name_ajax(svr_info_name);
+        });
     </script>
 
 </body>

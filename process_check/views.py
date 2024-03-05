@@ -9,21 +9,18 @@ from collections import namedtuple
 
 @login_required
 def server_list(request):
-    s_query = "SELECT COUNT(*) AS cnt FROM portaldba.server_list"
+    s_query = "SELECT COUNT(*) AS cnt FROM server_list"
 
     with connections['default'].cursor() as cursor:
         cursor.execute(s_query)
         row = cursor.fetchone()
 
-    context = {'process_check_svr_count': row[0],}
+    context = {'svr_count': row[0],}
     return render(request, 'process_check/process_check.html', context)
 
 def server_list_left_ajax(request):
     if request.method == 'POST':
         s_svr_name = request.POST.get('s_svr_name')
-
-        # print("-------------------------------------------------------------")
-        # print(s_svr_name)
 
         if s_svr_name is None:
             s_svr_name=''
@@ -36,16 +33,13 @@ def server_list_left_ajax(request):
                   " GROUP BY sl.dbsvr " + \
                   " ORDER BY sl.dbsvr "
 
-        # print(s_query)
-        # print("-------------------------------------------------------------")
-
         with connections['default'].cursor() as cursor:
             svr_info_lists = []
             cursor.execute(s_query)
             svr_info_lists = namedtuplefetchall(cursor)
 
         if(len(svr_info_lists) == 0): # 검색결과가 없다면
-            print("하나도없네")
+            print("검색결과 없음")
 
         context = {
             'svr_info_lists': svr_info_lists,
@@ -199,3 +193,102 @@ def server_list_right_ajax(request):
         return render(request, 'process_check/server_list_right_ajax.html', context)
     else:
         return render(request, 'process_check/server_list_right_ajax.html')
+
+
+def server_list_delete_svr_use_yn_ajax(request):
+    if request.method == 'POST':
+        job_name = request.POST.get('job_name')
+        svr = request.POST.get('svr')
+        flag = request.POST.get('flag') # true or false
+        use_yn = request.POST.get('use_yn') # None 일경우, 미등록 처리 하기 위함
+
+        flag = 1 if flag == 'true' else 0 # true = 1, false = 0
+        print("-------------------------------------------------------------------------------------------------------")
+        print("/* delete_job_use_yn_ajax 입력값 테스트 */")
+        print(job_name)
+        print(svr)
+        print("변경값 : " + str(flag))
+        print("사용여부 : " + str(use_yn))
+        print("-------------------------------------------------------------------------------------------------------")
+
+        # 등록잡 삭제하기
+        print("등록된 잡 삭제하기")
+        query = "/*delete_job_use_yn_ajax*/ DELETE FROM job_server_map" + \
+                " WHERE 1=1" + \
+                " AND job_info_seqno = (SELECT job_info_seqno FROM job_info ji WHERE ji.job_info_name = '" + job_name+ "')" + \
+                " AND server_list_seqno = (SELECT id FROM server_list sl WHERE sl.dbsvr='" + svr + "')"
+        # print("------------------------------------------------------------------------------------------------------")
+        # print(query)
+        # print("-------------------------------------------------------------------------------------------------------")
+
+        try:
+            cursor = connections['default'].cursor()
+            cursor.execute(query)
+            cursor.commit()
+        except:
+            cursor.rollback()
+        finally:
+            cursor.close()
+
+    context = {
+        'job_name': job_name,
+        'svr': svr,
+        'flag': flag,
+    }
+
+    return render(request, 'process_check/server_list_dummy_ajax.html', context)
+
+
+def server_list_update_svr_use_yn_ajax(request):
+    if request.method == 'POST':
+        job_name = request.POST.get('job_name')
+        svr = request.POST.get('svr')
+        flag = request.POST.get('flag') # true or false
+        use_yn = request.POST.get('use_yn') # None 일경우, 미등록 처리 하기 위함
+
+        flag = 1 if flag == 'true' else 0 # true = 1, false = 0
+        print("------------------------------------------------------------------------------------------------------")
+        print("/* use yn 입력값 테스트 */")
+        print("서버명 : " + svr)
+        print("변경잡명 : " + job_name)
+        print("변경값 : " + str(flag))
+        print("사용여부 : " + str(use_yn))
+        print("------------------------------------------------------------------------------------------------------")
+
+        # 미등록 서버,잡 입력받는경우. INSERT
+        if use_yn == 'None':
+            print("미등록입니다. 신규 등록합니다.")
+            query =   "INSERT INTO job_server_map (job_info_seqno, server_list_seqno, use_yn)" + \
+                        " SELECT ji.job_info_seqno, sl.id, 1" + \
+                        " FROM server_list sl JOIN job_info AS ji" + \
+                        " WHERE 1=1" + \
+                        " AND ji.job_info_name='" + job_name + "'" + \
+                        " AND sl.dbsvr='" + svr + "'"
+
+        # 기 등록 서버, 잡 입력받은경우
+        else:
+            print("등록입니다. 업데이트합니다.")
+            query = "/*update_job_use_yn_ajax*/UPDATE job_server_map jsm SET use_yn=" + str(flag) + \
+                    " WHERE 1=1" + \
+                    " AND jsm.job_info_seqno = (SELECT job_info_seqno FROM job_info ji WHERE ji.job_info_name = '" + job_name+ "')" + \
+                    " AND jsm.server_list_seqno = (SELECT id FROM server_list sl WHERE sl.dbsvr='" + svr + "')"
+        # print("------------------------------------------------------------------------------------------------------")
+        # print(query)
+        # print("------------------------------------------------------------------------------------------------------")
+
+        try:
+            cursor = connections['default'].cursor()
+            cursor.execute(query)
+            cursor.commit()
+        except:
+            cursor.rollback()
+        finally:
+            cursor.close()
+
+    context = {
+        'job_name': job_name,
+        'svr': svr,
+        'flag': flag,
+    }
+
+    return render(request, 'process_check/server_list_dummy_ajax.html', context)

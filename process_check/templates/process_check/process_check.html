@@ -3,54 +3,35 @@
 <!-- 네비게이션바 -->
 {% include "navbar-process.html" %}
 <!-- MAIN -->
-<span style="font-size: 12px;" type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#collapseUpdateMulti_bak" aria-controls="collapseUpdateMulti">조회</span>
+<!-- <div class="d-grid gap-2 d-md-flex justify-content-center">
+    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSelect" aria-expanded="false" aria-controls="collapseSelect">검색</button>
+</div> -->
+<!-- 검색 -->
+<div class="collapse show"  id="collapseSelect" style="font-size: 12px;">
+    <div class="card card-body bg-light mb-0 pb-0">
+        <h6>검색란</h6>
+        <a>- 서버 리스트에 따른 잡 통합관리 및 on/off 스위치를 제어하는 페이지입니다.
+            (등록된 서버 : <span class="badge text-bg-secondary">{{ svr_count }}</span>)
+        </a>
 
-<!-- 상단 페이지. 검색, 입력-->
-<div class="collapse show small" id="collapseUpdateMulti" style="font-size: 12px;">
-    <table class="w-100 mt-0" style="table-layout: fixed">
-        <td style="width: 50%">
-            <div class="card card-body mt-0 bg-light callout callout-primary">
-                <h6>Server Name Search
-                    <span id="position"></span>
-                </h6>
-                <a>- 서버 리스트에 따른 잡 통합관리 및 on/off 스위치를 제어하는 페이지입니다.
-                    (등록된 서버 :
-                    <span style="font-size: 10px;" class="badge badge-dark">{{ svr_count }}</span>)
-                </a>
-
-                <form class="form-inline" onsubmit="return false" id="" name="">
-                    {% csrf_token %}
-                    <div class="mt-2">
-                        <input type="text" class="form-control form-control-sm" id="s_svr_name" name="s_svr_name" placeholder="server_name">
-                        &nbsp;<button id="search" class="btn btn-outline-dark btn-sm">검색</button>
-                    </div>
-                </form>
-            </div>
-        </td>
-    </table>
+        <table class="table table-sm text-center mb-0 pb-0" style="table-layout: fixed">
+            <form class="form-inline" onsubmit="return false;" name="SelectForm">
+                {% csrf_token %}
+                <tr class="">
+                    <td><input class="form-control form-control-sm" id="s_svr_name" name="s_svr_name" placeholder="서버명"></td>
+                </tr>
+                <tr class="">
+                    <td><button class="btn btn-secondary btn-sm" id="search">검색</button></td>
+                </tr>
+            </form>
+        </table>
+    </div>   
 </div>
 
 <!-- left ajax -->
-<div id="left_ajax" style="width: 250px; float: left; position: absolute; top: 240px; bottom: 15px; overflow-y: auto; z-index: 2;"></div>
+<div id="left_ajax" style="width: 250px; position: absolute; float: left; top: 240px; bottom: 15px; overflow-y: auto; z-index: 2;"></div>
 <!-- right ajax -->
 <div id="right_ajax" style="float: right; position: absolute; top: 240px; bottom: 15px; right: 0px; left: 250px; z-index: 1; overflow-y: auto; padding-left: 15px;"></div>
-
-
-<!-- main -->
-<script>
-    $(document).ready(function(){
-        $('#spinners').hide();
-    })
-
-    .ajaxStart(function(){
-        $('#spinners').fadeIn(10);
-
-    })
-
-    .ajaxStop(function(){
-        $('#spinners').fadeOut(10);
-    });
-</script>
 
 <!-- left ajax script -->
 <script>
