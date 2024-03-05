@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>right_ajax</title>
+</head>
+<body>
+
+{% for svr_job_list in svr_job_lists %}
+{% with svr_name=svr_job_list.0 job_lists=svr_job_list.1 %}
+{% if svr_name != '' and svr_name != "''" %}
+
+<div class="card card-body mt-0 bg-light callout callout-dark ml-2">
+    <h6>{{ svr_name }}</h6>
+    <table class="mb-2"><hr class="mt-2 mb-2">
+        <tr><td>
+            {% for job_list in job_lists %}
+            {% if job_list.use_yn is None %} <!-- 미등록인경우 -->
+            <span class="badge badge-light badge-pill mt-0 mb-1 pt-0 pb-0" id="span_{{ svr_name }}_{{ job_list.job_info_name }}" name="job_span" style="background-color: #F0F0F0">
+                <div class="pl-4 pr-0 pt-0 pb-0 custom-control custom-switch">&nbsp;&nbsp;
+                    <input type="checkbox" class="custom-control-input" id="{{ svr_name }}_{{ job_list.job_info_name }}" name="svr_checkbox" onclick="update_svr_use_yn('{{ svr_name }}_{{ job_list.job_info_name }}','{{ svr_name }}','{{ job_list.job_info_name }}','{{ job_list.use_yn }}')">
+                    <label type="button" class="pt-1 custom-control-label" name="svr_label" for="{{ svr_name }}_{{ job_list.job_info_name }}">{{ job_list.job_info_name }}</label>
+                    <label class="pt-1 text-secondary"><p style="color: #F0F0F0">&nbsp;&nbsp;x</p></label>
+                </div>
+            </span>
+            {% elif job_list.use_yn == 1 %} <!-- 등록 및 USE_YN = 1인 경우 -->
+            <span class="badge badge-light badge-pill mt-0 mb-1 pt-0 pb-0" id="span_{{ svr_name }}_{{ job_list.job_info_name }}" name="job_span" style="background-color: #D8D8D8">
+                <div class="pl-4 pr-0 pt-0 pb-0 custom-control custom-switch">&nbsp;&nbsp;
+                    <input type="checkbox" class="custom-control-input" checked id="{{ svr_name }}_{{ job_list.job_info_name }}" name="svr_checkbox" onclick="update_svr_use_yn('{{ svr_name }}_{{ job_list.job_info_name }}','{{ svr_name }}','{{ job_list.job_info_name }}','{{ job_list.use_yn }}')">
+                    <label type="button" class="pt-1 custom-control-label" name="svr_label" for="{{ svr_name }}_{{ job_list.job_info_name }}">{{ job_list.job_info_name }}</label>
+                    <label type="button" class="pt-1 text-secondary" onclick="delete_svr_use_yn('{{ svr_name }}_{{ job_list.job_info_name }}','{{ svr_name }}','{{ job_list.job_info_name }}','{{ job_list.use_yn}}')">&nbsp;&nbsp;x</label>
+                </div>
+            </span>
+            {% else %} <!-- 등록 및 USE_YN = 0인 경우 -->
+            <span class="badge badge-light badge-pill mt-0 mb-1 pt-0 pb-0" id="span_{{ svr_name }}_{{ job_list.job_info_name }}" name="job_span" style="background-color: #D8D8D8">
+                <div class="pl-4 pr-0 pt-0 pb-0 custom-control custom-switch">&nbsp;&nbsp;
+                    <input type="checkbox" class="custom-control-input" id="{{ svr_name }}_{{ job_list.job_info_name }}" name="svr_checkbox" onclick="update_svr_use_yn('{{ svr_name }}_{{ job_list.job_info_name }}','{{ svr_name }}','{{ job_list.job_info_name }}','{{ job_list.use_yn }}')">
+                    <label type="button" class="pt-1 custom-control-label" name="svr_label" for="{{ svr_name }}_{{ job_list.job_info_name }}">{{ job_list.job_info_name }}</label>
+                    <label type="button" class="pt-1 text-secondary" onclick="delete_svr_use_yn('{{ svr_name }}_{{ job_list.job_info_name }}','{{ svr_name }}','{{ job_list.job_info_name }}','{{ job_list.use_yn }}')">&nbsp;&nbsp;x</label>
+                </div>
+            </span>
+            {% endif %}&nbsp;
+            {% endfor %}
+        </td></tr>
+        {% if job_lists|length == 0 %}
+            <div class="small">검색 결과 없음</div>
+        {% endif %}
+    </table>
+</div>
+{% endif %}
+{% endwith %}
+{% endfor %}
+
+<div id="dummy_ajax"></div>
+
+
+<!-- delete use_yn ajax-->
+<script>
+    var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+
+    function delete_svr_use_yn(checkbox_id, svr, job_name, use_yn) {
+        var flag = $("#" + checkbox_id).prop('checked');
+
+        delete_svr_use_yn_ajax(svr, job_name, flag, use_yn);
+        //alert(checkbox_id + " / " + job_name + " / " + svr + " / " + use_yn + " / " + flag);
+
+        //process_check_xtrabackup_adb2 / process_check_xtrabackup / adb2 / 1 / true
+
+        $("#span_" + checkbox_id).css("background-color", "#F0F0F0");
+        $("#" + checkbox_id).prop("checked", false);
+
+        var checkboxValues = []; // for reload
+        $("input[name='checkbox']:checked").each(function(i) {
+            checkboxValues.push($(this).val());
+        });
+
+        server_list_reload_left_ajax(checkboxValues);
+    }
+
+    function delete_svr_use_yn_ajax(svr, job_name, flag, use_yn) {
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'process_check:server_list_delete_svr_use_yn_ajax' %}",
+            //async: false,
+            data: {
+                'csrfmiddlewaretoken': token,
+                'svr': svr,
+                'job_name': job_name,
+                'flag': flag,
+                'use_yn': use_yn,
+            },
+            success: call_delete_svr_use_yn_ajax,
+            dataType: 'html'
+        });
+    }
+
+    function call_delete_svr_use_yn_ajax(data, textStatus, jqXHR) {
+        $('#dummy_ajax').html(data);
+    }
+</script>
+
+<!-- update use_yn ajax-->
+<script>
+    var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+
+    function update_svr_use_yn(checkbox_id, svr, job_name, use_yn) {
+        var flag = $("#" + checkbox_id).prop('checked');
+
+        update_svr_use_yn_ajax(svr, job_name, flag, use_yn);
+
+        if (use_yn == 'None'){
+            $("#span_" + checkbox_id).css("background-color", "#D8D8D8");
+            //$("#span_" + checkbox_id).css("background-color", "red");
+        }
+
+        var checkboxValues = []; // for reload
+        $("input[name='checkbox']:checked").each(function(i) {
+            checkboxValues.push($(this).val());
+        });
+
+        server_list_reload_left_ajax(checkboxValues);
+    }
+
+    function update_svr_use_yn_ajax(svr, job_name, flag, use_yn) {
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'process_check:server_list_update_svr_use_yn_ajax' %}",
+            //async: false,
+            data: {
+                'csrfmiddlewaretoken': token,
+                'svr': svr,
+                'job_name': job_name,
+                'flag': flag,
+                'use_yn': use_yn,
+            },
+            success: call_update_svr_use_yn_ajax,
+            dataType: 'html'
+        });
+    }
+
+    function call_update_svr_use_yn_ajax(data, textStatus, jqXHR) {
+        $('#dummy_ajax').html(data);
+    }
+</script>
+
+<!-- left ajax-->
+<script>
+    function server_list_reload_left_ajax(svr_info_name) {
+        var s_svr_name = $("#s_svr_name").val();
+
+        // 검색어
+        var s_job = $("#s_job").val();
+
+        // 미등록 안보기 체크
+        if($("#checkbox_unregister").is(":checked")){
+            var checkbox_unregister = "ON";
+        }else{
+            var checkbox_unregister = "OFF";
+        }
+
+        // OFF 안보기 체크
+        if($("#checkbox_off").is(":checked")){
+            var checkbox_off = "ON";
+        }else{
+            var checkbox_off = "OFF";
+        }
+
+        //alert(s_job + " / " + checkbox_unregister + " / " + checkbox_off);
+
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'process_check:server_list_reload_left_ajax' %}",
+            //async: false,
+            data: {
+                'csrfmiddlewaretoken': token,
+                'svr_info_name': svr_info_name,
+                's_svr_name': s_svr_name,
+                's_job': s_job,
+                'checkbox_unregister': checkbox_unregister,
+                'checkbox_off': checkbox_off,
+            },
+            success: call_more_reload_left_ajax,
+            dataType: 'html'
+        });
+    }
+
+    function call_more_reload_left_ajax(data, textStatus, jqXHR) {
+        $('#left_ajax').html(data);
+    }
+</script>
+
+</body>
+</html>

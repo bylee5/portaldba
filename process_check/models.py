@@ -1,22 +1,39 @@
 from django.db import models
-from datetime import datetime
 
-class Process_check(models.Model):
-	svr = models.CharField(max_length=100) # DB서버
-	ver = models.CharField(max_length=100) # DB버전
-	usg = models.CharField(max_length=100) # 용도
-	vip = models.CharField(max_length=100) # 가상 ip
-	pri_ip = models.CharField(max_length=100) # 사설 ip
-	pub_ip = models.CharField(max_length=100) # 공용 ip
-	port1 = models.IntegerField() # 포트 번호
-	priority = models.CharField(max_length=100) # 분류
-	manager1 = models.CharField(max_length=100) # 정
-	manager2 = models.CharField(max_length=100) # 부
-	created_at = models.DateTimeField(default=datetime.now) # 생성일
-	updated_at = models.DateTimeField(default=datetime.now) # 변경일
-	
-	class Meta:
-		db_table = 'process_check'
+class ServerList(models.Model):
+    id = models.SmallAutoField(primary_key=True)
+    dbsvr = models.CharField(max_length=30, blank=True, null=True)
+    usg = models.CharField(max_length=100, blank=True, null=True)
+    port1 = models.PositiveSmallIntegerField(blank=True, null=True)
+    pri_ip = models.CharField(max_length=15, blank=True, null=True)
+    pub_ip = models.CharField(max_length=15, blank=True, null=True)
+    priority = models.CharField(max_length=20, blank=True, null=True)
 
-	def __str__(self):
-		return self.svr
+    class Meta:
+        managed = False
+        db_table = 'server_list'
+        unique_together = (('pri_ip', 'port1'), ('dbsvr', 'port1'),)
+        app_label = 'portaldba'
+
+class JobInfo(models.Model):
+    job_info_seqno = models.AutoField(primary_key=True)
+    job_info_name = models.CharField(max_length=150)
+    job_info_detail = models.CharField(max_length=300, blank=True, null=True)
+    job_info_note = models.CharField(max_length=300, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'job_info'
+        app_label = 'portaldba'
+
+class JobServerMap(models.Model):
+    job_server_map_seqno = models.BigAutoField(primary_key=True)
+    job_info_seqno = models.PositiveIntegerField()
+    server_list_seqno = models.PositiveSmallIntegerField()
+    use_yn = models.PositiveIntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'job_server_map'
+        unique_together = (('job_info_seqno', 'server_list_seqno'),)
+        app_label = 'portaldba'
