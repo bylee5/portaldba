@@ -8,7 +8,7 @@ app_name = 'account'
 urlpatterns = [
     # ex: /account/
     path('', views.account, name='account'),
-    path('select_fast', views.account_select_fast, name='account_select_fast'), # name은 {% url %}에서 사용
+    path('select_fast', views.account_select_fast, name='account_select_fast'), # name은 .html 파일의 {% url %}에서 사용
     path('account_remove', views.account_remove, name='account_remove'),
     path('repository/select', views.account_repository_select, name='account_repository_select'),
     path('account_dummy_pass', views.account_dummy_pass, name='account_dummy_pass'),
