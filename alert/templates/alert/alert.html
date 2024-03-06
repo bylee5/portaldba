@@ -2,4 +2,146 @@
 {% block content %}
 <!-- 네비게이션바 -->
 {% include "navbar-alert.html" %}
+<!-- MAIN -->
+<div class="d-grid gap-2 d-md-flex justify-content-center">
+    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSelect" aria-expanded="false" aria-controls="collapseSelect">얼럿 검색</button>
+    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInsert" aria-expanded="false" aria-controls="collapseInsert">얼럿 입력</button>
+    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUpdateMulti" aria-expanded="false" aria-controls="collapseUpdateMulti">얼럿 수정/삭제</button>
+</div>
+
+<!-- 검색 -->
+<div class="collapse"  id="collapseSelect" style="font-size: 12px;">
+    <div class="card card-body bg-light mb-0 pb-0">
+        <h6>검색란</h6>
+        <table class="table table-sm text-center mb-0 pb-0" style="table-layout: fixed">
+            <tr class="bg-secondary text-white">
+                <th class="rounded-left" style="width: 5%;">여부</th>
+                <th class="">타이틀</th>
+                <th class="">서버명</th>
+                <th class="rounded-right"></th>
+            </tr>
+                <form class="form-inline" onsubmit="return false" name="selectForm">
+                    {% csrf_token %}
+                    <td class="">
+                        <div class="input-group input-group-sm">
+                            <select class="custom-select" id="s_alert_yn" name="s_alert_yn">
+                                <option value="">All</option>
+                                <option value="Y">Y</option>
+                                <option value="N">N</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td class="">
+                        <div class="input-group input-group-sm">
+                            <select class="custom-select" id="s_alert_title" name="s_alert_title">
+                                <option value="">All</option>
+                                {% if server_svr_list %}
+                                {% for server_svr_lists in server_svr_list %}
+                                <option {% if account_svr == server_svr_lists.dbtype %} selected {% endif %} value="{{ server_svr_lists.dbtype }}">{{ server_svr_lists.dbtype }}</option>
+                                {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                    </td>                                                           
+                    <td class="">
+                        <div class="input-group input-group-sm">
+                            <select class="custom-select" id="s_alert_dbsvr" name="s_alert_dbsvr">
+                                <option value="">All</option>
+                                {% if server_svr_list %}
+                                {% for server_svr_lists in server_svr_list %}
+                                <option {% if account_svr == server_svr_lists.dbsvr %} selected {% endif %} value="{{ server_svr_lists.dbsvr }}">{{ server_svr_lists.dbsvr }}</option>
+                                {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                    </td>
+                    <td class="">
+                        <button id="search" class="btn btn-secondary btn-sm">검색</button>
+                    </td>
+                </form>
+            </tr>
+        </table>
+    </div>   
+</div>
+
+<!-- 검색 결과 페이지 처리 -->
+<div>
+    {% if page is none %}
+        <input id="page" name="page" type="hidden" value="1">
+    {% else %}
+        <input id="page" name="page" type="hidden" value="{{ page }}">
+    {% endif %}
+
+    {% if scrollHeight is none %}
+        <input id="scrollHeight" name="scrollHeight" type="hidden" value="0">
+    {% else %}
+        <input id="scrollHeight" name="scrollHeight" type="hidden" value="{{ scrollHeight }}">
+    {% endif %}
+</div>
+<div class="board small" id="alert_list_ajax" style="font-size: 12px;"></div>
+
+
+<!-- 얼럿 조회 ajax script -->
+<script>
+    var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+
+    $('#search').click(function(){
+        // 검색 버튼을 누를 경우엔, page 1로 초기화
+        var page = 1
+        callMoreListAjax(page);
+        $("#page").val(parseInt(page));
+    });
+
+    $('#alert_list_ajax').load('dummy',function(){
+        var page = $("#page").val();
+        var scrollHeight = $("#scrollHeight").val();
+        $('#myModal_sql').modal("hide");
+
+        callMoreListAjax(page);
+        $("#page").val(parseInt(page));
+        $('html').animate({scrollTop: scrollHeight}, 500);
+    });
+
+    $(window).scroll(function(){
+        var scrollHeight = $(window).scrollTop() + $(window).height();
+        var documentHeight = $(document).height();
+
+        if (scrollHeight + 500 >= documentHeight){
+            var page = $("#page").val();
+            var page_max = $("#page_max").val();
+            if (parseInt(page) <= parseInt(page_max)){
+                callMoreListAjax(page);
+                $("#page").val(parseInt(page)+1);
+            }
+        }
+    });
+
+    function callMoreListAjax(page) {
+        var s_alert_yn = $("#s_alert_yn").val();
+        var s_alert_title = $("#s_alert_title").val();
+        var s_alert_dbsvr = $("#s_alert_dbsvr").val();
+
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'alert:alert_select' %}",
+            async: false,
+            data: {
+                's_alert_yn': s_alert_yn,
+                's_alert_title': s_alert_title,
+                's_alert_dbsvr': s_alert_dbsvr,
+                'page': page,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreServerAjax,
+            dataType: 'html'
+        });
+    }
+</script>
+
+<!-- common ajax script -->
+<script>
+    function addMoreServerAjax(data, textStatus, jqXHR) {
+        $('#alert_list_ajax').html(data);
+    }
+</script>
 {% endblock %}
