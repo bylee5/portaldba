@@ -18,6 +18,7 @@ def server_list(request):
     context = {'svr_count': row[0],}
     return render(request, 'process_check/server_list.html', context)
 
+@login_required
 def server_list_left_ajax(request):
     if request.method == 'POST':
         s_svr_name = request.POST.get('s_svr_name')
@@ -57,7 +58,7 @@ def namedtuplefetchall(cursor):
     nt_result = namedtuple('Result', [col[0] for col in desc])
     return [nt_result(*row) for row in cursor.fetchall()]
 
-
+@login_required
 def server_list_reload_left_ajax(request):
     if request.method == 'POST':
         time.sleep(0.2)
@@ -96,7 +97,7 @@ def server_list_reload_left_ajax(request):
     else:
         return render(request, 'process_check/server_list_left_ajax.html')
     
-
+@login_required
 def server_list_right_ajax(request):
     if request.method == 'POST':
 
@@ -167,7 +168,7 @@ def server_list_right_ajax(request):
     else:
         return render(request, 'process_check/server_list_right_ajax.html')
 
-
+@login_required
 def server_list_delete_svr_use_yn_ajax(request):
     if request.method == 'POST':
         job_name = request.POST.get('job_name')
@@ -198,7 +199,7 @@ def server_list_delete_svr_use_yn_ajax(request):
 
     return render(request, 'process_check/server_list_dummy_ajax.html', context)
 
-
+@login_required
 def server_list_update_svr_use_yn_ajax(request):
     if request.method == 'POST':
         job_name = request.POST.get('job_name')
@@ -240,7 +241,7 @@ def server_list_update_svr_use_yn_ajax(request):
 
     return render(request, 'process_check/server_list_dummy_ajax.html', context)
 
-
+@login_required
 def server_job_list(request):
     s_query = "SELECT COUNT(*) AS cnt FROM job_info"
     with connections['default'].cursor() as cursor:
@@ -253,6 +254,7 @@ def server_job_list(request):
 
     return render(request, 'process_check/server_job_list.html', context)
 
+@login_required
 def server_job_list_left_ajax(request):
     if request.method == 'POST':
         s_job_name = request.POST.get('s_job_name')
@@ -287,6 +289,7 @@ def server_job_list_left_ajax(request):
     else:
         return render(request, 'process_check/server_job_list_left_ajax.html')
 
+@login_required
 def server_job_list_right_ajax(request):
     if request.method == 'POST':
         job_info_names = request.POST.getlist('job_info_name[]') # 원래 입력값
@@ -353,6 +356,7 @@ def server_job_list_right_ajax(request):
     else:
         return render(request, 'process_check/server_job_list_right_ajax.html')
 
+@login_required
 def server_job_list_update_job_use_yn_ajax(request):
     if request.method == 'POST':
         job_name = request.POST.get('job_name')
@@ -392,6 +396,7 @@ def server_job_list_update_job_use_yn_ajax(request):
 
     return render(request, 'process_check/server_job_list_dummy_ajax.html', context)
 
+@login_required
 def server_job_list_delete_job_use_yn_ajax(request):
     if request.method == 'POST':
         job_name = request.POST.get('job_name')
@@ -422,6 +427,7 @@ def server_job_list_delete_job_use_yn_ajax(request):
 
     return render(request, 'process_check/server_job_list_dummy_ajax.html', context)
 
+@login_required
 def server_job_list_reload_left_ajax(request):
     if request.method == 'POST':
         time.sleep(0.2)
