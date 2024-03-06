@@ -39,7 +39,7 @@ ALLOWED_HOSTS = ['10.12.14.136','127.0.0.1']
 INSTALLED_APPS = [
     'data_life_cycle.apps.DataLifeCycleConfig',
     'memo.apps.MemoConfig',
-    'monitoring.apps.MonitoringConfig',
+    'alert.apps.AlertConfig',
     'process_check.apps.ProcessCheckConfig',
     'server.apps.ServerConfig',
     'login.apps.LoginConfig',
