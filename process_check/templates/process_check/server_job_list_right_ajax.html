@@ -1,0 +1,175 @@
+{% block content %}
+{% for job_svr_list in job_svr_lists %}
+{% with job_name=job_svr_list.0 svr_lists=job_svr_list.1 %}
+{% if job_name != '' and job_name != "''" %}
+
+<div class="card card-body mt-0 bg-light callout callout-dark ml-2">
+    <h6>{{ job_name }}</h6>
+    <table class="mb-2"><hr class="mt-2 mb-2">
+        <tr><td>
+            {% for svr_list in svr_lists %}
+            {% if svr_list.use_yn is None %} <!-- 미등록인경우 -->
+            <span class="badge badge-light badge-pill mt-0 mb-1 pt-0 pb-0" id="span_{{ job_name }}_{{ svr_list.svr }}" name="svr_span" style="background-color: #F0F0F0">
+                <div class="pl-4 pr-0 pt-0 pb-0 custom-control custom-switch">&nbsp;&nbsp;
+                    <input type="checkbox" class="custom-control-input" id="{{ job_name }}_{{ svr_list.svr }}" name="svr_checkbox" onclick="update_job_use_yn('{{ job_name }}_{{ svr_list.svr }}','{{ job_name }}','{{ svr_list.svr }}','{{ svr_list.use_yn}}')">
+                    <label type="button" class="pt-1 custom-control-label text-black-50" name="svr_label" for="{{ job_name }}_{{ svr_list.svr }}">{{ svr_list.svr }}</label>
+                    <label type="button" class="pt-1 text-secondary">&nbsp;&nbsp;x</label>
+                </div>
+            </span>
+            {% elif svr_list.use_yn == 1 %} <!-- 등록 및 USE_YN = 1인 경우 -->
+            <span class="badge badge-light badge-pill mt-0 mb-1 pt-0 pb-0" id="span_{{ job_name }}_{{ svr_list.svr }}" name="svr_span" style="background-color: #D8D8D8">
+                <div class="pl-4 pr-0 pt-0 pb-0 custom-control custom-switch text-bg-success">&nbsp;&nbsp;
+                    <input type="checkbox" class="custom-control-input" checked id="{{ job_name }}_{{ svr_list.svr }}" name="svr_checkbox" onclick="update_job_use_yn('{{ job_name }}_{{ svr_list.svr }}','{{ job_name }}','{{ svr_list.svr }}','{{ svr_list.use_yn}}')">
+                    <label type="button" class="pt-1 custom-control-label text-black-50" name="svr_label" for="{{ job_name }}_{{ svr_list.svr }}">{{ svr_list.svr }}</label>
+                    <label type="button" class="pt-1 text-secondary" onclick="delete_job_use_yn('{{ job_name }}_{{ svr_list.svr }}','{{ job_name }}','{{ svr_list.svr }}','{{ svr_list.use_yn}}')">&nbsp;&nbsp;x</label>
+                </div>
+            </span>
+            {% else %} <!-- 등록 및 USE_YN = 0인 경우 -->
+            <span class="badge badge-light badge-pill mt-0 mb-1 pt-0 pb-0" id="span_{{ job_name }}_{{ svr_list.svr }}" name="svr_span" style="background-color: #D8D8D8">
+                <div class="pl-4 pr-0 pt-0 pb-0 custom-control custom-switch text-bg-info">&nbsp;
+                    <input type="checkbox" class="custom-control-input" id="{{ job_name }}_{{ svr_list.svr }}" name="svr_checkbox" onclick="update_job_use_yn('{{ job_name }}_{{ svr_list.svr }}','{{ job_name }}','{{ svr_list.svr }}','{{ svr_list.use_yn}}')">
+                    <label type="button" class="pt-1 custom-control-label text-black-50" name="svr_label" for="{{ job_name }}_{{ svr_list.svr }}">{{ svr_list.svr }}</label>
+                    <label type="button" class="pt-1 text-secondary" onclick="delete_job_use_yn('{{ job_name }}_{{ svr_list.svr }}','{{ job_name }}','{{ svr_list.svr }}','{{ svr_list.use_yn}}')">&nbsp;&nbsp;x</label>
+                </div>
+            </span>
+            {% endif %}&nbsp;
+            {% endfor %}
+        </td></tr>
+        {% if svr_lists|length == 0 %}
+            <div class="small">검색 결과 없음</div>
+        {% endif %}
+    </table>
+</div>
+{% endif %}
+{% endwith %}
+{% endfor %}
+
+<div id="dummy_ajax"></div>
+
+<!-- delete use_yn ajax-->
+<script>
+    var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+
+    function delete_job_use_yn(checkbox_id, job_name, svr, use_yn) {
+        var flag = $("#" + checkbox_id).prop('checked');
+
+        delete_job_use_yn_ajax(job_name, svr, flag, use_yn);
+
+        $("#span_" + checkbox_id).css("background-color", "#F0F0F0");
+        $("#" + checkbox_id).prop("checked", false);
+
+        var checkboxValues = []; // for reload
+        $("input[name='checkbox']:checked").each(function(i) {
+            checkboxValues.push($(this).val());
+        });
+
+        server_job_list_reload_left_ajax(checkboxValues);
+    }
+
+    function delete_job_use_yn_ajax(job_name, svr, flag, use_yn) {
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'process_check:server_job_list_delete_job_use_yn_ajax' %}",
+            data: {
+                'csrfmiddlewaretoken': token,
+                'job_name': job_name,
+                'svr': svr,
+                'flag': flag,
+                'use_yn': use_yn,
+            },
+            success: call_delete_job_use_yn_ajax,
+            dataType: 'html'
+        });
+    }
+
+    function call_delete_job_use_yn_ajax(data, textStatus, jqXHR) {
+        $('#dummy_ajax').html(data);
+    }
+</script>
+
+<!-- update use_yn ajax-->
+<script>
+    var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+
+    function update_job_use_yn(checkbox_id, job_name, svr, use_yn) {
+        var flag = $("#" + checkbox_id).prop('checked');
+
+        update_job_use_yn_ajax(job_name, svr, flag, use_yn);
+
+        if (use_yn == 'None'){
+            $("#span_" + checkbox_id).css("background-color", "#D8D8D8");
+        }
+
+        var checkboxValues = []; // for reload
+        $("input[name='checkbox']:checked").each(function(i) {
+            checkboxValues.push($(this).val());
+        });
+
+        server_job_list_reload_left_ajax(checkboxValues);
+    }
+
+    function update_job_use_yn_ajax(job_name, svr, flag, use_yn) {
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'process_check:server_job_list_update_job_use_yn_ajax' %}",
+            data: {
+                'csrfmiddlewaretoken': token,
+                'job_name': job_name,
+                'svr': svr,
+                'flag': flag,
+                'use_yn': use_yn,
+            },
+            success: call_update_job_use_yn_ajax,
+            dataType: 'html'
+        });
+    }
+
+    function call_update_job_use_yn_ajax(data, textStatus, jqXHR) {
+        $('#dummy_ajax').html(data);
+    }
+</script>
+
+<!-- left ajax-->
+<script>
+    function server_job_list_reload_left_ajax(job_info_name) {
+        var s_job_name = $("#s_job_name").val();
+
+        // 검색어
+        var s_svr = $("#s_svr").val();
+
+        // 미등록 안보기 체크
+        if($("#checkbox_unregister").is(":checked")){
+            var checkbox_unregister = "ON";
+        }else{
+            var checkbox_unregister = "OFF";
+        }
+
+        // OFF 안보기 체크
+        if($("#checkbox_off").is(":checked")){
+            var checkbox_off = "ON";
+        }else{
+            var checkbox_off = "OFF";
+        }
+
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'process_check:server_job_list_reload_left_ajax' %}",
+            //async: false,
+            data: {
+                'csrfmiddlewaretoken': token,
+                'job_info_name': job_info_name,
+                's_job_name': s_job_name,
+                's_svr': s_svr,
+                'checkbox_unregister': checkbox_unregister,
+                'checkbox_off': checkbox_off,
+            },
+            success: call_more_reload_left_ajax,
+            dataType: 'html'
+        });
+    }
+
+    function call_more_reload_left_ajax(data, textStatus, jqXHR) {
+        $('#left_ajax').html(data);
+    }
+</script>
+{% endblock %}

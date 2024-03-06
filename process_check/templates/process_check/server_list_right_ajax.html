@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>right_ajax</title>
-</head>
-<body>
-
+{% block content %}
 {% for svr_job_list in svr_job_lists %}
 {% with svr_name=svr_job_list.0 job_lists=svr_job_list.1 %}
 {% if svr_name != '' and svr_name != "''" %}
@@ -53,7 +46,6 @@
 
 <div id="dummy_ajax"></div>
 
-
 <!-- delete use_yn ajax-->
 <script>
     var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
@@ -78,7 +70,6 @@
         $.ajax( {
             type : 'POST',
             url: "{% url 'process_check:server_list_delete_svr_use_yn_ajax' %}",
-            //async: false,
             data: {
                 'csrfmiddlewaretoken': token,
                 'svr': svr,
@@ -121,7 +112,6 @@
         $.ajax( {
             type : 'POST',
             url: "{% url 'process_check:server_list_update_svr_use_yn_ajax' %}",
-            //async: false,
             data: {
                 'csrfmiddlewaretoken': token,
                 'svr': svr,
@@ -161,8 +151,6 @@
             var checkbox_off = "OFF";
         }
 
-        //alert(s_job + " / " + checkbox_unregister + " / " + checkbox_off);
-
         $.ajax( {
             type : 'POST',
             url: "{% url 'process_check:server_list_reload_left_ajax' %}",
@@ -184,6 +172,4 @@
         $('#left_ajax').html(data);
     }
 </script>
-
-</body>
-</html>
+{% endblock %}

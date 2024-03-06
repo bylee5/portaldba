@@ -14,8 +14,9 @@ urlpatterns = [
 
     path('server_job_list', views.server_job_list, name='server_job_list'),
     path('server_job_list_left_ajax', views.server_job_list_left_ajax, name='server_job_list_left_ajax'),
+    path('server_job_list_reload_left_ajax', views.server_job_list_reload_left_ajax, name='server_job_list_reload_left_ajax'),
     path('server_job_list_right_ajax', views.server_job_list_right_ajax, name='server_job_list_right_ajax'),
     path('server_job_list_update_job_use_yn_ajax', views.server_job_list_update_job_use_yn_ajax, name='server_job_list_update_job_use_yn_ajax'),
     path('server_job_list_delete_job_use_yn_ajax', views.server_job_list_delete_job_use_yn_ajax, name='server_job_list_delete_job_use_yn_ajax'),
-    path('server_job_list_reload_left_ajax', views.server_job_list_reload_left_ajax, name='server_job_list_reload_left_ajax'),
+    
 ]

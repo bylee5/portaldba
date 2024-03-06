@@ -1,57 +1,57 @@
 {% block content %}
     <!-- main -->
-    {% if svr_info_lists|length != 0 %}
+    {% if job_info_lists|length != 0 %}
     <!-- 드래그바 -->
     <div id="dragbar" style="height: 100%; width: 0px; background-color: black; cursor: col-resize; position: absolute; right: 0px; top: 0px;"></div>
 
     <div class="text-center">
         <h6>
-            <span class="badge text-bg-primary" type="button" onclick="all_click({{ svr_info_lists|length }})">모두 선택/해제</span>
-            <span class="badge text-bg-info">등록 잡</span>
-            <span class="badge text-bg-success">활성 잡</span>
+            <span class="badge text-bg-primary" type="button" onclick="all_click({{ job_info_lists|length }})">모두 선택/해제</span>
+            <span class="badge text-bg-info">등록 서버</span>
+            <span class="badge text-bg-success">활성 서버</span>
         </h6>
     </div>
-    <div class="btn-group-toggle" data-bs-toggle="buttons">
-        {% for svr_info_list in svr_info_lists %}
-        {% if svr_info_list.svr_info_name in svr_info_name_checked_list %}
+    <div class="btn-group-toggle" data-toggle="buttons">
+        {% for job_info_list in job_info_lists %}
+        {% if job_info_list.job_info_name in job_info_name_checked_list %}
         <label class="btn btn-outline-secondary btn-sm w-100 active">
-            <input type="checkbox" id="checkbox" name="checkbox" checked class="check" value="{{ svr_info_list.svr_info_name }}">
+            <input type="checkbox" id="checkbox" name="checkbox" checked class="check" value="{{ job_info_list.job_info_name }}">
         {% else %}
-        <label class="btn btn-outline-secondary btn-sm w-100">
-            <input type="checkbox" id="checkbox" name="checkbox" class="check" value="{{ svr_info_list.svr_info_name }}">
+            <label class="btn btn-outline-secondary btn-sm w-100">
+                <input type="checkbox" id="checkbox" name="checkbox" class="check" value="{{ job_info_list.job_info_name }}">
         {% endif %}
                 <div style="font-size: 12px;">
-                    {% if svr_info_list.svr_info_name|length <= 25 %}
-                    {{ svr_info_list.svr_info_name }}
+                    {% if job_info_list.job_info_name|length <= 25 %}
+                    {{ job_info_list.job_info_name }}
                     {% else %}
-                    {{ svr_info_list.svr_info_name| slice:":25"| add:".." }}
+                    {{ job_info_list.job_info_name| slice:":25"| add:".." }}
                     {% endif %}
-                    <span class="badge text-bg-info">{{ svr_info_list.svr_total}}</span>
-                    <span class="badge text-bg-success">{{ svr_info_list.svr_use_total}}</span>
+                    <span class="badge text-bg-info">{{ job_info_list.svr_total}}</span>
+                    <span class="badge text-bg-success">{{ job_info_list.svr_use_total}}</span>
                 </div>
                 </input>
             </label>
             {% endfor %}
     </div>
 
-    <!-- s_svr_name. 검색 조건을 유지하기 위함 -->
-    <!-- svr filter 검색. 원하는 항목만 표시하기 -->
-    <div id="job_name_search" class="text-center card card-body mt-0 mb-0 pt-2 pb-0 bg-light small">
+    <!-- s_job_name. 검색 조건을 유지하기 위함 -->
+    <!-- Job filter 검색. 원하는 항목만 표시하기 -->
+    <div id="server_name_search" class="text-center card card-body mt-0 mb-0 pt-2 pb-0 bg-light small">
         <table class="text-center" style="font-size: 12px;">
             <tr>
                 <td class="">
                     <form class="form-inline mt-0 mb-0" onsubmit="return false" id="" name="">
-                        <input id="s_svr_name" name="s_svr_name" type="hidden" value="{{ s_svr_name }}">
+                        <input id="s_job_name" name="s_job_name" type="hidden" value="{{ s_job_name }}">
                         {% csrf_token %}
-                        {% if s_job is None %}
-                        <input type="text" class="form-control form-control-sm" id="s_job" name="" placeholder="잡명" style="width: 135px;">
+                        {% if s_svr is None %}
+                        <input type="text" class="form-control form-control-sm" id="s_svr" name="" placeholder="서버명" style="width: 155px;">
                         {% else %}
-                        <input type="text" class="form-control form-control-sm" id="s_job" name="" placeholder="잡명" style="width: 135px;" value="{{ s_job }}">
+                        <input type="text" class="form-control form-control-sm" id="s_svr" name="" placeholder="서버명" style="width: 155px;" value="{{ s_svr }}">
                         {% endif %}
                     </form>
                 </td>
                 <td>
-                    <button id="job_search" class="btn btn-secondary btn-sm">검색</button>
+                    <button id="svr_search" class="btn btn-secondary btn-sm">검색</button>
                 </td></tr></table>
 
         <table class="" style="font-size: 12px;">
@@ -81,7 +81,7 @@
     <!-- left ajax -->
     <!-- 체크박스 모두선택/모두해제-->
     <script>
-        function all_click(svr_info_lists_cnt) {
+        function all_click(job_info_lists_cnt) {
             // 체크횟수 파악
             var checkboxValues = [];
             $("input[name='checkbox']:checked").each(function(i) {
@@ -89,27 +89,27 @@
             });
 
             // 모두 체크한게 아니라면 모두 체크로. 그게 아니라면 해크해제로 null 값 입력
-            var checked_svr_info_lists = [];
-            if (checkboxValues.length != svr_info_lists_cnt ){
+            var checked_job_info_lists = [];
+            if (checkboxValues.length != job_info_lists_cnt ){
                 $("input[name='checkbox']").each(function(i) {
-                    checked_svr_info_lists.push($(this).val());
+                    checked_job_info_lists.push($(this).val());
                 });
 			}
 
             // left_ajax 리로드
-            server_list_reload_left_ajax(checked_svr_info_lists);
+            server_job_list_reload_left_ajax(checked_job_info_lists);
 		}
 
-		function server_list_reload_left_ajax(svr_info_name) {
-			var s_svr_name = $("#s_svr_name").val();
+		function server_job_list_reload_left_ajax(job_info_name) {
+			var s_job_name = $("#s_job_name").val();
 
 			$.ajax( {
 				type : 'POST',
-				url: "{% url 'process_check:server_list_reload_left_ajax' %}",
+				url: "{% url 'process_check:server_job_list_reload_left_ajax' %}",
 				data: {
 					'csrfmiddlewaretoken': token,
-					'svr_info_name': svr_info_name,
-					's_svr_name': s_svr_name,
+					'job_info_name': job_info_name,
+					's_job_name': s_job_name,
 				},
 				success: call_more_reload_left_ajax,
 				dataType: 'html'
@@ -121,31 +121,31 @@
 		}
 	</script>
 
-    <!-- 서버 checkbox -->
+    <!-- 잡 checkbox -->
     <script>
         var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
-        $("#s_job").keydown(function(key) {
+        $("#s_svr").keydown(function(key) {
             if (key.keyCode == 13) { // 13 : enter key
-                $("#job_search").click();
+                $("#svr_search").click();
             }
         });
 
-		$('#job_search').click(function(){
-            var svr_info_name = [];
+		$('#svr_search').click(function(){
+            var job_info_name = [];
             $("input[name='checkbox']:checked").each(function(i) {
-                svr_info_name.push($(this).val());
+                job_info_name.push($(this).val());
             });
-		    call_svr_info_name_ajax(svr_info_name);
+		    call_job_info_name_ajax(job_info_name);
         });
 
         $(document).ready(function(){
             $("input:checkbox").on('click', function() {
                 //alert("checkbox click");
-                var svr_info_name = [];
+                var job_info_name = [];
                 $("input[name='checkbox']:checked").each(function(i) {
-                    svr_info_name.push($(this).val());
+                    job_info_name.push($(this).val());
                 });
-                call_svr_info_name_ajax(svr_info_name);
+                call_job_info_name_ajax(job_info_name);
             });
         });
     </script>
@@ -153,9 +153,9 @@
     <!-- 등록 잡만 보기 / 활성 잡만 보기 -->
     <script>
         var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
-        function call_svr_info_name_ajax(svr_info_name) {
+        function call_job_info_name_ajax(job_info_name) {
             // 검색어
-            var s_job = $("#s_job").val();
+            var s_svr = $("#s_svr").val();
 
             // 미등록 안보기 체크
             if($("#checkbox_unregister").is(":checked")){
@@ -173,11 +173,11 @@
 
             $.ajax( {
                 type : 'POST',
-                url: "{% url 'process_check:server_list_right_ajax' %}",
+                url: "{% url 'process_check:server_job_list_right_ajax' %}",
                 data: {
                     'csrfmiddlewaretoken': token,
-                    'svr_info_name': svr_info_name,
-                    's_job': s_job,
+                    'job_info_name': job_info_name,
+                    's_svr': s_svr,
                     'checkbox_unregister': checkbox_unregister,
                     'checkbox_off': checkbox_off,
                 },
@@ -225,7 +225,7 @@
         });
 
         $('#left_ajax').load('dummy',function(){
-            var barheight= $('#job_name_search').offset().top - 200;
+            var barheight= $('#server_name_search').offset().top - 200;
             $('#dragbar').css("height", barheight);
         });
     </script>
@@ -233,12 +233,12 @@
     <!-- right ajax -->
     <script>
         $('#right_ajax').load('dummy',function(){
-            var svr_info_name = [];
+            var job_info_name = [];
             $("input[name='checkbox']:checked").each(function(i) {
-                svr_info_name.push($(this).val());
+                job_info_name.push($(this).val());
             });
 
-            call_svr_info_name_ajax(svr_info_name);
+            call_job_info_name_ajax(job_info_name);
         });
     </script>
 {% endblock %}
