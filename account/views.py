@@ -26,6 +26,7 @@ def account_remove(request):
 @login_required
 def account_repository_select(request):
     if request.method == 'POST':
+        # 사용자가 폼을 작성하고 POST를 통해 전송하면 request.POST에 포함된 수신 데이터를 사용
         s_repository_team = request.POST.get('s_repository_team')
         s_repository_type = request.POST.get('s_repository_type')
         s_repository_name = request.POST.get('s_repository_name')
@@ -59,8 +60,12 @@ def account_repository_select(request):
             else:
                 repository_list = paginator.get_page(1)
         except PageNotAnInteger:
+            # page 매개 변수가 정수가 아닌 문자 전달에 대한 예외 처리
+            # 첫 번째 페이지를 전달
             repository_list = paginator.get_page(1)
         except EmptyPage:
+            # 페이지 번호가 범위를 벗어난 경우 결과의 마지막 페이지를 전달하도록 예외 처리
+            # paginator.num_pages로 총페이지 수 확인(마지막 페이지 번호와 동일)
             repository_list = paginator.get_page(paginator.num_pages)
 
         print("page_max : " + str(page_max))
@@ -81,6 +86,7 @@ def account_repository_select(request):
         return render(request, 'account/account_repository_select.html', context)
 
     else:
+        # 페이지가 처음 로드되면 뷰는 GET 요청을 받음
         return render(request, 'account/account_repository.html')
 
 @login_required
