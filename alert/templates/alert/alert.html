@@ -35,9 +35,9 @@
                         <div class="input-group input-group-sm">
                             <select class="custom-select" id="s_alert_title" name="s_alert_title">
                                 <option value="">All</option>
-                                {% if server_svr_list %}
-                                {% for server_svr_lists in server_svr_list %}
-                                <option {% if account_svr == server_svr_lists.dbtype %} selected {% endif %} value="{{ server_svr_lists.dbtype }}">{{ server_svr_lists.dbtype }}</option>
+                                {% if alert_title_lists %}
+                                {% for alert_title_list in alert_title_lists %}
+                                <option {% if alert_title == alert_title_list.monitoring_code_title %} selected {% endif %} value="{{ alert_title_list.monitoring_code_title }}">{{ alert_title_list.monitoring_code_title }}</option>
                                 {% endfor %}
                                 {% endif %}
                             </select>
@@ -47,9 +47,9 @@
                         <div class="input-group input-group-sm">
                             <select class="custom-select" id="s_alert_dbsvr" name="s_alert_dbsvr">
                                 <option value="">All</option>
-                                {% if server_svr_list %}
-                                {% for server_svr_lists in server_svr_list %}
-                                <option {% if account_svr == server_svr_lists.dbsvr %} selected {% endif %} value="{{ server_svr_lists.dbsvr }}">{{ server_svr_lists.dbsvr }}</option>
+                                {% if alert_server_lists %}
+                                {% for alert_server_list in alert_server_lists %}
+                                <option {% if alert_server == alert_server_list.dbsvr %} selected {% endif %} value="{{ alert_server_list.dbsvr }}">{{ alert_server_list.dbsvr }}</option>
                                 {% endfor %}
                                 {% endif %}
                             </select>
@@ -62,6 +62,69 @@
             </tr>
         </table>
     </div>   
+</div>
+
+<!-- 입력 -->
+<div class="collapse show" id="collapseInsert" style="font-size: 12px;">
+    <div class="card card-body mt-2 bg-light mb-0 pb-0">
+        <h6>입력란</h6>
+        <table class="table table-sm text-center  mb-0 pb-0" style="table-layout: fixed">
+            <form class="form-inline" onsubmit="return false;" name="insertForm">
+            {% csrf_token %}
+            <tr class="">
+                <td style="width: 3%" class="bg-secondary text-white align-middle">얼럿명</td>
+                <td style="width: 8%">
+                    <div class="input-group input-group-sm">
+                        <select class="custom-select" id="i_alert_title" name="i_alert_title">
+                            <option value=""></option>
+                            {% if alert_title_lists %}
+                            {% for alert_title_list in alert_title_lists %}
+                            <option value="{{ alert_title_list.monitoring_code_title }}">{{ alert_title_list.monitoring_code_title }}</option>
+                            {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                </td>
+                <td style="width: 3%" class="bg-secondary text-white align-middle">서버명</td>
+                <td style="width: 10%">
+                    <div class="input-group input-group-sm">
+                        <select class="custom-select" id="i_alert_dbsvr" name="i_alert_dbsvr">
+                            <option value=""></option>
+                            {% if alert_server_lists %}
+                            {% for alert_server_list in alert_server_lists %}
+                            <option value="{{ alert_server_list.dbsvr }}">{{ alert_server_list.dbsvr }}</option>
+                            {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                </td>
+                <td style="width: 3%" class="bg-secondary text-white align-middle">스케줄</td>
+                <td style="width: 10%"><input class="form-control form-control-sm" id="i_schedule" name="i_schedule" value="{{ i_schedule }}" type="text"></td>
+                <td style="width: 3%" class="bg-secondary text-white align-middle">여부</td>
+                <td style="width: 3%">
+                    <div class="input-group input-group-sm">
+                        <select class="custom-select" id="i_alert_yn" name="i_alert_yn">
+                            <option value="Y" selected>Y</option>
+                            <option value="N">N</option>
+                        </select>
+                    </div>
+                </td>
+                <td style="width: 3%" class="bg-secondary text-white align-middle">임계치</td>
+                <td style="width: 3%"><input class="form-control form-control-sm" id="i_threshold" name="i_threshold" value="{{ i_threshold }}" type="text"></td>
+                <td style="width: 3%" class="bg-secondary text-white align-middle">cycle</td>
+                <td colspan="2" style="width: 3%"><input class="form-control form-control-sm" id="i_cycle" name="i_cycle" value="{{ i_cycle }}" type="text"></td>
+                <td style="width: 3%" class="bg-secondary text-white align-middle">sleep</td>
+                <td style="width: 3%"><input class="form-control form-control-sm" id="i_sleep" name="i_sleep" value="{{ i_sleep }}" type="text"></td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-left">
+                    <button class="btn btn-secondary btn-sm" onclick="insertBox()" type="submit">입력</button>
+                    <input class="btn btn-secondary btn-sm" type="button" value="지우기" onClick="insertBox_del()">
+                </td>
+            </tr>
+            </form>
+        </table>
+    </div>
 </div>
 
 <!-- 검색 결과 페이지 처리 -->
@@ -132,7 +195,53 @@
                 'page': page,
                 'csrfmiddlewaretoken': token,
             },
-            success: addMoreServerAjax,
+            success: addMoreAlertAjax,
+            dataType: 'html'
+        });
+    }
+</script>
+
+<!-- 얼럿 입력 ajax script -->
+<script>
+    function insertBox() {
+        var retVal = confirm("입력하시겠습니까?");
+        if (retVal == true ){
+            var page = parseInt($("#page").val());
+            insert_callMoreListAjax(page);
+            $("#page").val(parseInt(page));
+        }else{
+            return false;
+        }
+    }
+    
+    function insertBox_del() {
+        document.insertForm.reset();
+    }
+    
+    function insert_callMoreListAjax(page) {
+        var i_alert_title = $("#i_alert_title").val();
+        var i_alert_dbsvr = $("#i_alert_dbsvr").val();
+        var i_schedule = $("#i_schedule").val();
+        var i_alert_yn = $("#i_alert_yn").val();
+        var i_threshold = $("#i_threshold").val();
+        var i_cycle = $("#i_cycle").val();
+        var i_sleep = $("#i_sleep").val();
+    
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'alert:alert_insert' %}",
+            data: {
+                'i_alert_title': i_alert_title,
+                'i_alert_dbsvr': i_alert_dbsvr,
+                'i_schedule': i_schedule,
+                'i_alert_yn': i_alert_yn,
+                'i_threshold': i_threshold,
+                'i_cycle': i_cycle,
+                'i_sleep': i_sleep,
+                'page': page,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreAlertAjax,
             dataType: 'html'
         });
     }
@@ -140,8 +249,9 @@
 
 <!-- common ajax script -->
 <script>
-    function addMoreServerAjax(data, textStatus, jqXHR) {
+    function addMoreAlertAjax(data, textStatus, jqXHR) {
         $('#alert_list_ajax').html(data);
     }
 </script>
+
 {% endblock %}
