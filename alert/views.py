@@ -12,23 +12,47 @@ from collections import namedtuple
 
 @login_required
 def alert(request):
-    s_query = "select distinct monitoring_code_title from db_monitoring_code"
+    s_query = '''
+            select distinct mc.monitoring_code_title 
+            from db_monitoring m 
+                join db_monitoring_code mc on (m.monitoring_code_seqno = mc.monitoring_code_seqno)
+            '''
     
     with connections['default'].cursor() as cursor:
         alert_title_list = []
         cursor.execute(s_query)
         alert_title_list = namedtuplefetchall(cursor)
 
-    s_query = "select distinct dbsvr from server_list where delete_yn = 'N'"
+    s_query = '''
+            select distinct sl.dbsvr
+            from db_monitoring m
+                join server_list sl on (m.server_list_seqno = sl.id)
+            '''
     
     with connections['default'].cursor() as cursor:
         alert_server_list = []
         cursor.execute(s_query)
         alert_server_list = namedtuplefetchall(cursor)
+    
+    s_query = "select distinct monitoring_code_title from db_monitoring_code"
+    
+    with connections['default'].cursor() as cursor:
+        title_list = []
+        cursor.execute(s_query)
+        title_list = namedtuplefetchall(cursor)
+
+    s_query = "select distinct dbsvr from server_list"
+    
+    with connections['default'].cursor() as cursor:
+        server_list = []
+        cursor.execute(s_query)
+        server_list = namedtuplefetchall(cursor)
 
     context = {
             'alert_title_lists': alert_title_list,
             'alert_server_lists': alert_server_list,
+            'title_lists': title_list,
+            'server_lists': server_list,
             'alert_type': "ERR_0"
         }
     
@@ -204,7 +228,7 @@ def alert_insert(request):
 
         i_query = "insert into db_monitoring set server_list_seqno = '{0}', monitoring_code_seqno = '{1}', monitoring_schedule = '{2}',".format(dbsvr_row[0], title_row[0], schedule)
         i_query += "monitoring_yn = '{0}',".format(alert_yn)
-        i_query += "monitoring_threshold = '{0}', check_count_threshold = '{1}', alert_term = '{2}'".format(threshold, cycle, sleep)
+        i_query += "monitoring_threshold = '{0}', check_count_threshold = '{1}', alert_term = '{2}'".foramt(threshold, cycle, sleep)
             
         with connections['default'].cursor() as cursor:
             cursor.execute(i_query)

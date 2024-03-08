@@ -77,9 +77,9 @@
                     <div class="input-group input-group-sm">
                         <select class="custom-select" id="i_alert_title" name="i_alert_title">
                             <option value=""></option>
-                            {% if alert_title_lists %}
-                            {% for alert_title_list in alert_title_lists %}
-                            <option value="{{ alert_title_list.monitoring_code_title }}">{{ alert_title_list.monitoring_code_title }}</option>
+                            {% if title_lists %}
+                            {% for title_list in title_lists %}
+                            <option value="{{ title_list.monitoring_code_title }}">{{ title_list.monitoring_code_title }}</option>
                             {% endfor %}
                             {% endif %}
                         </select>
@@ -90,9 +90,9 @@
                     <div class="input-group input-group-sm">
                         <select class="custom-select" id="i_alert_dbsvr" name="i_alert_dbsvr">
                             <option value=""></option>
-                            {% if alert_server_lists %}
-                            {% for alert_server_list in alert_server_lists %}
-                            <option value="{{ alert_server_list.dbsvr }}">{{ alert_server_list.dbsvr }}</option>
+                            {% if server_lists %}
+                            {% for server_list in server_lists %}
+                            <option value="{{ server_list.dbsvr }}">{{ server_list.dbsvr }}</option>
                             {% endfor %}
                             {% endif %}
                         </select>
