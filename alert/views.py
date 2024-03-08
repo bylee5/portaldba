@@ -12,22 +12,14 @@ from collections import namedtuple
 
 @login_required
 def alert(request):
-    s_query = '''
-            select distinct mc.monitoring_code_title 
-            from db_monitoring m 
-                join db_monitoring_code mc on (m.monitoring_code_seqno = mc.monitoring_code_seqno)
-            '''
+    s_query = "select distinct monitoring_code_title from db_monitoring_code"
     
     with connections['default'].cursor() as cursor:
         alert_title_list = []
         cursor.execute(s_query)
         alert_title_list = namedtuplefetchall(cursor)
 
-    s_query = '''
-            select distinct sl.dbsvr
-            from db_monitoring m
-                join server_list sl on (m.server_list_seqno = sl.id)
-            '''
+    s_query = "select distinct dbsvr from server_list"
     
     with connections['default'].cursor() as cursor:
         alert_server_list = []
