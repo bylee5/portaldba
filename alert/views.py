@@ -19,7 +19,7 @@ def alert(request):
         cursor.execute(s_query)
         alert_title_list = namedtuplefetchall(cursor)
 
-    s_query = "select distinct dbsvr from server_list"
+    s_query = "select distinct dbsvr from server_list where delete_yn = 'N'"
     
     with connections['default'].cursor() as cursor:
         alert_server_list = []
