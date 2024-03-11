@@ -65,7 +65,7 @@
 </div>
 
 <!-- 입력 -->
-<div class="collapse show" id="collapseInsert" style="font-size: 12px;">
+<div class="collapse" id="collapseInsert" style="font-size: 12px;">
     <div class="card card-body mt-2 bg-light mb-0 pb-0">
         <h6>입력란</h6>
         <table class="table table-sm text-center  mb-0 pb-0" style="table-layout: fixed">
@@ -125,6 +125,70 @@
             </form>
         </table>
     </div>
+</div>
+
+<!-- 수정/삭제 -->
+<div class="collapse show" id="collapseUpdateMulti" style="font-size: 12px;">
+    <table>
+        <td>
+            <div class="card card-body mt-2 bg-light callout callout-info mb-0 pb-0">
+                <h6>다중 수정란</h6>
+                <a>- 좌측 하단 체크박스 클릭을 통해 다중 변경 대상을 선택해주세요.</a>
+                <a class="mb-3">- 체크 대상으로 <font color="red"><b>일괄 변경</b></font> 되오니, 신중하게 사용해주세요.</a>
+
+                <table class="table table-sm text-center mb-0 pb-0" style="table-layout: fixed">
+                    <form class="form-inline" onsubmit="return false;" name="MultiUpdateForm">
+                        {% csrf_token %}
+                        <tr class="bg-secondary text-white">
+                            <th style="width: 30%" class="rounded-left">변경 항목</th>
+                            <th style="width: 58%" class="">변경 값</th>
+                            <th style="width: 10%" class="rounded-right"></th>
+                        <tr class="">
+                            <td>
+                                <div class="input-group input-group-sm">
+                                    <select class="custom-select" id="mu_type" name="mu_type">
+                                        <option value="monitoring_yn" selected>여부</option>
+                                        <option value="monitoring_threshold">얼럿 임계치</option>
+                                        <option value="check_count_threshold">얼럿 반복 횟수 임계치</option>
+                                        <option value="alert_term">얼럿 반복 간 시간 간격</option>
+                                        <option value="monitoring_schedule">스케줄</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td><input class="form-control form-control-sm" id="mu_value" name="mu_value" type="text"></td>
+                            <td>
+                                <button class="btn btn-secondary btn-sm" onclick="MultiUpdateBox()" type="submit">수정</button>
+                            </td>
+                        </tr>
+                    </form>
+                </table>
+            </div>
+        </td>
+        <td>
+            <div class="card card-body mt-2 bg-light callout callout-dark mb-0 pb-0">
+                <h6> 다중 삭제란</h6>
+                <a>- 좌측 하단 체크박스 클릭을 통해 다중 변경 대상을 선택해주세요.</a>
+                <a class="mb-3">- 체크 대상으로 <font color="red"><b>일괄 삭제</b></font> 되오니, 신중하게 사용해주세요.</a>
+
+                <table class="table table-sm text-center mb-0 pb-0" style="table-layout: fixed">
+                    <form class="form-inline" onsubmit="return false;" name="MultiDeleteForm">
+                        {% csrf_token %}
+                        <tr class="bg-secondary text-white">
+                            <th style="width: 48%" class="rounded-left">삭제 사유</th>
+                            <th style="width: 40%" class="">요청 URL</th>
+                            <th style="width: 10%" class="rounded-right"></th>
+                        <tr class="">
+                            <td><input class="form-control form-control-sm" id="md_alert_del_reason" name="md_alert_del_reason" type="text"></td>
+                            <td><input class="form-control form-control-sm" id="md_alert_del_note" name="md_alert_del_note" type="text"></td>
+                            <td>
+                                <button class="btn btn-secondary btn-sm" onclick="MultiDeleteBox()" type="submit">삭제</button>
+                            </td>
+                        </tr>
+                    </form>
+                </table>
+            </div>
+        </td>
+    </table>
 </div>
 
 <!-- 검색 결과 페이지 처리 -->
@@ -238,6 +302,76 @@
                 'i_threshold': i_threshold,
                 'i_cycle': i_cycle,
                 'i_sleep': i_sleep,
+                'page': page,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreAlertAjax,
+            dataType: 'html'
+        });
+    }
+</script>
+
+<!-- 얼럿 수정/삭제 ajax script -->
+<script>
+    function MultiUpdateBox() {
+        var retVal = confirm("수정 하시겠습니까?");
+        if (retVal == true ){
+            var page = parseInt($("#page").val());
+            var dml_type = 'update'
+            multi_dml_callMoreListAjax(page, dml_type);
+            $("#page").val(parseInt(page));
+        }else{
+            return false;
+        }
+    }
+
+    function MultiDeleteBox() {
+        var retVal = confirm("삭제 하시겠습니까?");
+        if (retVal == true ){
+            var page = parseInt($("#page").val());
+            var dml_type = 'delete'
+            multi_dml_callMoreListAjax(page, dml_type);
+            $("#page").val(parseInt(page));
+        }else{
+            return false;
+        }
+    }
+
+    function multi_dml_callMoreListAjax(page, dml_type) {
+        // 검색란
+        var s_alert_yn = $("#s_alert_yn").val();
+        var s_alert_title = $("#s_alert_title").val();
+        var s_alert_dbsvr = $("#s_alert_dbsvr").val();
+
+        // 다중 수정란 / 다중 삭제란
+        var mu_type = $("#mu_type").val();
+        var mu_value = $("#mu_value").val();
+        var md_alert_del_reason = $("#md_alert_del_reason").val();
+        var md_alert_del_note = $("#md_alert_del_note").val();
+
+        // 다중 수정란 / 다중 삭제란 초기화
+        document.MultiUpdateForm.reset();
+        document.MultiDeleteForm.reset();
+
+        // 체크박스 클릭을 통해 다중 변경 대상
+        var checkboxValues = [];
+        $("input[name='checkbox']:checked").each(function(i) {
+            checkboxValues.push($(this).val());
+        });
+
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'alert:alert_multi_dml' %}",
+            data: {
+                'checkboxValues[]': checkboxValues,
+                'dml_type': dml_type,
+                'mu_type': mu_type,
+                'mu_value': mu_value,
+                'md_alert_del_reason': md_alert_del_reason,
+                'md_alert_del_note': md_alert_del_note,
+                's_alert_yn': s_alert_yn,
+                's_alert_title': s_alert_title,
+                's_alert_dbsvr': s_alert_dbsvr,
                 'page': page,
                 'csrfmiddlewaretoken': token,
             },

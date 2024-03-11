@@ -355,6 +355,179 @@ def namedtuplefetchall(cursor):
     nt_result = namedtuple('Result', [col[0] for col in desc])
     return [nt_result(*row) for row in cursor.fetchall()]
 
+
+@login_required
+def alert_multi_dml(request):
+    if request.method == 'POST':
+        checkboxValues = request.POST.getlist('checkboxValues[]')
+        alert_id_list = ",".join( repr(e) for e in checkboxValues).replace("'","") # QUERY에 쓰일 서버명
+
+        # 수정 일시년월일 (또는 입력일시)
+        last_modify_dt = timezone.now().strftime("%Y/%m/%d %H:%M:%S")
+
+        try:
+            if len(checkboxValues) != 0:
+                # 체크박스 클릭되어 다중 변경 대상이 있음
+                dml_type = request.POST.get('dml_type')
+
+                if dml_type == 'update':
+                    mu_type = request.POST.get('mu_type')
+                    mu_value = request.POST.get('mu_value')
+
+                    u_query = '''UPDATE db_monitoring 
+                                    SET {0} = '{1}'
+                                WHERE db_monitoring_seqno IN ({2})
+                                '''.format(mu_type, mu_value, alert_id_list)
+
+                    with connections['default'].cursor() as cursor:
+                        cursor.execute(u_query)
+
+                elif dml_type == 'delete':
+                    md_alert_del_reason = request.POST.get('md_alert_del_reason')
+                    md_alert_del_note = request.POST.get('md_alert_del_note')
+                    d_query = '''DELETE FROM db_monitoring 
+                                WHERE db_monitoring_seqno IN ({0})
+                                '''.format(alert_id_list)
+                    
+                    with connections['default'].cursor() as cursor:
+                        cursor.execute(d_query)
+
+                alert_type = "ERR_0"
+                alert_message = ""
+
+            else:
+                # 체크박스 클릭 없음
+                alert_type = "ERR_3"
+                alert_message = "반영 대상이 없습니다. 작업대상 ID 체크박스를 클릭해주세요."
+                last_modify_dt = ""
+
+        except Exception as e:
+            alert_type = "ERR_3"
+            alert_message = e
+
+        alert_yn = request.POST.get('s_alert_yn')
+        alert_title = request.POST.get('s_alert_title')
+        alert_dbsvr = request.POST.get('s_alert_dbsvr')
+        callmorepostFlag = 'true'
+
+        s_query = '''
+                SELECT
+                    c.monitoring_code_title,
+                    c.monitoring_code_seqno,
+                    a.server_list_seqno,
+                    b.dbsvr,
+                    b.pri_ip,
+                    b.port1,
+                    a.db_monitoring_seqno,
+                    a.monitoring_yn,
+                    a.monitoring_threshold,
+                    IFNULL(a.monitoring_error_at, 'NULL') AS monitoring_error_at,
+                    a.alert_term,
+                    IFNULL(TIME_TO_SEC(TIMEDIFF(NOW(), a.monitoring_error_at)), 'NULL') AS how_long_error,
+                    a.check_count_threshold,
+                    a.check_count_current,
+                    a.monitoring_schedule,
+                    IF(INSTR(substring_index(substring_index(a.monitoring_schedule, ' ', 1), ' ', -1), '-') > 0,
+                        (LPAD(MINUTE(NOW()), 2, 0) BETWEEN LPAD(
+                                substring_index(substring_index(substring_index(a.monitoring_schedule, ' ', 1), ' ', -1), '-', 1), 2,
+                                0) AND LPAD(
+                                substring_index(substring_index(substring_index(a.monitoring_schedule, ' ', 1), ' ', -1), '-', -1), 2,
+                                0)), (LPAD(MINUTE(NOW()), 2, 0) like
+                                        IF(substring_index(substring_index(a.monitoring_schedule, ' ', 1), ' ', -1) = '*', '%',
+                                        LPAD(substring_index(substring_index(a.monitoring_schedule, ' ', 1), ' ', -1), 2, 0))))
+                        AND IF(INSTR(substring_index(substring_index(a.monitoring_schedule, ' ', 2), ' ', -1), '-') > 0,
+                                (LPAD(HOUR(NOW()), 2, 0) BETWEEN LPAD(
+                                        substring_index(substring_index(substring_index(a.monitoring_schedule, ' ', 2), ' ', -1), '-',
+                                                        1), 2, 0) AND LPAD(
+                                        substring_index(substring_index(substring_index(a.monitoring_schedule, ' ', 2), ' ', -1), '-',
+                                                        -1), 2, 0)), (LPAD(HOUR(NOW()), 2, 0) like IF(
+                                        substring_index(substring_index(a.monitoring_schedule, ' ', 2), ' ', -1) = '*', '%',
+                                        LPAD(substring_index(substring_index(a.monitoring_schedule, ' ', 2), ' ', -1), 2, 0))))
+                        AND IF(INSTR(substring_index(substring_index(a.monitoring_schedule, ' ', 3), ' ', -1), '-') > 0,
+                                (LPAD(DAY(NOW()), 2, 0) BETWEEN LPAD(
+                                        substring_index(substring_index(substring_index(a.monitoring_schedule, ' ', 3), ' ', -1), '-',
+                                                        1), 2, 0) AND LPAD(
+                                        substring_index(substring_index(substring_index(a.monitoring_schedule, ' ', 3), ' ', -1), '-',
+                                                        -1), 2, 0)), (LPAD(DAY(NOW()), 2, 0) like IF(
+                                        substring_index(substring_index(a.monitoring_schedule, ' ', 3), ' ', -1) = '*', '%',
+                                        LPAD(substring_index(substring_index(a.monitoring_schedule, ' ', 3), ' ', -1), 2, 0))))
+                        AND IF(INSTR(substring_index(substring_index(a.monitoring_schedule, ' ', 4), ' ', -1), '-') > 0,
+                                (LPAD(MONTH(NOW()), 2, 0) BETWEEN LPAD(
+                                        substring_index(substring_index(substring_index(a.monitoring_schedule, ' ', 4), ' ', -1), '-',
+                                                        1), 2, 0) AND LPAD(
+                                        substring_index(substring_index(substring_index(a.monitoring_schedule, ' ', 4), ' ', -1), '-',
+                                                        -1), 2, 0)), (LPAD(MONTH(NOW()), 2, 0) like IF(
+                                        substring_index(substring_index(a.monitoring_schedule, ' ', 4), ' ', -1) = '*', '%',
+                                        LPAD(substring_index(substring_index(a.monitoring_schedule, ' ', 4), ' ', -1), 2, 0))))
+                        AND IF(INSTR(substring_index(substring_index(a.monitoring_schedule, ' ', 5), ' ', -1), '7'),
+                                IF(INSTR(substring_index(substring_index(a.monitoring_schedule, ' ', 5), ' ', -1), '-') > 0,
+                                    (LPAD(DAYOFWEEK(NOW()) - 1 + 7, 2, 0) BETWEEN LPAD(
+                                            substring_index(substring_index(substring_index(a.monitoring_schedule, ' ', 5), ' ', -1),
+                                                            '-', 1), 2, 0) AND LPAD(
+                                            substring_index(substring_index(substring_index(a.monitoring_schedule, ' ', 5), ' ', -1),
+                                                            '-', -1), 2, 0)), (LPAD(DAYOFWEEK(NOW()) - 1 + 7, 2, 0) like IF(
+                                            substring_index(substring_index(a.monitoring_schedule, ' ', 5), ' ', -1) = '*', '%',
+                                            LPAD(substring_index(substring_index(a.monitoring_schedule, ' ', 5), ' ', -1), 2, 0)))),
+                                IF(INSTR(substring_index(substring_index(a.monitoring_schedule, ' ', 5), ' ', -1), '-') > 0,
+                                    (LPAD(DAYOFWEEK(NOW()) - 1, 2, 0) BETWEEN LPAD(
+                                            substring_index(substring_index(substring_index(a.monitoring_schedule, ' ', 5), ' ', -1),
+                                                            '-', 1), 2, 0) AND LPAD(
+                                            substring_index(substring_index(substring_index(a.monitoring_schedule, ' ', 5), ' ', -1),
+                                                            '-', -1), 2, 0)), (LPAD(DAYOFWEEK(NOW()) - 1, 2, 0) like IF(
+                                            substring_index(substring_index(a.monitoring_schedule, ' ', 5), ' ', -1) = '*', '%',
+                                            LPAD(substring_index(substring_index(a.monitoring_schedule, ' ', 5), ' ', -1), 2, 0))))
+                        ) AS monitoring_now,
+                        a.created_at,
+                        a.updated_at
+                FROM db_monitoring a
+                    join server_list b on (a.server_list_seqno = b.id)
+                    join db_monitoring_code c on (a.monitoring_code_seqno = c.monitoring_code_seqno)
+                WHERE 1=1
+                AND a.monitoring_code_seqno in (select monitoring_code_seqno from db_monitoring_code)
+                ORDER BY a.monitoring_code_seqno desc, dbsvr, a.monitoring_schedule, a.db_monitoring_seqno
+                '''
+                
+        with connections['default'].cursor() as cursor:
+            alert_list = []
+            cursor.execute(s_query)
+            alert_list = namedtuplefetchall(cursor)
+        
+
+        page = int(request.POST.get('page'))
+        total_count = len(alert_list)
+        page_max = math.ceil(total_count / 35)
+        paginator = Paginator(alert_list, page * 35)
+
+        try:
+            if int(page) >= page_max : # 마지막 페이지 멈춤 구현
+                alert_list = paginator.get_page(1)
+                callmorepostFlag = 'false'
+            else:
+                alert_list = paginator.get_page(1)
+        except PageNotAnInteger:
+            alert_list = paginator.get_page(1)
+        except EmptyPage:
+            alert_list = paginator.get_page(paginator.num_pages)
+
+        context = {
+            'alert_yn': alert_yn,
+            'alert_title': alert_title,
+            'alert_dbsvr': alert_dbsvr,
+            'alert_list': alert_list,
+            'total_count': total_count,
+            'callmorepostFlag': callmorepostFlag,
+            'page_max': page_max,
+            'alert_type': alert_type,
+            'alert_message': alert_message,
+            'last_modify_dt': last_modify_dt,
+            'alert_sql_flag': 'Y'
+        }
+
+        return render(request, 'alert/alert_select.html', context)
+
+    else:
+        return render(request, 'alert/alert.html')
+    
 @login_required
 def threads_connected(request):
     monitoring_svr_list = Alert.objects.all()
