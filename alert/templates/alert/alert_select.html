@@ -69,7 +69,18 @@
                 });
             </script>
         </td>
-        <td>{{ alert.monitoring_code_title }}</td>
+        <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal" 
+            data-id="{{ alert.db_monitoring_seqno }}"
+            data-created_at="{{ alert.created_at|date:'Y-m-d H:i:s' }}"
+            data-updated_at="{{ alert.updated_at|date:'Y-m-d H:i:s' }}"
+            data-monitoring_code_title="{{ alert.monitoring_code_title }}"
+            data-dbsvr="{{ alert.dbsvr }}"
+            data-monitoring_schedule="{{ alert.monitoring_schedule }}"
+            data-monitoring_yn="{{ alert.monitoring_yn }}"
+            data-monitoring_threshold="{{ alert.monitoring_threshold }}"
+            data-check_count_threshold="{{ alert.check_count_threshold }}"
+            data-alert_term="{{ alert.alert_term }}">
+            {{ alert.monitoring_code_title }}</td>
         <td>{{ alert.dbsvr }}</td>
         <td>{{ alert.monitoring_schedule }}</td>
         <td>{{ alert.monitoring_yn }}</td>

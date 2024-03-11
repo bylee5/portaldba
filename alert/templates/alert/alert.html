@@ -10,7 +10,7 @@
 </div>
 
 <!-- 검색 -->
-<div class="collapse"  id="collapseSelect" style="font-size: 12px;">
+<div class="collapse show"  id="collapseSelect" style="font-size: 12px;">
     <div class="card card-body bg-light mb-0 pb-0">
         <h6>검색란</h6>
         <table class="table table-sm text-center mb-0 pb-0" style="table-layout: fixed">
@@ -128,7 +128,7 @@
 </div>
 
 <!-- 수정/삭제 -->
-<div class="collapse show" id="collapseUpdateMulti" style="font-size: 12px;">
+<div class="collapse" id="collapseUpdateMulti" style="font-size: 12px;">
     <table>
         <td>
             <div class="card card-body mt-2 bg-light callout callout-info mb-0 pb-0">
@@ -207,6 +207,356 @@
 </div>
 <div class="board small" id="alert_list_ajax" style="font-size: 12px;"></div>
 
+<!-- Modal(모달) -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header small">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+                    <li>
+                        <a class="nav-link active" href="#updateTab" aria-controls="updateTab" role="tab" aria-selected="true" data-bs-toggle="tab">수정하기</a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="#deleteTab" aria-controls="deleteTab" role="tab" data-bs-toggle="tab">삭제하기</a>
+                    </li>
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body small">
+                <div role="tabpanel">
+                    <!-- Modal Tab panes -->
+                    <div class="tab-content">
+                        <!-- Modal Delete -->
+                        <div role="tabpanel" class="tab-pane fade" id="deleteTab">
+                            <form class="" onsubmit="return false;" name="deleteForm">
+                            {% csrf_token %}
+                            <!-- hidden value (pk) -->
+                            <!-- view에 조회 데이터 넘기기 및 페이징 처리 원위치 이동을 위해 구현-->
+                            <input class="form-control form-control-sm" id="id" name="id" type="hidden">
+                            <input class="form-control form-control-sm" id="page" name="page" value="{{ page }}" type="hidden">
+                            <input class="form-control form-control-sm" id="s_monitoring_code_title" name="s_monitoring_code_title" type="hidden">
+                            <input class="form-control form-control-sm" id="s_dbsvr" name="s_dbsvr" type="hidden">
+                            <input class="form-control form-control-sm" id="s_monitoring_schedule" name="s_monitoring_schedule" type="hidden">
+                            <input class="form-control form-control-sm" id="s_monitoring_yn" name="s_monitoring_yn" type="hidden">
+                            <input class="form-control form-control-sm" id="s_monitoring_threshold" name="s_monitoring_threshold" type="hidden">
+                            <input class="form-control form-control-sm" id="s_check_count_threshold" name="s_check_count_threshold" type="hidden">
+                            <input class="form-control form-control-sm" id="s_alert_term" name="s_alert_term" type="hidden">
+
+                            <div class="card card-body mt-0 bg-light callout callout-dark mb-2">
+                                <table class="w-100">
+                                    <tr>
+                                        <td>
+                                            <a>- 삭제 사유 및 요청 URL을 기재해주세요.<a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <table class="table table-sm table-hover text-center">
+                            <tr>
+                                <!-- hidden -->
+                                <input class="form-control form-control-sm" id="page" name="page" type="hidden">
+                                <input class="form-control form-control-sm" id="scrollHeight" name="scrollHeight" type="hidden">
+
+                                <td class="bg-secondary text-white align-middle" style="width: 12%">생성일</td>
+                                <td style="width: 38%"><input class="form-control form-control-sm" id="d_created_at" name="d_created_at" type="text" readonly></td>
+                                <td class="bg-secondary text-white align-middle" style="width: 12%">변경일</td>
+                                <td style="width: 38%"><input class="form-control form-control-sm" id="d_updated_at" name="d_updated_at" type="text" readonly></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-secondary text-white align-middle">얼럿명</td>
+                                <td><input class="form-control form-control-sm" id="d_monitoring_code_title" name="d_monitoring_code_title" type="text" readonly></td>
+                                <td class="bg-secondary text-white align-middle">서버명</td>
+                                <td><input class="form-control form-control-sm" id="d_dbsvr" name="d_dbsvr" type="text" readonly></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-secondary text-white align-middle">스케줄</td>
+                                <td><input class="form-control form-control-sm" id="d_monitoring_schedule" name="d_monitoring_schedule" type="text" readonly></td>
+                                <td class="bg-secondary text-white align-middle">여부</td>
+                                <td><input class="form-control form-control-sm" id="d_monitoring_yn" name="d_monitoring_yn" type="text" readonly></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-secondary text-white align-middle">얼럿 임계치</td>
+                                <td><input class="form-control form-control-sm" id="d_monitoring_threshold" name="d_monitoring_threshold" type="text" readonly></td>
+                                <td class="bg-secondary text-white align-middle">얼럿 반복 횟수 임계치</td>
+                                <td><input class="form-control form-control-sm" id="d_check_count_threshold" name="d_check_count_threshold" type="text" readonly></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-secondary text-white align-middle">얼럿 반복 간 시간 간격</td>
+                                <td><input class="form-control form-control-sm" id="d_alert_term" name="d_alert_term" type="text" readonly></td>
+                            </tr>
+                            </table>
+                            <p class="text-right">삭제 하시겠습니까?</p>
+
+                            <div class="modal-footer">
+                                <button type="" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+                                <button class="btn btn-secondary btn-sm" onclick="deleteBox()" type="submit">삭제</button>
+                            </div>
+                            </form>
+                        </div>
+
+                        <!-- Modal Update-->
+                        <div role="tabpanel" class="tab-pane active fade show" id="updateTab">
+                            <form class="" onsubmit="return false;" name="updateForm">
+                            {% csrf_token %}
+                            <!-- hidden value (pk) -->
+                            <!-- view에 조회 데이터 넘기기 및 페이징 처리 원위치 이동을 위해 구현-->
+                            <input class="form-control form-control-sm" id="id" name="id" type="hidden">
+                            <input class="form-control form-control-sm" id="page" name="page" value="{{ page }}" type="hidden">
+                            <input class="form-control form-control-sm" id="s_monitoring_code_title" name="s_monitoring_code_title" type="hidden">
+                            <input class="form-control form-control-sm" id="s_dbsvr" name="s_dbsvr" type="hidden">
+                            <input class="form-control form-control-sm" id="s_monitoring_schedule" name="s_monitoring_schedule" type="hidden">
+                            <input class="form-control form-control-sm" id="s_monitoring_yn" name="s_monitoring_yn" type="hidden">
+                            <input class="form-control form-control-sm" id="s_monitoring_threshold" name="s_monitoring_threshold" type="hidden">
+                            <input class="form-control form-control-sm" id="s_check_count_threshold" name="s_check_count_threshold" type="hidden">
+                            <input class="form-control form-control-sm" id="s_alert_term" name="s_alert_term" type="hidden">
+
+                            <div class="card card-body mt-0 bg-light callout callout-dark mb-2">
+                            <table class="w-100">
+                                <tr>
+                                    <td>
+                                        <a>- 불가피한 사유로 강제로 수정을 해야 한다면, 우측 <font color="red"><b>강제수정</b></font> 스위치를 ON 시켜주세요.(미구현)</a>
+                                    </td>
+                                    <td class="text-right align-bottom">
+                                        <a>강제수정 <input type="checkbox" id="forceupdate_flag" name="forceupdate_flag" data-toggle="toggle" data-size="xs" data-style="ios" data-onstyle="danger"  data-offstyle="light" data-height="20" data-width="50" data-on="ON" data-off="Off"></a>
+                                    </td>
+                                </tr>
+                            </table>
+                            </div>
+
+                            <table class="table table-sm table-hover text-center">
+                                <tr>
+                                    <!-- hidden -->
+                                    <input class="form-control form-control-sm" id="page" name="page" type="hidden">
+                                    <input class="form-control form-control-sm" id="scrollHeight" name="scrollHeight" type="hidden">
+    
+                                    <td class="bg-secondary text-white align-middle" style="width: 12%">생성일</td>
+                                    <td style="width: 38%"><input class="form-control form-control-sm" id="u_created_at" name="u_created_at" type="text" readonly></td>
+                                    <td class="bg-secondary text-white align-middle" style="width: 12%">변경일</td>
+                                    <td style="width: 38%"><input class="form-control form-control-sm" id="u_updated_at" name="u_updated_at" type="text" readonly></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-secondary text-white align-middle">얼럿명</td>
+                                    <td><input class="form-control form-control-sm" id="u_monitoring_code_title" name="u_monitoring_code_title" type="text" readonly></td>
+                                    <td class="bg-secondary text-white align-middle">서버명</td>
+                                    <td><input class="form-control form-control-sm" id="u_dbsvr" name="u_dbsvr" type="text" readonly></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-secondary text-white align-middle">스케줄</td>
+                                    <td><input class="form-control form-control-sm" id="u_monitoring_schedule" name="u_monitoring_schedule" type="text"></td>
+                                    <td class="bg-secondary text-white align-middle">여부</td>
+                                    <td><input class="form-control form-control-sm" id="u_monitoring_yn" name="u_monitoring_yn" type="text"></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-secondary text-white align-middle">얼럿 임계치</td>
+                                    <td><input class="form-control form-control-sm" id="u_monitoring_threshold" name="u_monitoring_threshold" type="text"></td>
+                                    <td class="bg-secondary text-white align-middle">얼럿 반복 횟수 임계치</td>
+                                    <td><input class="form-control form-control-sm" id="u_check_count_threshold" name="u_check_count_threshold" type="text"></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-secondary text-white align-middle">얼럿 반복 간 시간 간격</td>
+                                    <td><input class="form-control form-control-sm" id="u_alert_term" name="u_alert_term" type="text"></td>
+                                </tr>
+                            </table>
+                            <p class="text-right">수정 하시겠습니까?</p>
+                            <!-- Modal Footer -->
+                            <div class="modal-footer">
+                                <button type="" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+                                <button class="btn btn-secondary btn-sm" onclick="updateBox()" type="submit">수정</button>
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 검색결과 클릭시 모달에 검색결과 데이터를 넣는다. 모달 팝업이 실행되지 안된다면 값 오타 확인 필요 -->
+<script>
+    $('#myModal').on('show.bs.modal', function (event) {
+        // alert_select.html에서 값을 가져옮
+        var button = $(event.relatedTarget); 
+        var id = button.data('id'); // data-id = id이며 data-을 제거한 문자로 생각하자
+        var created_at = button.data('created_at');
+        var updated_at = button.data('updated_at');
+        var monitoring_code_title = button.data('monitoring_code_title');
+        var dbsvr = button.data('dbsvr');
+        var monitoring_schedule = button.data('monitoring_schedule');
+        var monitoring_yn = button.data('monitoring_yn');
+        var monitoring_threshold = button.data('monitoring_threshold');
+        var check_count_threshold = button.data('check_count_threshold');
+        var alert_term = button.data('alert_term');
+    
+        // 검색란 입력 값을 가져옮
+        var s_alert_yn = $("#s_alert_yn").val();
+        var s_alert_title = $("#s_alert_title").val();
+        var s_alert_dbsvr = $("#s_alert_dbsvr").val();
+    
+        var page = $("#page").val();
+        var scrollHeight = $(window).scrollTop();
+    
+        // 모달의 deleteTab
+        var modal = $('#deleteTab')
+    
+        // 값 넣기
+        modal.find('#id').val(id);
+        modal.find('#d_created_at').val(created_at);
+        modal.find('#d_updated_at').val(updated_at);
+        modal.find('#d_monitoring_code_title').val(monitoring_code_title);
+        modal.find('#d_dbsvr').val(dbsvr);
+        modal.find('#d_monitoring_schedule').val(monitoring_schedule);
+        modal.find('#d_monitoring_yn').val(monitoring_yn);
+        modal.find('#d_monitoring_threshold').val(monitoring_threshold);
+        modal.find('#d_check_count_threshold').val(check_count_threshold);
+        modal.find('#d_alert_term').val(alert_term);
+        modal.find('#page').val(page);
+        modal.find('#scrollHeight').val(scrollHeight);
+    
+        modal.find('#s_alert_yn').val(s_alert_yn);
+        modal.find('#s_alert_title').val(s_alert_title);
+        modal.find('#s_alert_dbsvr').val(s_alert_dbsvr);
+    
+        // 모달의 updateTab
+        var modal = $('#updateTab')
+    
+        // 값 넣기
+        modal.find('#id').val(id);
+        modal.find('#u_created_at').val(created_at);
+        modal.find('#u_updated_at').val(updated_at);
+        modal.find('#u_monitoring_code_title').val(monitoring_code_title);
+        modal.find('#u_dbsvr').val(dbsvr);
+        modal.find('#u_monitoring_schedule').val(monitoring_schedule);
+        modal.find('#u_monitoring_yn').val(monitoring_yn);
+        modal.find('#u_monitoring_threshold').val(monitoring_threshold);
+        modal.find('#u_check_count_threshold').val(check_count_threshold);
+        modal.find('#u_alert_term').val(alert_term);
+        modal.find('#page').val(page);
+        modal.find('#scrollHeight').val(scrollHeight);
+    
+        modal.find('#s_alert_yn').val(s_alert_yn);
+        modal.find('#s_alert_title').val(s_alert_title);
+        modal.find('#s_alert_dbsvr').val(s_alert_dbsvr);
+    
+        $('html').css({'overflow': 'hidden', 'height': '100%'}); // 모달팝업 중 html,body의 scroll을 hidden시킴
+        $('#element').on('scroll touchmove mousewheel', function(event) { // 터치무브와 마우스휠 스크롤 방지
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        });
+    })
+    
+    $('#myModal').on('hidden.bs.modal', function (event) {
+        $('html').css({'overflow': 'auto', 'height': '100%'}); //scroll hidden 해제
+        $('#element').off('scroll touchmove mousewheel'); // 터치무브 및 마우스휠 스크롤 가능
+    })
+</script>
+
+<!-- 서버 삭제 ajax script -->
+<script>
+    function deleteBox() {
+        var page = parseInt($("#page").val());
+        delete_callMoreListAjax(page);
+        $("#page").val(parseInt(page));
+        $('#myModal').modal("hide");
+    }
+
+    function delete_callMoreListAjax(page) {
+        var d_id = $("#id").val();
+        var d_monitoring_code_title = $("#d_monitoring_code_title").val();
+        var d_dbsvr = $("#d_dbsvr").val();
+        var d_monitoring_schedule = $("#d_monitoring_schedule").val();
+        var d_monitoring_yn = $("#d_monitoring_yn").val();
+        var d_monitoring_threshold = $("#d_monitoring_threshold").val();
+        var d_check_count_threshold = $("#d_check_count_threshold").val();
+        var d_alert_term = $("#d_alert_term").val();
+
+        var s_alert_yn = $("#s_alert_yn").val();
+        var s_alert_title = $("#s_alert_title").val();
+        var s_alert_dbsvr = $("#s_alert_dbsvr").val();
+
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'alert:alert_delete' %}",
+            data: {
+                'd_id': d_id,
+                'd_monitoring_code_title': d_monitoring_code_title,
+                'd_dbsvr': d_dbsvr,
+                'd_monitoring_schedule': d_monitoring_schedule,
+                'd_monitoring_yn': d_monitoring_yn,
+                'd_monitoring_threshold': d_monitoring_threshold,
+                'd_check_count_threshold': d_check_count_threshold,
+                'd_alert_term': d_alert_term,
+                's_alert_yn': s_alert_yn,
+                's_alert_title': s_alert_title,
+                's_alert_dbsvr': s_alert_dbsvr,
+                'page': page,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreAlertAjax,
+            dataType: 'html'
+        });
+    }
+</script>
+
+<!-- 서버 수정 ajax script -->
+<script>
+    function updateBox() {
+        var page = parseInt($("#page").val());
+        update_callMoreListAjax(page);
+        $("#page").val(parseInt(page));
+        $('#myModal').modal("hide");
+    }
+
+    function update_callMoreListAjax(page) {
+        var u_id = $("#id").val();
+        var u_monitoring_code_title = $("#u_monitoring_code_title").val();
+        var u_dbsvr = $("#u_dbsvr").val();
+        var u_monitoring_schedule = $("#u_monitoring_schedule").val();
+        var u_monitoring_yn = $("#u_monitoring_yn").val();
+        var u_monitoring_threshold = $("#u_monitoring_threshold").val();
+        var u_check_count_threshold = $("#u_check_count_threshold").val();
+        var u_alert_term = $("#u_alert_term").val();
+
+        var s_alert_yn = $("#s_alert_yn").val();
+        var s_alert_title = $("#s_alert_title").val();
+        var s_alert_dbsvr = $("#s_alert_dbsvr").val();
+
+        // 강제 수정여부
+        var forceupdate_flag = 'False';
+        $("input[name='forceupdate_flag']:checked").each(function(i) {
+            forceupdate_flag = 'True';
+        });
+
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'alert:alert_update' %}",
+            data: {
+                'u_id': u_id,
+                'u_monitoring_code_title': u_monitoring_code_title,
+                'u_dbsvr': u_dbsvr,
+                'u_monitoring_schedule': u_monitoring_schedule,
+                'u_monitoring_yn': u_monitoring_yn,
+                'u_monitoring_threshold': u_monitoring_threshold,
+                'u_check_count_threshold': u_check_count_threshold,
+                'u_alert_term': u_alert_term,
+                's_alert_yn': s_alert_yn,
+                's_alert_title': s_alert_title,
+                's_alert_dbsvr': s_alert_dbsvr,
+                'forceupdate_flag': forceupdate_flag,
+                'page': page,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreAlertAjax,
+            dataType: 'html'
+        });
+    }
+</script>
 
 <!-- 얼럿 조회 ajax script -->
 <script>

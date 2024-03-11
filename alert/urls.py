@@ -9,6 +9,8 @@ urlpatterns = [
     path('alert_select', views.alert_select, name='alert_select'),
     path('alert_insert', views.alert_insert, name='alert_insert'),
     path('alert_multi_dml', views.alert_multi_dml, name='alert_multi_dml'),
+    path('alert_delete', views.alert_delete, name='alert_delete'),
+    path('alert_update', views.alert_update, name='alert_update'),
 
     path('threads_connected', views.threads_connected, name='threads_connected'),
     path('threads_running', views.threads_running, name='threads_running'),
