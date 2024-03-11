@@ -59,13 +59,13 @@
                 })
 
                 $('#{{ alert.db_monitoring_seqno }}').click(function(){
-                    $("#i_alert_monitoring_code_title").val('{{ alert.monitoring_code_title }}');
+                    $("#i_alert_title").val('{{ alert.monitoring_code_title }}');
                     $("#i_alert_dbsvr").val('{{ alert.dbsvr }}');
-                    $("#i_alert_monitoring_schedule").val('{{ alert.monitoring_schedule }}');
-                    $("#i_alert_monitoring_yn").val('{{ alert.monitoring_yn }}');
-                    $("#i_alert_monitoring_threshold").val('{{ alert.monitoring_threshold }}');
-                    $("#i_alert_check_count_threshold").val('{{ alert.check_count_threshold }}');
-                    $("#i_alert_alert_term").val('{{ alert.alert_term }}');
+                    $("#i_schedule").val('{{ alert.monitoring_schedule }}');
+                    $("#i_alert_yn").val('{{ alert.monitoring_yn }}');
+                    $("#i_threshold").val('{{ alert.monitoring_threshold }}');
+                    $("#i_cycle").val('{{ alert.check_count_threshold }}');
+                    $("#i_sleep").val('{{ alert.alert_term }}');
                 });
             </script>
         </td>
