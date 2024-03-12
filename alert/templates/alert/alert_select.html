@@ -16,24 +16,29 @@
 {% endif %}
 
 검색결과 ⁝ <span class="badge text-bg-secondary">{{ total_count }}</span>
+<!-- 
+    table-bordered : 테두리가 있는 테이블
+    table-sm : 작은 테이블(모든 칸 padding을 반으로 함)
+    table-hover : 테이블 행에 마우스 오버 상태를 활성화
+ -->
 <table class="table table-bordered table-sm table-hover">
     <tr class="bg-secondary text-white">
         <th style="width: 1%;" class="check-all rounded-left tmp_bg-light table-borderless">
             <input type="checkbox" id="checkbox_all" name="checkbox_all" class="check-all">
         </th>
         <th style="width: 3%;">ID</th>
-        <th style="width: 5%;">얼럿명</th>
-        <th style="width: 5%;">서버명</th>
-        <th style="width: 5%;">스케줄</th>
+        <th style="width: 10%;">얼럿명</th>
+        <th style="width: 25%;">서버명</th>
+        <th style="width: 6%;">스케줄</th>
         <th style="width: 3%;">여부</th>
-        <th style="width: 7%;">얼럿 임계치</th>
-        <th style="width: 7%;">현재 얼럿 반복 횟수</th>
-        <th style="width: 7%;">얼럿 반복 횟수 임계치</th>
-        <th style="width: 7%;">얼럿 반복 간 시간 간격</th>
-        <th style="width: 10%;">최근 얼럿 발생 시간</th>
-        <th style="width: 10%;">최근 얼럿 발생 시간과 현재 시간의 차이</th>
-        <th style="width: 10%;">생성일</th>
-        <th style="width: 10%;">변경일</th>
+        <th style="width: 4%;">얼럿 임계치</th>
+        <th style="width: 5%;">현재 얼럿 반복 횟수</th>
+        <th style="width: 5%;">얼럿 반복 임계치</th>
+        <th style="width: 5%;">얼럿 반복 간격</th>
+        <th style="width: 5%;">최근 얼럿 시간</th>
+        <th style="width: 8%;">최근 얼럿 시간과 현재 시간 차이</th>
+        <th style="width: 7%;">생성일</th>
+        <th style="width: 7%;">변경일</th>
     </tr>
 
 {% if alert_list %}
