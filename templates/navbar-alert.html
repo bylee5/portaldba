@@ -1,44 +1,44 @@
 <!-- 얼럿관리 메뉴-->
 <nav class="navbar navbar-expand-lg bg-light" style="height: 30px;">
-    <ul class="navbar-nav px-2">
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'alert:alert' %}">얼럿조회</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'alert:alert_remove' %}">얼럿삭제이력</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'alert:alert_add' %}">얼럿코드추가</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'alert:threads_connected' %}">커넥션</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'alert:threads_running' %}">쓰레드</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'alert:slave_delay' %}">동기지연</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'alert:innodb_lock' %}">잠금</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'alert:slow_query' %}">슬로우쿼리</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'alert:undo_size' %}">언두사이즈</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="">응답시간지연</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="">수동쿼리킬</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="">집계(사이즈)</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="">서비스통계(주문)</a>
-    </li>
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'alert:alert' %}">얼럿조회</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'alert:alert_remove' %}">얼럿삭제이력</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'alert:alert_add' %}">얼럿코드추가</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'alert:threads_connected' %}">커넥션</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'alert:threads_running' %}">쓰레드</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'alert:slave_delay' %}">동기지연</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'alert:innodb_lock' %}">잠금</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'alert:slow_query' %}">슬로우쿼리</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'alert:undo_size' %}">언두사이즈</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="">응답시간지연</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="">수동쿼리킬</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="">집계(사이즈)</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="">서비스통계(주문)</a>
+        </li>
     </ul>
 </nav>
