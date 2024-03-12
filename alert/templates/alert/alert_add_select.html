@@ -1,0 +1,75 @@
+{% block content %}
+검색결과 ⁝ <span class="badge text-bg-secondary">{{ total_count }}</span>
+<table class="table table-bordered table-sm table-hover">
+    <tr class="bg-secondary text-white">
+        <th style="width: 1%;" class="check-all rounded-left tmp_bg-light table-borderless">
+            <input type="checkbox" id="checkbox_all" name="checkbox_all" class="check-all">
+        </th>
+        <th>ID</th>
+        <th>얼럿코드명</th>
+        <th>얼럿코드설명</th>
+        <th>여부</th>
+        <th>전송URL</th>
+        <th>전송토픽명</th>
+    </tr>
+
+{% if alert_code_lists %}
+    {% for alert_code_list in alert_code_lists %}
+    <tr>
+        <td>
+            <input type="checkbox" id="checkbox" name="checkbox" class="check" value="{{ alert_code_list.monitoring_code_seqno }}">
+            <!-- 체크박스 전체선택/해제하기 -->
+            <script>
+                $(document).ready(function(){
+                    $('.check-all').click(function(){
+                        $('.check').prop('checked', this.checked);
+                    });
+                });
+            </script>
+        </td>
+        <td style = "cursor:pointer;" id="{{ alert_code_list.monitoring_code_seqno }}" name="{{ alert_code_list.monitoring_code_seqno }}" data-bs-toggle="alert_id" data-placement="right" title="입력란 복사">
+            {{ alert_code_list.monitoring_code_seqno }}
+            <!-- 입력란 복사 script-->
+            <script>
+                $(function () {
+                    $('[data-bs-toggle="alert_id"]').tooltip()
+                })
+
+                $('#{{ alert_code_list.monitoring_code_seqno }}').click(function(){
+                    $("#i_monitoring_code_title").val('{{ alert_code_list.monitoring_code_title }}');
+                    $("#i_monitoring_code_desc").val('{{ alert_code_list.monitoring_code_desc }}');
+                    $("#i_send_url").val('{{ alert_code_list.send_url }}');
+                    $("#i_send_topic_name").val('{{ alert_code_list.send_topic_name }}');
+                    $("#i_monitoring_yn").val('{{ alert_code_list.monitoring_yn }}');
+                });
+            </script>
+        </td>
+        <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal" 
+            data-id="{{ alert_code_list.monitoring_code_seqno }}"
+            data-monitoring_code_title="{{ alert_code_list.monitoring_code_title }}"
+            data-monitoring_code_desc="{{ alert_code_list.monitoring_code_desc }}"
+            data-send_url="{{ alert_code_list.send_url }}"
+            data-send_topic_name="{{ alert_code_list.send_topic_name }}"
+            data-monitoring_yn="{{ alert_code_list.monitoring_yn }}">
+            {{ alert_code_list.monitoring_code_title }}</td>
+        <td>{{ alert_code_list.monitoring_code_desc }}</td>
+        <td>{{ alert_code_list.monitoring_yn }}</td>
+        <td>{{ alert_code_list.send_url }}</td>
+        <td>{{ alert_code_list.send_topic_name }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+<div>
+    {% if page_max is none %}
+    <input id="page_max" name="page_max" type="hidden" value="1">
+    {% else %}
+    <input id="page_max" name="page_max" type="hidden" value="{{ page_max }}">
+    {% endif %}
+</div>
+
+<!-- alert_type -->
+<input class="form-control form-control-sm" id="alert_type" name="alert_type" value="{{ alert_type }}" type="hidden">
+
+{% endblock %}

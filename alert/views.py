@@ -556,9 +556,6 @@ def alert_delete(request):
         
          # DO TO
         # 성공 후 데일리 백업 체크, 히스토리 로깅
-        print("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
-        print("로그히스토리용 d_query : " + d_query)
-        print("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
 
         # 검색란
         alert_yn = request.POST.get('s_alert_yn')
@@ -710,16 +707,15 @@ def alert_update(request):
                         check_count_threshold = {3},
                         alert_term = {4}
                         WHERE db_monitoring_seqno = {5}
-                        '''.format(u_monitoring_schedule, u_monitoring_yn, u_monitoring_threshold, u_check_count_threshold, u_alert_term, u_id)
+                        '''.format(u_monitoring_schedule, u_monitoring_yn, 
+                                   u_monitoring_threshold, u_check_count_threshold, 
+                                   u_alert_term, u_id)
 
         with connections['default'].cursor() as cursor:
             cursor.execute(u_query)
         
         # DO TO
         # 성공 후 데일리 백업 체크, 히스토리 로깅
-        print("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
-        print("로그히스토리용 u_query : " + u_query)
-        print("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ")
 
         # 검색란
         alert_yn = request.POST.get('s_alert_yn')
@@ -843,7 +839,233 @@ def alert_update(request):
 
     else:
         return render(request, 'alert/alert.html')
+
+@login_required
+def alert_remove(request):
+    monitoring_svr_list = Alert.objects.all()
+    context = {'monitoring_svr_list': monitoring_svr_list}
+    return render(request, 'alert/alert.html', context)
+
+@login_required
+def alert_add(request):
+    s_query = "select * from db_monitoring_code"
     
+    with connections['default'].cursor() as cursor:
+        alert_code_lists = []
+        cursor.execute(s_query)
+        alert_code_lists = namedtuplefetchall(cursor)
+
+    context = {'alert_code_lists': alert_code_lists}
+    
+    return render(request, 'alert/alert_add.html', context)
+
+@login_required
+def alert_add_select(request):
+    if request.method == 'POST':
+        s_query = "select * from db_monitoring_code"
+    
+        with connections['default'].cursor() as cursor:
+            alert_code_lists = []
+            cursor.execute(s_query)
+            alert_code_lists = namedtuplefetchall(cursor)
+        
+        page = int(request.POST.get('page'))
+        total_count = len(alert_code_lists)
+        page_max = math.ceil(total_count / 35)
+        paginator = Paginator(alert_code_lists, page * 35)
+
+        try:
+            if int(page) >= page_max : # 마지막 페이지 멈춤 구현
+                alert_code_lists = paginator.get_page(1)
+                callmorepostFlag = 'false'
+            else:
+                alert_code_lists = paginator.get_page(1)
+        except PageNotAnInteger:
+            alert_code_lists = paginator.get_page(1)
+        except EmptyPage:
+            alert_code_lists = paginator.get_page(paginator.num_pages)
+
+        context = {
+                'alert_code_lists': alert_code_lists,
+                'total_count': total_count,
+                'callmorepostFlag': callmorepostFlag,
+                'alert_type': "ERR_0",
+            }
+        
+        return render(request, 'alert/alert_add_select.html', context)
+    else:
+        return render(request, 'alert/alert_add.html', context)
+
+@login_required
+def alert_add_insert(request):
+    if request.method == 'POST':
+        i_monitoring_code_title = request.POST.get('i_monitoring_code_title')
+        i_monitoring_code_desc = request.POST.get('i_monitoring_code_desc')
+        i_monitoring_yn = request.POST.get('i_monitoring_yn')
+        i_send_url = request.POST.get('i_send_url')
+        i_send_topic_name = request.POST.get('i_send_topic_name')
+        callmorepostFlag = 'true'
+
+        i_query = '''INSERT INTO db_monitoring_code
+                        SET monitoring_code_title = '{0}',
+                        monitoring_code_desc = '{1}',
+                        monitoring_yn = '{2}',
+                        send_url = '{3}',
+                        send_topic_name = '{4}'
+                    '''.format(i_monitoring_code_title, i_monitoring_code_desc, i_monitoring_yn,
+                               i_send_url, i_send_topic_name)
+            
+        with connections['default'].cursor() as cursor:
+            cursor.execute(i_query)
+
+        s_query = "select * from db_monitoring_code"
+    
+        with connections['default'].cursor() as cursor:
+            alert_code_lists = []
+            cursor.execute(s_query)
+            alert_code_lists = namedtuplefetchall(cursor)
+        
+        page = int(request.POST.get('page'))
+        total_count = len(alert_code_lists)
+        page_max = math.ceil(total_count / 35)
+        paginator = Paginator(alert_code_lists, page * 35)
+
+        try:
+            if int(page) >= page_max : # 마지막 페이지 멈춤 구현
+                alert_code_lists = paginator.get_page(1)
+                callmorepostFlag = 'false'
+            else:
+                alert_code_lists = paginator.get_page(1)
+        except PageNotAnInteger:
+            alert_code_lists = paginator.get_page(1)
+        except EmptyPage:
+            alert_code_lists = paginator.get_page(paginator.num_pages)
+
+        context = {
+                'alert_code_lists': alert_code_lists,
+                'total_count': total_count,
+                'callmorepostFlag': callmorepostFlag,
+                'alert_type': "ERR_0",
+            }
+        
+        return render(request, 'alert/alert_add_select.html', context)
+    else:
+        return render(request, 'alert/alert_add.html', context)
+
+
+@login_required
+def alert_add_delete(request):
+    if request.method == 'POST':
+        d_id = request.POST.get('d_id')
+
+        d_query = "DELETE FROM db_monitoring_code WHERE monitoring_code_seqno = {0}".format(d_id)
+    
+        with connections['default'].cursor() as cursor:
+            cursor.execute(d_query)
+        
+        s_query = "select * from db_monitoring_code"
+    
+        with connections['default'].cursor() as cursor:
+            alert_code_lists = []
+            cursor.execute(s_query)
+            alert_code_lists = namedtuplefetchall(cursor)
+        
+        page = int(request.POST.get('page'))
+        total_count = len(alert_code_lists)
+        page_max = math.ceil(total_count / 35)
+        paginator = Paginator(alert_code_lists, page * 35)
+
+        try:
+            if int(page) >= page_max : # 마지막 페이지 멈춤 구현
+                alert_code_lists = paginator.get_page(1)
+                callmorepostFlag = 'false'
+            else:
+                alert_code_lists = paginator.get_page(1)
+        except PageNotAnInteger:
+            alert_code_lists = paginator.get_page(1)
+        except EmptyPage:
+            alert_code_lists = paginator.get_page(paginator.num_pages)
+
+        context = {
+                'alert_code_lists': alert_code_lists,
+                'total_count': total_count,
+                'callmorepostFlag': callmorepostFlag,
+                'alert_type': "ERR_0",
+            }
+        
+        return render(request, 'alert/alert_add_select.html', context)
+    else:
+        return render(request, 'alert/alert_add.html', context)
+
+
+@login_required
+def alert_add_update(request):
+    if request.method == 'POST':
+        u_id = request.POST.get('u_id')
+        u_monitoring_code_title = request.POST.get('u_monitoring_code_title')
+        u_monitoring_code_desc = request.POST.get('u_monitoring_code_desc')
+        u_send_url = request.POST.get('u_send_url')
+        u_send_topic_name = request.POST.get('u_send_topic_name')
+        u_monitoring_yn = request.POST.get('u_monitoring_yn')
+
+        # 수정 일시년월일 (또는 입력일시)
+        last_modify_dt = timezone.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # alert type 초기화
+        alert_type = "ERR_0"
+        alert_message = ""
+
+        u_query = '''UPDATE db_monitoring_code 
+                        SET monitoring_code_title = '{0}',
+                        monitoring_code_desc = '{1}',
+                        send_url = '{2}',
+                        send_topic_name = '{3}',
+                        monitoring_yn = '{4}'
+                        WHERE monitoring_code_seqno = {5}
+                        '''.format(u_monitoring_code_title, u_monitoring_code_desc,
+                                    u_send_url, u_send_topic_name, u_monitoring_yn, u_id)
+
+        with connections['default'].cursor() as cursor:
+            cursor.execute(u_query)
+        
+        # DO TO
+        # 성공 후 데일리 백업 체크, 히스토리 로깅
+        
+        s_query = "select * from db_monitoring_code"
+    
+        with connections['default'].cursor() as cursor:
+            alert_code_lists = []
+            cursor.execute(s_query)
+            alert_code_lists = namedtuplefetchall(cursor)
+        
+        page = int(request.POST.get('page'))
+        total_count = len(alert_code_lists)
+        page_max = math.ceil(total_count / 35)
+        paginator = Paginator(alert_code_lists, page * 35)
+
+        try:
+            if int(page) >= page_max : # 마지막 페이지 멈춤 구현
+                alert_code_lists = paginator.get_page(1)
+                callmorepostFlag = 'false'
+            else:
+                alert_code_lists = paginator.get_page(1)
+        except PageNotAnInteger:
+            alert_code_lists = paginator.get_page(1)
+        except EmptyPage:
+            alert_code_lists = paginator.get_page(paginator.num_pages)
+
+        context = {
+                'alert_code_lists': alert_code_lists,
+                'total_count': total_count,
+                'callmorepostFlag': callmorepostFlag,
+                'alert_type': "ERR_0",
+                'alert_message': alert_message,
+            }
+        
+        return render(request, 'alert/alert_add_select.html', context)
+    else:
+        return render(request, 'alert/alert_add.html', context)
+
 @login_required
 def threads_connected(request):
     monitoring_svr_list = Alert.objects.all()

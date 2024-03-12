@@ -1,0 +1,430 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- 네비게이션바 -->
+{% include "navbar-alert.html" %}
+<!-- 입력 -->
+<div class="collapse show" id="collapseInsert" style="font-size: 12px;">
+    <div class="card card-body mt-2 bg-light mb-0 pb-0">
+        <h6>추가란</h6>
+        <table class="table table-sm text-center  mb-0 pb-0" style="table-layout: fixed">
+            <form class="form-inline" onsubmit="return false;" name="insertForm">
+            {% csrf_token %}
+            <tr class="">
+                <td style="width: 3%" class="bg-secondary text-white align-middle">얼럿코드명</td>
+                <td style="width: 10%"><input class="form-control form-control-sm" id="i_monitoring_code_title" name="i_monitoring_code_title" value="{{ i_monitoring_code_title }}" type="text"></td>
+                <td style="width: 3%" class="bg-secondary text-white align-middle">얼럿설명</td>
+                <td style="width: 10%"><input class="form-control form-control-sm" id="i_monitoring_code_desc" name="i_monitoring_code_desc" value="{{ i_monitoring_code_desc }}" type="text"></td>
+                <td style="width: 3%" class="bg-secondary text-white align-middle">전송URL</td>
+                <td style="width: 10%"><input class="form-control form-control-sm" id="i_send_url" name="i_send_url" value="{{ i_send_url }}" type="text"></td>
+                <td style="width: 3%" class="bg-secondary text-white align-middle">전송토픽명</td>
+                <td style="width: 10%"><input class="form-control form-control-sm" id="i_send_topic_name" name="i_send_topic_name" value="{{ i_send_topic_name }}" type="text"></td>
+                <td style="width: 3%" class="bg-secondary text-white align-middle">여부</td>
+                <td style="width: 3%">
+                    <div class="input-group input-group-sm">
+                        <select class="custom-select" id="i_monitoring_yn" name="i_monitoring_yn">
+                            <option value="Y" selected>Y</option>
+                            <option value="N">N</option>
+                        </select>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-left">
+                    <button class="btn btn-secondary btn-sm" onclick="addBox()" type="submit">추가</button>
+                    <input class="btn btn-secondary btn-sm" type="button" value="지우기" onClick="addBox_del()">
+                </td>
+            </tr>
+            </form>
+        </table>
+    </div>
+</div>
+
+<!-- 검색 결과 페이지 처리 -->
+<div>
+    {% if page is none %}
+        <input id="page" name="page" type="hidden" value="1">
+    {% else %}
+        <input id="page" name="page" type="hidden" value="{{ page }}">
+    {% endif %}
+
+    {% if scrollHeight is none %}
+        <input id="scrollHeight" name="scrollHeight" type="hidden" value="0">
+    {% else %}
+        <input id="scrollHeight" name="scrollHeight" type="hidden" value="{{ scrollHeight }}">
+    {% endif %}
+</div>
+<!-- 검색 결과 -->
+<div class="board small" id="alert_add_ajax" style="font-size: 12px;"></div>
+
+<!-- Modal(모달) -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header small">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+                    <li>
+                        <a class="nav-link active" href="#updateTab" aria-controls="updateTab" role="tab" aria-selected="true" data-bs-toggle="tab">수정하기</a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="#deleteTab" aria-controls="deleteTab" role="tab" data-bs-toggle="tab">삭제하기</a>
+                    </li>
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body small">
+                <div role="tabpanel">
+                    <!-- Modal Tab panes -->
+                    <div class="tab-content">
+                        <!-- Modal Delete -->
+                        <div role="tabpanel" class="tab-pane fade" id="deleteTab">
+                            <form class="" onsubmit="return false;" name="deleteForm">
+                            {% csrf_token %}
+                            <!-- hidden value (pk) -->
+                            <!-- view에 조회 데이터 넘기기 및 페이징 처리 원위치 이동을 위해 구현-->
+                            <input class="form-control form-control-sm" id="id" name="id" type="hidden">
+                            <input class="form-control form-control-sm" id="page" name="page" value="{{ page }}" type="hidden">
+
+                            <div class="card card-body mt-0 bg-light callout callout-dark mb-2">
+                                <table class="w-100">
+                                    <tr>
+                                        <td>
+                                            <a>- 삭제 사유 및 요청 URL을 기재해주세요.<a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <table class="table table-sm table-hover text-center">
+                            <tr>
+                                <!-- hidden -->
+                                <input class="form-control form-control-sm" id="page" name="page" type="hidden">
+                                <input class="form-control form-control-sm" id="scrollHeight" name="scrollHeight" type="hidden">
+
+                                <td class="bg-secondary text-white align-middle">얼럿코드명</td>
+                                <td><input class="form-control form-control-sm" id="d_monitoring_code_title" name="d_monitoring_code_title" type="text" readonly></td>
+                                <td class="bg-secondary text-white align-middle">서버코드설명</td>
+                                <td><input class="form-control form-control-sm" id="d_monitoring_code_desc" name="d_monitoring_code_desc" type="text" readonly></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-secondary text-white align-middle">전송URL</td>
+                                <td><input class="form-control form-control-sm" id="d_send_url" name="d_send_url" type="text" readonly></td>
+                                <td class="bg-secondary text-white align-middle">전송토픽명</td>
+                                <td><input class="form-control form-control-sm" id="d_send_topic_name" name="d_send_topic_name" type="text" readonly></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-secondary text-white align-middle">여부</td>
+                                <td><input class="form-control form-control-sm" id="d_monitoring_yn" name="d_monitoring_yn" type="text" readonly></td>
+                            </tr>
+                            </table>
+                            <p class="text-right">삭제 하시겠습니까?</p>
+
+                            <div class="modal-footer">
+                                <button type="" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+                                <button class="btn btn-secondary btn-sm" onclick="deleteBox()" type="submit">삭제</button>
+                            </div>
+                            </form>
+                        </div>
+
+                        <!-- Modal Update-->
+                        <div role="tabpanel" class="tab-pane active fade show" id="updateTab">
+                            <form class="" onsubmit="return false;" name="updateForm">
+                            {% csrf_token %}
+                            <!-- hidden value (pk) -->
+                            <!-- view에 조회 데이터 넘기기 및 페이징 처리 원위치 이동을 위해 구현-->
+                            <input class="form-control form-control-sm" id="id" name="id" type="hidden">
+                            <input class="form-control form-control-sm" id="page" name="page" value="{{ page }}" type="hidden">
+
+                            <div class="card card-body mt-0 bg-light callout callout-dark mb-2">
+                            <table class="w-100">
+                                <tr>
+                                    <td>
+                                        <a>- 불가피한 사유로 강제로 수정을 해야 한다면, 우측 <font color="red"><b>강제수정</b></font> 스위치를 ON 시켜주세요.(미구현)</a>
+                                    </td>
+                                    <td class="text-right align-bottom">
+                                        <a>강제수정 <input type="checkbox" id="forceupdate_flag" name="forceupdate_flag" data-toggle="toggle" data-size="xs" data-style="ios" data-onstyle="danger"  data-offstyle="light" data-height="20" data-width="50" data-on="ON" data-off="Off"></a>
+                                    </td>
+                                </tr>
+                            </table>
+                            </div>
+
+                            <table class="table table-sm table-hover text-center">
+                                <tr>
+                                    <!-- hidden -->
+                                    <input class="form-control form-control-sm" id="page" name="page" type="hidden">
+                                    <input class="form-control form-control-sm" id="scrollHeight" name="scrollHeight" type="hidden">
+    
+                                    <td class="bg-secondary text-white align-middle">얼럿코드명</td>
+                                    <td><input class="form-control form-control-sm" id="u_monitoring_code_title" name="u_monitoring_code_title" type="text"></td>
+                                    <td class="bg-secondary text-white align-middle">서버코드설명</td>
+                                    <td><input class="form-control form-control-sm" id="u_monitoring_code_desc" name="u_monitoring_code_desc" type="text"></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-secondary text-white align-middle">전송URL</td>
+                                    <td><input class="form-control form-control-sm" id="u_send_url" name="u_send_url" type="text"></td>
+                                    <td class="bg-secondary text-white align-middle">전송토픽명</td>
+                                    <td><input class="form-control form-control-sm" id="u_send_topic_name" name="u_send_topic_name" type="text"></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-secondary text-white align-middle">여부</td>
+                                    <td><input class="form-control form-control-sm" id="u_monitoring_yn" name="u_monitoring_yn" type="text"></td>
+                                </tr>
+                            </table>
+                            <p class="text-right">수정 하시겠습니까?</p>
+                            <!-- Modal Footer -->
+                            <div class="modal-footer">
+                                <button type="" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">취소</button>
+                                <button class="btn btn-secondary btn-sm" onclick="updateBox()" type="submit">수정</button>
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 검색결과 클릭시 모달에 검색결과 데이터를 넣는다. 모달 팝업이 실행되지 안된다면 값 오타 확인 필요 -->
+<script>
+    $('#myModal').on('show.bs.modal', function (event) {
+        // alert_add_select.html에서 값을 가져옮
+        var button = $(event.relatedTarget); 
+        var id = button.data('id'); // data-id = id이며 data-을 제거한 문자로 생각하자
+        var monitoring_code_title = button.data('monitoring_code_title');
+        var monitoring_code_desc = button.data('monitoring_code_desc');
+        var send_url = button.data('send_url');
+        var send_topic_name = button.data('send_topic_name');
+        var monitoring_yn = button.data('monitoring_yn');
+    
+        var page = $("#page").val();
+        var scrollHeight = $(window).scrollTop();
+    
+        // 모달의 deleteTab
+        var modal = $('#deleteTab')
+    
+        // 값 넣기
+        modal.find('#id').val(id);
+        modal.find('#d_monitoring_code_title').val(monitoring_code_title);
+        modal.find('#d_monitoring_code_desc').val(monitoring_code_desc);
+        modal.find('#d_send_url').val(send_url);
+        modal.find('#d_send_topic_name').val(send_topic_name);
+        modal.find('#d_monitoring_yn').val(monitoring_yn);
+        modal.find('#page').val(page);
+        modal.find('#scrollHeight').val(scrollHeight);
+    
+        // 모달의 updateTab
+        var modal = $('#updateTab')
+    
+        // 값 넣기
+        modal.find('#id').val(id);
+        modal.find('#u_monitoring_code_title').val(monitoring_code_title);
+        modal.find('#u_monitoring_code_desc').val(monitoring_code_desc);
+        modal.find('#u_send_url').val(send_url);
+        modal.find('#u_send_topic_name').val(send_topic_name);
+        modal.find('#u_monitoring_yn').val(monitoring_yn);
+        modal.find('#page').val(page);
+        modal.find('#scrollHeight').val(scrollHeight);
+    
+        $('html').css({'overflow': 'hidden', 'height': '100%'}); // 모달팝업 중 html,body의 scroll을 hidden시킴
+        $('#element').on('scroll touchmove mousewheel', function(event) { // 터치무브와 마우스휠 스크롤 방지
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        });
+    })
+    
+    $('#myModal').on('hidden.bs.modal', function (event) {
+        $('html').css({'overflow': 'auto', 'height': '100%'}); //scroll hidden 해제
+        $('#element').off('scroll touchmove mousewheel'); // 터치무브 및 마우스휠 스크롤 가능
+    })
+</script>
+
+<!-- 얼럿코드 삭제 ajax script -->
+<script>
+    function deleteBox() {
+        var page = parseInt($("#page").val());
+        delete_callMoreListAjax(page);
+        $("#page").val(parseInt(page));
+        $('#myModal').modal("hide");
+    }
+
+    function delete_callMoreListAjax(page) {
+        var d_id = $("#id").val();
+        var d_monitoring_code_title = $("#d_monitoring_code_title").val();
+        var d_monitoring_code_desc = $("#d_monitoring_code_desc").val();
+        var d_send_url = $("#d_send_url").val();
+        var d_send_topic_name = $("#d_send_topic_name").val();
+        var d_monitoring_yn = $("#d_monitoring_yn").val();
+
+
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'alert:alert_add_delete' %}",
+            data: {
+                'd_id': d_id,
+                'd_monitoring_code_title': d_monitoring_code_title,
+                'd_monitoring_code_desc': d_monitoring_code_desc,
+                'd_send_url': d_send_url,
+                'd_send_topic_name': d_send_topic_name,
+                'd_monitoring_yn': d_monitoring_yn,
+                'page': page,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreAlertAjax,
+            dataType: 'html'
+        });
+    }
+</script>
+
+<!-- 얼럿코드 수정 ajax script -->
+<script>
+    function updateBox() {
+        var page = parseInt($("#page").val());
+        update_callMoreListAjax(page);
+        $("#page").val(parseInt(page));
+        $('#myModal').modal("hide");
+    }
+
+    function update_callMoreListAjax(page) {
+        var u_id = $("#id").val();
+        var u_monitoring_code_title = $("#u_monitoring_code_title").val();
+        var u_monitoring_code_desc = $("#u_monitoring_code_desc").val();
+        var u_send_url = $("#u_send_url").val();
+        var u_send_topic_name = $("#u_send_topic_name").val();
+        var u_monitoring_yn = $("#u_monitoring_yn").val();
+
+        // 강제 수정여부
+        var forceupdate_flag = 'False';
+        $("input[name='forceupdate_flag']:checked").each(function(i) {
+            forceupdate_flag = 'True';
+        });
+
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'alert:alert_add_update' %}",
+            data: {
+                'u_id': u_id,
+                'u_monitoring_code_title': u_monitoring_code_title,
+                'u_monitoring_code_desc': u_monitoring_code_desc,
+                'u_send_url': u_send_url,
+                'u_send_topic_name': u_send_topic_name,
+                'u_monitoring_yn': u_monitoring_yn,
+                'forceupdate_flag': forceupdate_flag,
+                'page': page,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreAlertAjax,
+            dataType: 'html'
+        });
+    }
+</script>
+
+<!-- 얼럿코드 검색 ajax script -->
+<script>
+    var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+
+    // 검색 결과
+    $('#alert_add_ajax').load('dummy',function(){
+        var page = $("#page").val();
+        var scrollHeight = $("#scrollHeight").val();
+        $('#myModal_sql').modal("hide");
+
+        callMoreListAjax(page);
+        $("#page").val(parseInt(page));
+        $('html').animate({scrollTop: scrollHeight}, 500);
+    });
+
+    $(window).scroll(function(){
+        var scrollHeight = $(window).scrollTop() + $(window).height();
+        var documentHeight = $(document).height();
+
+        if (scrollHeight + 500 >= documentHeight){
+            var page = $("#page").val();
+            var page_max = $("#page_max").val();
+            if (parseInt(page) <= parseInt(page_max)){
+                callMoreListAjax(page);
+                $("#page").val(parseInt(page)+1);
+            }
+        }
+    });
+
+    function callMoreListAjax(page) {
+        var i_monitoring_code_title = $("#i_monitoring_code_title").val();
+        var i_monitoring_code_desc = $("#i_monitoring_code_desc").val();
+        var i_monitoring_yn = $("#i_monitoring_yn").val();
+        var i_send_url = $("#i_send_url").val();
+        var i_send_topic_name = $("#i_send_topic_name").val();
+    
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'alert:alert_add_select' %}",
+            data: {
+                'i_monitoring_code_title': i_monitoring_code_title,
+                'i_monitoring_code_desc': i_monitoring_code_desc,
+                'i_monitoring_yn': i_monitoring_yn,
+                'i_send_url': i_send_url,
+                'i_send_topic_name': i_send_topic_name,
+                'page': page,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreAlertAjax,
+            dataType: 'html'
+        });
+    }
+</script>
+
+<!-- 얼럿코드 추가 ajax script -->
+<script>
+    // 입력 버튼
+    function addBox() {
+        var retVal = confirm("입력하시겠습니까?");
+        if (retVal == true ){
+            var page = parseInt($("#page").val());
+            add_callMoreListAjax(page);
+            $("#page").val(parseInt(page));
+        }else{
+            return false;
+        }
+    }
+    
+    // 지우기 버튼
+    function addBox_del() {
+        document.insertForm.reset();
+    }
+    
+    function add_callMoreListAjax(page) {
+        var i_monitoring_code_title = $("#i_monitoring_code_title").val();
+        var i_monitoring_code_desc = $("#i_monitoring_code_desc").val();
+        var i_monitoring_yn = $("#i_monitoring_yn").val();
+        var i_send_url = $("#i_send_url").val();
+        var i_send_topic_name = $("#i_send_topic_name").val();
+    
+        $.ajax( {
+            type : 'POST',
+            url: "{% url 'alert:alert_add_insert' %}",
+            data: {
+                'i_monitoring_code_title': i_monitoring_code_title,
+                'i_monitoring_code_desc': i_monitoring_code_desc,
+                'i_monitoring_yn': i_monitoring_yn,
+                'i_send_url': i_send_url,
+                'i_send_topic_name': i_send_topic_name,
+                'page': page,
+                'csrfmiddlewaretoken': token,
+            },
+            success: addMoreAlertAjax,
+            dataType: 'html'
+        });
+    }
+</script>
+
+<!-- common ajax script -->
+<script>
+    function addMoreAlertAjax(data, textStatus, jqXHR) {
+        $('#alert_add_ajax').html(data);
+    }
+</script>
+
+{% endblock %}
