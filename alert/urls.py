@@ -21,6 +21,8 @@ urlpatterns = [
     path('alert_add_update', views.alert_add_update, name='alert_add_update'),
 
     path('threads_connected', views.threads_connected, name='threads_connected'),
+    path('threads_connected_select', views.threads_connected_select, name='threads_connected_select'),
+
     path('threads_running', views.threads_running, name='threads_running'),
     path('slave_delay', views.slave_delay, name='slave_delay'),
     path('innodb_lock', views.innodb_lock, name='innodb_lock'),
