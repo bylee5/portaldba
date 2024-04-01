@@ -24,10 +24,15 @@ python3 manage.py migrate
 서버 시작
 ```
 cd /path/to/portaldba
-python3 manage.py runserver 127.0.0.1:8000
+python3 manage.py runserver 0.0.0.0:8000
 ```
 관리자 계정 생성
 ```
 cd /path/to/portaldba
 python3 manage.py createsuperuser
+```
+스케줄 작업은 Jenkins에서 진행
+```
+Build periodically Schedule : * * * * * 
+Build Steps Execute shell : sudo python3 /path/to/portaldba/alert/scripts/threads_connected.py
 ```
