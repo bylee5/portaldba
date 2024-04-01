@@ -227,7 +227,7 @@ with conn:
                         AND PROCESSLIST_COMMAND <> 'Daemon'
                         -- AND PROCESSLIST_INFO IS NOT NULL
                         GROUP BY LEFT(REPLACE(REPLACE(REPLACE(PROCESSLIST_INFO,'\t',' '),'\n',' '),'\^M',' '),30)
-                        -- HAVING COUNT(1) > 1
+                        HAVING COUNT(1) > 1
                         ORDER BY COUNT(1) DESC, PROCESSLIST_TIME DESC, PROCESSLIST_ID DESC 
                         LIMIT 2
                         '''
