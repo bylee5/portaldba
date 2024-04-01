@@ -228,7 +228,7 @@ def alert_insert(request):
 
         i_query = "insert into db_monitoring set server_list_seqno = '{0}', monitoring_code_seqno = '{1}', monitoring_schedule = '{2}',".format(dbsvr_row[0], title_row[0], schedule)
         i_query += "monitoring_yn = '{0}',".format(alert_yn)
-        i_query += "monitoring_threshold = '{0}', check_count_threshold = '{1}', alert_term = '{2}'".foramt(threshold, cycle, sleep)
+        i_query += "monitoring_threshold = '{0}', check_count_threshold = '{1}', alert_term = '{2}'".format(threshold, cycle, sleep)
             
         with connections['default'].cursor() as cursor:
             cursor.execute(i_query)
