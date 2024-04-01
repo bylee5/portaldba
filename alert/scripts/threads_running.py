@@ -218,20 +218,31 @@ with conn:
                 # Problem 알람을 받지 않았거나, 받았으나 alertTerm이 차서 다시 받아야하는 경우일 때의 조건. 단, 현재 모니터링 대상인 서버에 한한다.
                 if errored_at == None or (how_long_error >= alert_term and monitoring_now == 1):
                     # 장애일 경우 당시 잠수타는 접속들을 봅시다.
-                    sql = '''
-                        SELECT PROCESSLIST_TIME, PROCESSLIST_DB, PROCESSLIST_COMMAND, REPLACE(REPLACE(REPLACE(PROCESSLIST_INFO,'\t',' '),'\n',' '),'\^M',' '), PROCESSLIST_USER, PROCESSLIST_HOST, COUNT(1)
-                        FROM performance_schema.threads
-                        WHERE PROCESSLIST_USER <> 'system user'
-                        AND PROCESSLIST_COMMAND <> 'Binlog Dump'
-                        AND PROCESSLIST_COMMAND <> 'Sleep'
-                        AND PROCESSLIST_COMMAND <> 'Daemon'
-                        -- AND PROCESSLIST_INFO IS NOT NULL
-                        GROUP BY LEFT(REPLACE(REPLACE(REPLACE(PROCESSLIST_INFO,'\t',' '),'\n',' '),'\^M',' '),30)
-                        HAVING COUNT(1) > 1
-                        ORDER BY COUNT(1) DESC, PROCESSLIST_TIME DESC, PROCESSLIST_ID DESC 
-                        LIMIT 2
-                        '''
-                    cursor.execute(sql)
+                    sqlconn = pymysql.connect(host=dbname, 
+                            user=db_user, 
+                            password=db_pass, 
+                            db='information_schema',
+                            port=db_port,
+                            charset='utf8', 
+                            connect_timeout=2,
+                            client_flag=CLIENT.MULTI_STATEMENTS)
+
+                    with sqlconn:
+                        with sqlconn.cursor() as sqlcursor:
+                            sql = '''
+                                SELECT PROCESSLIST_TIME, PROCESSLIST_DB, PROCESSLIST_COMMAND, REPLACE(REPLACE(REPLACE(PROCESSLIST_INFO,'\t',' '),'\n',' '),'\^M',' '), PROCESSLIST_USER, PROCESSLIST_HOST, COUNT(1)
+                                FROM performance_schema.threads
+                                WHERE PROCESSLIST_USER <> 'system user'
+                                AND PROCESSLIST_COMMAND <> 'Binlog Dump'
+                                AND PROCESSLIST_COMMAND <> 'Sleep'
+                                AND PROCESSLIST_COMMAND <> 'Daemon'
+                                -- AND PROCESSLIST_INFO IS NOT NULL
+                                GROUP BY LEFT(REPLACE(REPLACE(REPLACE(PROCESSLIST_INFO,'\t',' '),'\n',' '),'\^M',' '),30)
+                                HAVING COUNT(1) > 1
+                                ORDER BY COUNT(1) DESC, PROCESSLIST_TIME DESC, PROCESSLIST_ID DESC 
+                                LIMIT 2
+                                '''
+                            sqlcursor.execute(sql)
                     
                     attachment2 = {
                             "color" : "#FF0000",
@@ -239,9 +250,9 @@ with conn:
                             "mrkdwn_in" : ["text"]
                         }
                     
-                    if cursor.rowcount > 0:
+                    if sqlcursor.rowcount > 0:
                         print('슬랙 NG 메시지 작성')
-                        res = cursor.fetchall()
+                        res = sqlcursor.fetchall()
 
                         for row in res:
                             print(row)

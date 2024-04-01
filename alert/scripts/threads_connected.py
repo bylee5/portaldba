@@ -216,15 +216,26 @@ with conn:
                 # Problem 알람을 받지 않았거나, 받았으나 alertTerm이 차서 다시 받아야하는 경우일 때의 조건. 단, 현재 모니터링 대상인 서버에 한한다.
                 if errored_at == None or (how_long_error >= alert_term and monitoring_now == 1):
                     # 장애일 경우 당시 잠수타는 접속들을 봅시다.
-                    sql = '''
-                        select PROCESSLIST_HOST as host, count(*) cnt, max(PROCESSLIST_TIME)
-                        from performance_schema.threads
-                        where PROCESSLIST_COMMAND = 'sleep'
-                        group by PROCESSLIST_HOST
-                        order by cnt desc
-                        limit 50
-                        '''
-                    cursor.execute(sql)
+                    sqlconn = pymysql.connect(host=dbname, 
+                            user=db_user, 
+                            password=db_pass, 
+                            db='information_schema',
+                            port=db_port,
+                            charset='utf8', 
+                            connect_timeout=2,
+                            client_flag=CLIENT.MULTI_STATEMENTS)
+
+                    with sqlconn:
+                        with sqlconn.cursor() as sqlcursor:
+                            sql = '''
+                                select PROCESSLIST_HOST as host, count(*) cnt, max(PROCESSLIST_TIME)
+                                from performance_schema.threads
+                                where PROCESSLIST_COMMAND = 'sleep'
+                                group by PROCESSLIST_HOST
+                                order by cnt desc
+                                limit 50
+                                '''
+                            sqlcursor.execute(sql)
                     
                     attachment2 = {
                             "color" : "#FF0000",
@@ -233,9 +244,9 @@ with conn:
                             "mrkdwn_in" : ["text"]
                         }
                     
-                    if cursor.rowcount > 0:
+                    if sqlcursor.rowcount > 0:
                         print('슬랙 NG 메시지 작성')
-                        res = cursor.fetchall()
+                        res = sqlcursor.fetchall()
 
                         for row in res:
                             print(row)
