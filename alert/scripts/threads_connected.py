@@ -38,7 +38,7 @@ sql = '''
 	FROM db_monitoring a, server_list b, db_monitoring_code c
 	WHERE a.server_list_seqno = b.id
 	AND a.monitoring_code_seqno = c.monitoring_code_seqno
-	AND a.monitoring_code_seqno in (1)
+	AND a.monitoring_code_seqno in (select monitoring_code_seqno from db_monitoring_code where monitoring_code_title like '%connected%')
 	AND a.monitoring_yn = 'Y'
 	AND (
 		a.monitoring_error_at is not NULL or
