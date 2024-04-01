@@ -4,15 +4,23 @@ import pymysql
 from pymysql.constants import CLIENT
 import requests
 import datetime
+from pathlib import Path
+import environ
 
-db_server = '10.12.14.136'
-db_user="root"
-db_pass="root"
+BASE_DIR = Path(__file__).resolve().parent.parent
+env = environ.Env()
+environ.Env.read_env(BASE_DIR / '../.env')
+
+db_server = env('DB_HOST')
+db_user = env('DB_USER')
+db_pass = env('DB_PASSWORD')
+db_port = int(env('DB_PORT'))
 
 conn = pymysql.connect(host=db_server, 
                        user=db_user, 
                        password=db_pass, 
                        db='portaldba', 
+                       port=db_port,
                        charset='utf8', 
                        connect_timeout=2,
                        client_flag=CLIENT.MULTI_STATEMENTS)
@@ -113,7 +121,8 @@ with conn:
             dbconn = pymysql.connect(host=dbname, 
                             user=db_user, 
                             password=db_pass, 
-                            db='information_schema', 
+                            db='information_schema',
+                            port=db_port,
                             charset='utf8', 
                             connect_timeout=2,
                             client_flag=CLIENT.MULTI_STATEMENTS)
@@ -130,13 +139,11 @@ with conn:
                 # Problem 알람을 받았던 모니터링일 때
                 if errored_at != None:
                     # 멤버분들이 모니터링 알람을 받으셨을 것 같은데요... 그럼 다시 OK 알람 받으세요~
-                    print('슬랙 OK 얼럿 전송')
-                    url = "https://hooks.slack.com/services/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"
                     header = {'Content-type': 'application/json'}
                     icon_emoji = ":pill:"
                     username = "Moni"
                     channel = "monitor"
-                    text = "[OK] {0} threads_connected=*{1}*".format(dbname, str(thread_count))
+                    text = "[OK] {0} {1}=*{2}*".format(dbname, curl_title, str(thread_count))
 
                     attachments = [{
                         "color": "#0000FF",
@@ -148,7 +155,8 @@ with conn:
 
                     data = {"channel": channel, "username": username, "icon_emoji": icon_emoji, "text": text, "attachments": attachments}
                     print(data)
-                    requests.post(url, headers=header, json=data)
+                    requests.post(curl_url, headers=header, json=data)
+                    print('슬랙 OK 얼럿 전송')
                     
                     
                     # 이 모니터링은 OK니까 또 OK일때에는 모니터링 문자 받을 필요 없겠지
@@ -243,13 +251,11 @@ with conn:
                     # 멤버분들이 모니터링 알람을 아직 안 받으셨을 것 같은데요... 그럼 Problem 알람 받고 재깍재깍 체크할 것.
                     # 현재체크횟수가 체크횟수임계치만큼 도달할 경우에만 메시지 발송
                     if check_count_current >= check_count_threshold:
-                        print('슬랙 NG 얼럿 전송')
-                        url = "https://hooks.slack.com/services/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"
                         header = {'Content-type': 'application/json'}
                         icon_emoji = ":skull_and_crossbones:"
                         username = "Moni"
                         channel = "monitor"
-                        text = "[PROBLEM] {0} threads_connected=*{1}*".format(dbname, str(thread_count))
+                        text = "[PROBLEM] {0} {1}=*{2}*".format(dbname, curl_title, str(thread_count))
 
                         attachments = [{
                             "color": "#FF0000",
@@ -265,7 +271,8 @@ with conn:
 
                         data = {"channel": channel, "username": username, "icon_emoji": icon_emoji, "text": text, "attachments": attachments}
                         print(data)
-                        requests.post(url, headers=header, json=data)
+                        requests.post(curl_url, headers=header, json=data)
+                        print('슬랙 NG 얼럿 전송')
                         
                         # Problem이니까 또 Problem일때에는 모니터링 문자 받을 필요 없겠지?
                         sql = '''
