@@ -246,23 +246,14 @@ with conn:
 
                     with sqlconn:
                         with sqlconn.cursor() as sqlcursor:
-                            sql = None
-                            if slave_io_running == 'No' and slave_sql_running == 'Yes':
-                                sql = '''
-                                    SELECT TIME,DB,STATE,INFO
-                                    FROM information_schema.processlist 
-                                    WHERE USER = 'system user'
-                                    ORDER BY ID 
-                                    LIMIT 1
-                                    '''
-                            else:
-                                sql = '''
-                                    select '', '', '', Last_error_message 
-                                    from performance_schema.replication_applier_status_by_worker 
-                                    where Last_error_message != ''
-                                    '''
+                            sql = '''
+                                SELECT TIME,DB,STATE,INFO
+                                FROM information_schema.processlist 
+                                WHERE USER = 'system user'
+                                ORDER BY ID 
+                                LIMIT 1,1
+                                '''
                             sqlcursor.execute(sql)
-                            print(sqlcursor.rowcount)
                     
                             if sqlcursor.rowcount > 0:
                                 print('슬랙 NG 메시지 작성')
