@@ -34,5 +34,17 @@ python3 manage.py createsuperuser
 스케줄 작업은 Jenkins에서 진행
 ```
 Build periodically Schedule : * * * * * 
-Build Steps Execute shell : sudo python3 /path/to/portaldba/alert/scripts/threads_connected.py
+Build Steps Execute shell : 
+starttime=$(date +%s)
+threshold=3600
+while :
+do 
+	endtime=$(date +%s)
+    diff=$(($endtime - $starttime))
+    if [ $diff -gt $threshold ] ; then
+        break
+	fi
+    sudo python3 /path/to/portaldba/alert/scripts/threads_running.py
+    sleep 1
+done
 ```
