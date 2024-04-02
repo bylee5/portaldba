@@ -257,7 +257,7 @@ with conn:
                                     '''
                             else:
                                 sql = '''
-                                    select NULL, NULL, NUll, Last_error_message 
+                                    select '', '', '', Last_error_message 
                                     from performance_schema.replication_applier_status_by_worker 
                                     where Last_error_message != ''
                                     '''
