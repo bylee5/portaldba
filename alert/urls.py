@@ -22,10 +22,14 @@ urlpatterns = [
 
     path('threads_connected', views.threads_connected, name='threads_connected'),
     path('threads_connected_select', views.threads_connected_select, name='threads_connected_select'),
-
     path('threads_running', views.threads_running, name='threads_running'),
+    path('threads_running_select', views.threads_running_select, name='threads_running_select'),
     path('slave_delay', views.slave_delay, name='slave_delay'),
+    path('slave_delay_select', views.slave_delay_select, name='slave_delay_select'),
     path('innodb_lock', views.innodb_lock, name='innodb_lock'),
+    path('innodb_lock_select', views.innodb_lock_select, name='innodb_lock_select'),
     path('slow_query', views.slow_query, name='slow_query'),
+    path('slow_query_select', views.slow_query_select, name='slow_query_select'),
     path('undo_size', views.undo_size, name='undo_size'),
+    path('undo_size_select', views.undo_size_select, name='undo_size_select'),
 ]
