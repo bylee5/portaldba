@@ -238,39 +238,34 @@ with conn:
                             charset='utf8', 
                             connect_timeout=2,
                             client_flag=CLIENT.MULTI_STATEMENTS)
+                    
+                    selectedTime    = None
+                    selectedDb      = None
+                    selectedState   = None
+                    selectedInfo    = None
 
                     with sqlconn:
                         with sqlconn.cursor() as sqlcursor:
                             sql = '''
                                 SELECT TIME,DB,STATE,INFO
                                 FROM information_schema.processlist 
-                                WHERE USER = 'system user' 
+                                WHERE USER = 'system user'
                                 ORDER BY ID 
                                 LIMIT 1,1
                                 '''
                             sqlcursor.execute(sql)
+                            print(sqlcursor.rowcount)
                     
-                    attachment2 = {
-                            "color" : "#FF0000",
-                            "title" : "Last_Error",
-                            "mrkdwn_in" : ["text"]
-                        }
-                    
-                    selectedTime    = None
-                    selectedDb      = None
-                    selectedState   = None
-                    selectedInfo    = None
-                    
-                    if sqlcursor.rowcount > 0:
-                        print('슬랙 NG 메시지 작성')
-                        res = sqlcursor.fetchone()
+                            if sqlcursor.rowcount > 0:
+                                print('슬랙 NG 메시지 작성')
+                                res = sqlcursor.fetchone()
 
-                        for row in res:
-                            print(row)
-                            selectedTime	= row[0]
-                            selectedDb		= row[1]
-                            selectedState   = row[2]
-                            selectedInfo	= row[3]
+                                for row in res:
+                                    print(row)
+                                    selectedTime	= row[0]
+                                    selectedDb		= row[1]
+                                    selectedState   = row[2]
+                                    selectedInfo	= row[3]
                             
                     if selectedTime is None:
                         selectedTime = "NULL"
@@ -290,9 +285,14 @@ with conn:
                     if len(selectedInfo) > 7000:
                         selectedInfo = textwrap.shorten(selectedInfo, width=7000, placeholder='\n...(over 7,000 bytes)')
                     
+                    attachment2 = {
+                            "color" : "#FF0000",
+                            "title" : "Last_Error",
+                            "mrkdwn_in" : ["text"]
+                        }
+                    
                     attachment2['text'] = "DB = {0}\n```{1}```".format(selectedDb,
                                                                         selectedInfo)
-                    
                     print(attachment2)
                     
                     # 멤버분들이 모니터링 알람을 아직 안 받으셨을 것 같은데요... 그럼 Problem 알람 받고 재깍재깍 체크할 것.
