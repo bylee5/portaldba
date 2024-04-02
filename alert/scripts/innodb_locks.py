@@ -40,7 +40,7 @@ sql = '''
 	FROM db_monitoring a, server_list b, db_monitoring_code c
 	WHERE a.server_list_seqno = b.id
 	AND a.monitoring_code_seqno = c.monitoring_code_seqno
-	AND a.monitoring_code_seqno in (select monitoring_code_seqno from db_monitoring_code where monitoring_code_title like '%slave%')
+	AND a.monitoring_code_seqno in (select monitoring_code_seqno from db_monitoring_code where monitoring_code_title like '%lock%')
 	AND a.monitoring_yn = 'Y'
 	AND (
 		a.monitoring_error_at is not NULL or
@@ -99,7 +99,7 @@ with conn:
 
         res = cursor.fetchall()
         for row in res:
-            #print(row)
+            print(row)
             dbname = row[0]
             dbhost = row[1]
             dbPort = row[2]
@@ -129,25 +129,24 @@ with conn:
                             connect_timeout=2,
                             client_flag=CLIENT.MULTI_STATEMENTS)
 
-            slave_io_running = None
-            slave_sql_running = None
-            last_error = None
-            seconds_behind_master = None
-            
+            undoSize = None
+
             with dbconn:
                 with dbconn.cursor() as dbcursor:
-                    sql = "SHOW REPLICA STATUS"
+                    sql = '''
+                        select count 
+                        from information_schema.innodb_metrics 
+                        where name = 'trx_rseg_history_len'
+                    '''
+
                     dbcursor.execute(sql)
-                    
+
                     if dbcursor.rowcount > 0:
                         res = dbcursor.fetchone()
-                        slave_io_running = res[10]
-                        slave_sql_running	= res[11]
-                        last_error = res[19]
-                        seconds_behind_master = res[32]
-            
+                        undoSize = res[0]
+        
             # 모니터링 조건에 맞는 결과가 없는 경우
-            if seconds_behind_master is not None and int(seconds_behind_master) < threshold_num and slave_io_running == 'Yes' and slave_sql_running == 'Yes':
+            if undoSize < threshold_num:
                 # Problem 알람을 받았던 모니터링일 때
                 if errored_at != None:
                     # 멤버분들이 모니터링 알람을 받으셨을 것 같은데요... 그럼 다시 OK 알람 받으세요~
@@ -155,20 +154,18 @@ with conn:
                     icon_emoji = ":pill:"
                     username = "Moni"
                     channel = "monitor"
-                    text = "[OK] {0} {1}=*{2}*".format(dbname, curl_title, str(seconds_behind_master))
+                    text = "[OK] {0} {1}=*{2}*".format(dbname, curl_title, str(undoSize))
 
                     attachments = [{
                         "color": "#0000FF",
                         "mrkdwn_in": ["text"]
                     }]
-                    attachments[0]['text'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " / Schdl : `{0}`\nIO/SQL Running = {1}/{2}\n탐지값={3} / 임계값={4}".format(monitoring_schedule, 
-                                                                                                                                                                            slave_io_running,
-                                                                                                                                                                            slave_sql_running,
-                                                                                                                                                                            seconds_behind_master, 
-                                                                                                                                                                            threshold_num)
+                    attachments[0]['text'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " / Schdl : `{0}` \n탐지값={1} / 임계값={2}".format(monitoring_schedule, 
+                                                                                                                                                undoSize, 
+                                                                                                                                                threshold_num)
 
                     data = {"channel": channel, "username": username, "icon_emoji": icon_emoji, "text": text, "attachments": attachments}
-                    #print(data)
+                    print(data)
                     requests.post(curl_url, headers=header, json=data)
                     print('슬랙 OK 얼럿 전송')
                     
@@ -188,7 +185,7 @@ with conn:
                             INSERT INTO db_monitoring_history
                             (db_monitoring_group,db_monitoring_seqno,server_list_seqno,monitoring_code_seqno,action_type,monitoring_num,monitoring_threshold,monitoring_at,msg_content,alert_term,check_count_threshold,check_count_current,monitoring_schedule)
                             VALUES ('{0}','{1}','{2}','{3}','PO','{4}','{5}',now(),'{6}','{7}','{8}','{9}','{10}')
-                        '''.format('Test', monitor_id, server_list_seqno, monitoring_code_seqno, seconds_behind_master, threshold_num, 'CURLOPT_POSTFIELDS', alert_term, check_count_threshold, check_count_current, monitoring_schedule)
+                        '''.format('Test', monitor_id, server_list_seqno, monitoring_code_seqno, undoSize, threshold_num, 'CURLOPT_POSTFIELDS', alert_term, check_count_threshold, check_count_current, monitoring_schedule)
                     cursor.execute(sql)
                     conn.commit()
                     
@@ -212,7 +209,7 @@ with conn:
                                 INSERT INTO db_monitoring_history
                                 (db_monitoring_group,db_monitoring_seqno,server_list_seqno,monitoring_code_seqno,action_type,monitoring_num,monitoring_threshold,monitoring_at,msg_content,alert_term,check_count_threshold,check_count_current,monitoring_schedule)
                                 VALUES ('{0}','{1}','{2}','{3}','CO','{4}','{5}',now(),'{6}','{7}','{8}','{9}','{10}')
-                            '''.format('Test', monitor_id, server_list_seqno, monitoring_code_seqno, seconds_behind_master, threshold_num, 'CURLOPT_POSTFIELDS', alert_term, check_count_threshold, check_count_current, monitoring_schedule)
+                            '''.format('Test', monitor_id, server_list_seqno, monitoring_code_seqno, undoSize, threshold_num, 'CURLOPT_POSTFIELDS', alert_term, check_count_threshold, check_count_current, monitoring_schedule)
                         cursor.execute(sql)
                         conn.commit()
                         
@@ -238,52 +235,66 @@ with conn:
                             charset='utf8', 
                             connect_timeout=2,
                             client_flag=CLIENT.MULTI_STATEMENTS)
-                    
-                    selectedTime    = None
-                    selectedDb      = None
-                    selectedState   = None
-                    selectedInfo    = None
 
                     with sqlconn:
                         with sqlconn.cursor() as sqlcursor:
                             sql = '''
-                                select Last_error_message 
-                                from performance_schema.replication_applier_status_by_worker 
-                                where Last_error_message != '';
+                                select a.PROCESSLIST_ID,
+                                        a.PROCESSLIST_USER,
+                                        a.PROCESSLIST_HOST,
+                                        a.PROCESSLIST_DB,
+                                        a.PROCESSLIST_COMMAND,
+                                        a.PROCESSLIST_TIME,
+                                        a.PROCESSLIST_STATE,
+                                        a.PROCESSLIST_INFO,
+                                        b.trx_started,
+                                        TIMEDIFF(now(), b.trx_started)
+                                    from performance_schema.threads a,
+                                        information_schema.innodb_trx b
+                                    where a.PROCESSLIST_ID = b.trx_mysql_thread_id
+                                    and a.PROCESSLIST_USER <> 'system user'
+                                    order by b.trx_started
+                                    limit 2
                                 '''
                             sqlcursor.execute(sql)
                     
-                            if sqlcursor.rowcount > 0:
-                                print('슬랙 NG 메시지 작성')
-                                selectedInfo = sqlcursor.fetchone()[0]
-                            
-                    if selectedTime is None:
-                        selectedTime = "NULL"
-                    
-                    if seconds_behind_master is None:
-                        seconds_behind_master = "NULL"
-                    
-                    if selectedDb is None:
-                        selectedDb = "NULL"
-                    
-                    if selectedState is None:
-                        selectedState = "NULL"
-                    
-                    if selectedInfo is None:
-                        selectedInfo = last_error
-
-                    if len(selectedInfo) > 7000:
-                        selectedInfo = textwrap.shorten(selectedInfo, width=7000, placeholder='\n...(over 7,000 bytes)')
-                    
                     attachment2 = {
                             "color" : "#FF0000",
-                            "title" : "Last_Error",
+                            "title" : "오래 지속중인 Transaction",
+                            "text"  : "",
                             "mrkdwn_in" : ["text"]
                         }
                     
-                    attachment2['text'] = "DB = {0}\n```{1}```".format(selectedDb,
-                                                                        selectedInfo)
-                    #print(attachment2)
+                    if sqlcursor.rowcount > 0:
+                        print('슬랙 NG 메시지 작성')
+                        res = sqlcursor.fetchall()
+
+                        for row in res:
+                            print(row)
+                            sample_id	        = row[0]
+                            sample_user		    = row[1]
+                            sample_host         = row[2]
+                            sample_db	        = row[3]
+                            sample_command	    = row[4]
+                            sample_time	        = row[5]
+                            sample_state	    = row[6]
+                            sample_info	        = row[7]
+                            sample_trx_started	= row[8]
+                            sample_trx_lifetime	= row[9]
+                            
+                            if sample_info is None:
+                                continue
+                            
+                            sample_info = format_sql(sample_info)
+                            
+                            attachment2['text'] = attachment2['text'] + "TRX 지속시간 = {0}\nTIME = {1}\nDB = {2}\nCOMMAND = {3}\nUSER@HOST = {4}@{5}\n```{6}```\n".format(sample_trx_lifetime,
+                                                                                                                                                    sample_time,
+                                                                                                                                                    sample_db,
+                                                                                                                                                    sample_command,
+                                                                                                                                                    sample_user,
+                                                                                                                                                    sample_host,
+                                                                                                                                                    sample_info)
+                    print(attachment2)
                     
                     # 멤버분들이 모니터링 알람을 아직 안 받으셨을 것 같은데요... 그럼 Problem 알람 받고 재깍재깍 체크할 것.
                     # 현재체크횟수가 체크횟수임계치만큼 도달할 경우에만 메시지 발송
@@ -292,33 +303,22 @@ with conn:
                         icon_emoji = ":skull_and_crossbones:"
                         username = "Moni"
                         channel = "monitor"
-                        text = "[PROBLEM] {0} {1}=*{2}*".format(dbname, curl_title, str(seconds_behind_master))
+                        text = "[PROBLEM] {0} {1}=*{2}*".format(dbname, curl_title, str(undoSize))
 
                         attachments = [{
                             "color": "#FF0000",
                             "mrkdwn_in": ["text"]
                         }]
-                        
-                        if slave_io_running == 'No':
-                            slave_io_running = "*" + slave_io_running + "*"
-                        
-                        if slave_sql_running == 'No':
-                            slave_sql_running = "*" + slave_sql_running + "*"
-                            
-                        attachments[0]['text'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " / Schdl : `{0}`\n탐지값={1} / 임계값={2}\n체크횟수={3}/{4}\nIO/SQL Running = {5}/{6}\nTIME = {7}\nSTATE = {8}".format(monitoring_schedule, 
-                                                                                                                                                                    seconds_behind_master, 
+                        attachments[0]['text'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " / Schdl : `{0}`\n탐지값={1} / 임계값={2}\n체크횟수={3}/{4}".format(monitoring_schedule, 
+                                                                                                                                                                    undoSize, 
                                                                                                                                                                     threshold_num, 
                                                                                                                                                                     check_count_current, 
-                                                                                                                                                                    check_count_threshold,
-                                                                                                                                                                    slave_io_running,
-                                                                                                                                                                    slave_sql_running,
-                                                                                                                                                                    selectedTime,
-                                                                                                                                                                    selectedState)
+                                                                                                                                                                    check_count_threshold)
 
                         attachments.append(attachment2)
 
                         data = {"channel": channel, "username": username, "icon_emoji": icon_emoji, "text": text, "attachments": attachments}
-                        #print(data)
+                        print(data)
                         requests.post(curl_url, headers=header, json=data)
                         print('슬랙 NG 얼럿 전송')
                         
@@ -336,7 +336,7 @@ with conn:
                                 INSERT INTO db_monitoring_history
                                 (db_monitoring_group,db_monitoring_seqno,server_list_seqno,monitoring_code_seqno,action_type,monitoring_num,monitoring_threshold,monitoring_at,msg_content,alert_term,check_count_threshold,check_count_current,monitoring_schedule)
                                 VALUES ('{0}','{1}','{2}','{3}','P','{4}','{5}',now(),'{6}','{7}','{8}','{9}','{10}')
-                            '''.format('Test', monitor_id, server_list_seqno, monitoring_code_seqno, seconds_behind_master, threshold_num, 'CURLOPT_POSTFIELDS', alert_term, check_count_threshold, check_count_current, monitoring_schedule)
+                            '''.format('Test', monitor_id, server_list_seqno, monitoring_code_seqno, undoSize, threshold_num, 'CURLOPT_POSTFIELDS', alert_term, check_count_threshold, check_count_current, monitoring_schedule)
                         cursor.execute(sql)
                         conn.commit()
                         
@@ -357,7 +357,7 @@ with conn:
                                 INSERT INTO db_monitoring_history
                                 (db_monitoring_group,db_monitoring_seqno,server_list_seqno,monitoring_code_seqno,action_type,monitoring_num,monitoring_threshold,monitoring_at,msg_content,alert_term,check_count_threshold,check_count_current,monitoring_schedule)
                                 VALUES ('{0}','{1}','{2}','{3}','C','{4}','{5}',now(),'{6}','{7}','{8}','{9}','{10}')
-                            '''.format('Test', monitor_id, server_list_seqno, monitoring_code_seqno, seconds_behind_master, threshold_num, 'CURLOPT_POSTFIELDS', alert_term, check_count_threshold, check_count_current, monitoring_schedule)
+                            '''.format('Test', monitor_id, server_list_seqno, monitoring_code_seqno, undoSize, threshold_num, 'CURLOPT_POSTFIELDS', alert_term, check_count_threshold, check_count_current, monitoring_schedule)
                         cursor.execute(sql)
                         conn.commit()
                         
@@ -378,7 +378,7 @@ with conn:
                             INSERT INTO db_monitoring_history
                             (db_monitoring_group,db_monitoring_seqno,server_list_seqno,monitoring_code_seqno,action_type,monitoring_num,monitoring_threshold,monitoring_at,msg_content,alert_term,check_count_threshold,check_count_current,monitoring_schedule)
                             VALUES ('{0}','{1}','{2}','{3}','PR','{4}','{5}',now(),'{6}','{7}','{8}','{9}','{10}')
-                        '''.format('Test', monitor_id, server_list_seqno, monitoring_code_seqno, seconds_behind_master, threshold_num, 'CURLOPT_POSTFIELDS', alert_term, check_count_threshold, check_count_current, monitoring_schedule)
+                        '''.format('Test', monitor_id, server_list_seqno, monitoring_code_seqno, undoSize, threshold_num, 'CURLOPT_POSTFIELDS', alert_term, check_count_threshold, check_count_current, monitoring_schedule)
                     cursor.execute(sql)
                     conn.commit()
                     

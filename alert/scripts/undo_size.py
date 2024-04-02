@@ -99,7 +99,7 @@ with conn:
 
         res = cursor.fetchall()
         for row in res:
-            print(row)
+            #print(row)
             dbname = row[0]
             dbhost = row[1]
             dbPort = row[2]
@@ -165,7 +165,7 @@ with conn:
                                                                                                                                                 threshold_num)
 
                     data = {"channel": channel, "username": username, "icon_emoji": icon_emoji, "text": text, "attachments": attachments}
-                    print(data)
+                    #print(data)
                     requests.post(curl_url, headers=header, json=data)
                     print('슬랙 OK 얼럿 전송')
                     
@@ -266,7 +266,7 @@ with conn:
                         }
                     
                     if sqlcursor.rowcount > 0:
-                        print('슬랙 NG 메시지 작성')
+                        #print('슬랙 NG 메시지 작성')
                         res = sqlcursor.fetchall()
 
                         for row in res:
@@ -294,7 +294,7 @@ with conn:
                                                                                                                                                     sample_user,
                                                                                                                                                     sample_host,
                                                                                                                                                     sample_info)
-                    print(attachment2)
+                    #print(attachment2)
                     
                     # 멤버분들이 모니터링 알람을 아직 안 받으셨을 것 같은데요... 그럼 Problem 알람 받고 재깍재깍 체크할 것.
                     # 현재체크횟수가 체크횟수임계치만큼 도달할 경우에만 메시지 발송
@@ -318,7 +318,7 @@ with conn:
                         attachments.append(attachment2)
 
                         data = {"channel": channel, "username": username, "icon_emoji": icon_emoji, "text": text, "attachments": attachments}
-                        print(data)
+                        #print(data)
                         requests.post(curl_url, headers=header, json=data)
                         print('슬랙 NG 얼럿 전송')
                         
