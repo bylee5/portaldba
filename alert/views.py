@@ -1068,25 +1068,76 @@ def alert_add_update(request):
 
 @login_required
 def threads_connected(request):
-    s_query = "select * from db_monitoring_code"
+    s_query = '''
+            select distinct mc.monitoring_code_title 
+            from db_monitoring m 
+                join db_monitoring_code mc on (m.monitoring_code_seqno = mc.monitoring_code_seqno)
+            '''
     
     with connections['default'].cursor() as cursor:
-        alert_code_lists = []
+        alert_title_list = []
         cursor.execute(s_query)
-        alert_code_lists = namedtuplefetchall(cursor)
+        alert_title_list = namedtuplefetchall(cursor)
 
-    context = {'alert_code_lists': alert_code_lists}
+    s_query = '''
+            select distinct sl.dbsvr
+            from db_monitoring m
+                join server_list sl on (m.server_list_seqno = sl.id)
+            '''
+    
+    with connections['default'].cursor() as cursor:
+        alert_server_list = []
+        cursor.execute(s_query)
+        alert_server_list = namedtuplefetchall(cursor)
+    
+    s_query = "select distinct monitoring_code_title from db_monitoring_code"
+    
+    with connections['default'].cursor() as cursor:
+        title_list = []
+        cursor.execute(s_query)
+        title_list = namedtuplefetchall(cursor)
+
+    s_query = "select distinct dbsvr from server_list"
+    
+    with connections['default'].cursor() as cursor:
+        server_list = []
+        cursor.execute(s_query)
+        server_list = namedtuplefetchall(cursor)
+
+    context = {
+            'alert_title_lists': alert_title_list,
+            'alert_server_lists': alert_server_list,
+            'title_lists': title_list,
+            'server_lists': server_list,
+            'alert_type': "ERR_0"
+        }
     
     return render(request, 'alert/threads_connected.html', context)
 
 @login_required
 def threads_connected_select(request):
     if request.method == 'POST':
+        alert_yn = request.POST.get('s_alert_yn')
+        alert_title = request.POST.get('s_alert_title')
+        alert_dbsvr = request.POST.get('s_alert_dbsvr')
+        callmorepostFlag = 'true'
 
-         # alert type 초기화
-        alert_type = "ERR_0"
-        alert_message = ""
+        # 검색이 있다면
+        if alert_yn == '' or alert_yn == 'None':
+            alert_yn = ''
+        else:
+            alert_yn = " AND a.monitoring_yn = '{0}' ".format(alert_yn.strip())
+        
+        if alert_title == '' or alert_title == 'None':
+            alert_title = ''
+        else:
+            alert_title = " AND c.monitoring_code_title = '{0}' ".format(alert_title.strip())
 
+        if alert_dbsvr == '' or alert_dbsvr == 'None':
+            alert_dbsvr = ''
+        else:
+            alert_dbsvr = " AND b.dbsvr = '{0}' ".format(alert_dbsvr.strip())
+    
         s_query = '''
                 SELECT
                     c.monitoring_code_title,
@@ -1160,17 +1211,18 @@ def threads_connected_select(request):
                     join server_list b on (a.server_list_seqno = b.id)
                     join db_monitoring_code c on (a.monitoring_code_seqno = c.monitoring_code_seqno)
                 WHERE 1=1
-                AND a.monitoring_code_seqno in (select monitoring_code_seqno from db_monitoring_code)
-                AND c.monitoring_code_seqno = {0}
-                ORDER BY a.monitoring_code_seqno desc, dbsvr, a.monitoring_schedule, a.db_monitoring_seqno
-                '''.format(1)
+                AND a.monitoring_code_seqno in (select monitoring_code_seqno from db_monitoring_code where monitoring_code_title like '%connected%')
+                '''
+        s_query += alert_yn
+        s_query += alert_title
+        s_query += alert_dbsvr
+        s_query += " ORDER BY a.monitoring_code_seqno desc, dbsvr, a.monitoring_schedule, a.db_monitoring_seqno"
                 
         with connections['default'].cursor() as cursor:
             alert_list = []
             cursor.execute(s_query)
             alert_list = namedtuplefetchall(cursor)
-        
-
+            
         page = int(request.POST.get('page'))
         total_count = len(alert_list)
         page_max = math.ceil(total_count / 35)
@@ -1187,14 +1239,16 @@ def threads_connected_select(request):
         except EmptyPage:
             alert_list = paginator.get_page(paginator.num_pages)
 
+
         context = {
+            'alert_yn': alert_yn,
+            'alert_title': alert_title,
+            'alert_dbsvr': alert_dbsvr,
             'alert_list': alert_list,
             'total_count': total_count,
             'callmorepostFlag': callmorepostFlag,
             'page_max': page_max,
-            'alert_type': alert_type,
-            'alert_message': alert_message,
-            'alert_sql_flag': 'Y',
+            'alert_type': "ERR_0"
         }
         
         return render(request, 'alert/threads_connected_select.html', context)

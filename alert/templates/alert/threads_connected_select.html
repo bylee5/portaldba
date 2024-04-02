@@ -1,3 +1,116 @@
 {% block content %}
-threads_connected 하단 구현
+<!-- alert_type에 따른 에러뿌리기 -->
+{% if alert_type != "ERR_0" %}
+<table>
+    <tr>
+        <td>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" id="alertbox" name="alertbox">
+            <h6 class="alert-danger">{{ alert_type }} - 작업에 실패했습니다.</h6>
+            <a style="white-space:pre;">{{ alert_message }}</a>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+            </button>
+            </div>
+        </td>
+    </tr>
+</table>
+{% endif %}
+
+검색결과 ⁝ <span class="badge text-bg-secondary">{{ total_count }}</span>
+<!-- 
+    table-bordered : 테두리가 있는 테이블
+    table-sm : 작은 테이블(모든 칸 padding을 반으로 함)
+    table-hover : 테이블 행에 마우스 오버 상태를 활성화
+ -->
+<table class="table table-bordered table-sm table-hover">
+    <tr class="bg-secondary text-white">
+        <th style="width: 1%;" class="check-all rounded-left tmp_bg-light table-borderless">
+            <input type="checkbox" id="checkbox_all" name="checkbox_all" class="check-all">
+        </th>
+        <th style="width: 3%;">ID</th>
+        <th style="width: 10%;">얼럿명</th>
+        <th style="width: 25%;">서버명</th>
+        <th style="width: 6%;">스케줄</th>
+        <th style="width: 3%;">여부</th>
+        <th style="width: 4%;">얼럿 임계치</th>
+        <th style="width: 5%;">현재 얼럿 반복 횟수</th>
+        <th style="width: 5%;">얼럿 반복 임계치</th>
+        <th style="width: 5%;">얼럿 반복 간격</th>
+        <th style="width: 5%;">최근 얼럿 시간</th>
+        <th style="width: 8%;">최근 얼럿 시간과 현재 시간 차이</th>
+        <th style="width: 7%;">생성일</th>
+        <th style="width: 7%;">변경일</th>
+    </tr>
+
+{% if alert_list %}
+    {% for alert in alert_list %}
+    <tr>
+        <td>
+            <input type="checkbox" id="checkbox" name="checkbox" class="check" value="{{ alert.db_monitoring_seqno }}">
+            <!-- 체크박스 전체선택/해제하기 -->
+            <script>
+                $(document).ready(function(){
+                    $('.check-all').click(function(){
+                        $('.check').prop('checked', this.checked);
+                    });
+                });
+            </script>
+        </td>
+        <td style = "cursor:pointer;" id="{{ alert.db_monitoring_seqno }}" name="{{ alert.db_monitoring_seqno }}" data-bs-toggle="alert_id" data-placement="right" title="입력란 복사">
+            {{ alert.db_monitoring_seqno }}
+            <!-- 입력란 복사 script-->
+            <script>
+                $(function () {
+                    $('[data-bs-toggle="alert_id"]').tooltip()
+                })
+
+                $('#{{ alert.db_monitoring_seqno }}').click(function(){
+                    $("#i_alert_title").val('{{ alert.monitoring_code_title }}');
+                    $("#i_alert_dbsvr").val('{{ alert.dbsvr }}');
+                    $("#i_schedule").val('{{ alert.monitoring_schedule }}');
+                    $("#i_alert_yn").val('{{ alert.monitoring_yn }}');
+                    $("#i_threshold").val('{{ alert.monitoring_threshold }}');
+                    $("#i_cycle").val('{{ alert.check_count_threshold }}');
+                    $("#i_sleep").val('{{ alert.alert_term }}');
+                });
+            </script>
+        </td>
+        <td style = "cursor:pointer;" data-bs-toggle="modal" data-bs-target="#myModal" 
+            data-id="{{ alert.db_monitoring_seqno }}"
+            data-created_at="{{ alert.created_at|date:'Y-m-d H:i:s' }}"
+            data-updated_at="{{ alert.updated_at|date:'Y-m-d H:i:s' }}"
+            data-monitoring_code_title="{{ alert.monitoring_code_title }}"
+            data-dbsvr="{{ alert.dbsvr }}"
+            data-monitoring_schedule="{{ alert.monitoring_schedule }}"
+            data-monitoring_yn="{{ alert.monitoring_yn }}"
+            data-monitoring_threshold="{{ alert.monitoring_threshold }}"
+            data-check_count_threshold="{{ alert.check_count_threshold }}"
+            data-alert_term="{{ alert.alert_term }}">
+            {{ alert.monitoring_code_title }}</td>
+        <td>{{ alert.dbsvr }}</td>
+        <td>{{ alert.monitoring_schedule }}</td>
+        <td>{{ alert.monitoring_yn }}</td>
+        <td>{{ alert.monitoring_threshold }}</td>
+        <td>{{ alert.check_count_current }}</td>
+        <td>{{ alert.check_count_threshold }}</td>
+        <td>{{ alert.alert_term }}</td>
+        <td>{{ alert.monitoring_error_at }}</td>
+        <td>{{ alert.how_long_error }}</td>
+        <td>{{ alert.created_at|date:'Y-m-d H:i:s' }}</td>
+        <td>{{ alert.updated_at|date:'Y-m-d H:i:s' }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+<div>
+    {% if page_max is none %}
+    <input id="page_max" name="page_max" type="hidden" value="1">
+    {% else %}
+    <input id="page_max" name="page_max" type="hidden" value="{{ page_max }}">
+    {% endif %}
+</div>
+
+<!-- alert_type -->
+<input class="form-control form-control-sm" id="alert_type" name="alert_type" value="{{ alert_type }}" type="hidden">
+
 {% endblock %}
