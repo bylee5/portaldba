@@ -99,7 +99,7 @@ with conn:
 
         res = cursor.fetchall()
         for row in res:
-            print(row)
+            #print(row)
             dbname = row[0]
             dbhost = row[1]
             dbPort = row[2]
@@ -213,7 +213,7 @@ with conn:
                         res = dbcursor.fetchall()
                         
                         for row in res:
-                            print(row)
+                            #print(row)
                             il_time	= row[0]
                             il_user		= row[1]
                             il_host = row[2]
@@ -262,7 +262,7 @@ with conn:
                                                                                                                                                 threshold_num)
 
                     data = {"channel": channel, "username": username, "icon_emoji": icon_emoji, "text": text, "attachments": attachments}
-                    print(data)
+                    #print(data)
                     requests.post(curl_url, headers=header, json=data)
                     print('슬랙 OK 얼럿 전송')
                     
@@ -367,7 +367,7 @@ with conn:
                         attachments.append(attachment2)
 
                         data = {"channel": channel, "username": username, "icon_emoji": icon_emoji, "text": text, "attachments": attachments}
-                        print(data)
+                        #print(data)
                         requests.post(curl_url, headers=header, json=data)
                         print('슬랙 NG 얼럿 전송')
                         
