@@ -4,11 +4,9 @@
         <li class="nav-item">
             <a class="nav-link" href="{% url 'alert:alert' %}">얼럿조회</a>
         </li>
-<!--          
        <li class="nav-item">
-            <a class="nav-link" href="{% url 'alert:alert_remove' %}">얼럿삭제이력</a>
+            <a class="nav-link disabled" href="{% url 'alert:alert_remove' %}">얼럿삭제이력</a>
         </li> 
--->
         <li class="nav-item">
             <a class="nav-link" href="{% url 'alert:alert_add' %}">얼럿코드추가</a>
         </li>
@@ -29,20 +27,18 @@
         </li>
         <li class="nav-item">
             <a class="nav-link" href="{% url 'alert:undo_size' %}">언두사이즈</a>
+        </li>        
+        <li class="nav-item">
+            <a class="nav-link disabled" href="">응답시간지연</a>
+        </li>   
+        <li class="nav-item">
+            <a class="nav-link disabled" href="">수동쿼리킬</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="">응답시간지연</a>
-        </li>
-<!--    
-        <li class="nav-item">
-            <a class="nav-link" href="">수동쿼리킬</a>
+            <a class="nav-link disabled" href="">집계(사이즈)</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="">집계(사이즈)</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="">서비스통계(주문)</a>
-        </li>
--->        
+            <a class="nav-link disabled" href="">서비스통계(주문)</a>
+        </li>      
     </ul>
 </nav>
