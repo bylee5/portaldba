@@ -18,14 +18,19 @@ db_user = env('DB_USER')
 db_pass = env('DB_PASSWORD')
 db_port = int(env('DB_PORT'))
 
-conn = pymysql.connect(host=db_server, 
-                       user=db_user, 
-                       password=db_pass, 
-                       db='portaldba', 
-                       port=db_port,
-                       charset='utf8', 
-                       connect_timeout=2,
-                       client_flag=CLIENT.MULTI_STATEMENTS)
+conn = None
+try:
+    conn = pymysql.connect(host=db_server, 
+                        user=db_user, 
+                        password=db_pass, 
+                        db='portaldba', 
+                        port=db_port,
+                        charset='utf8', 
+                        connect_timeout=2,
+                        client_flag=CLIENT.MULTI_STATEMENTS)
+except pymysql.OperationalError as e:
+    #print("connection health check = {0}".format(e))
+    sys.exit("종료")
 
 sql = '''
     SELECT b.dbsvr, b.pri_ip, b.port1, a.db_monitoring_seqno, a.server_list_seqno, a.monitoring_code_seqno, a.monitoring_threshold, a.up_down_from_threshold, a.monitoring_error_at, a.monitoring_query, a.alert_term, c.monitoring_code_title, c.send_url, TIME_TO_SEC(TIMEDIFF(NOW(),a.monitoring_error_at)), a.check_count_threshold, a.check_count_current, c.send_topic_name, a.monitoring_schedule,
@@ -120,14 +125,35 @@ with conn:
             monitoring_schedule	= row[17]
             monitoring_now = row[18]
             
-            dbconn = pymysql.connect(host=dbname, 
-                            user=db_user, 
-                            password=db_pass, 
-                            db='information_schema',
-                            port=db_port,
-                            charset='utf8', 
-                            connect_timeout=2,
-                            client_flag=CLIENT.MULTI_STATEMENTS)
+            dbconn = None
+            try:
+                dbconn = pymysql.connect(host=dbname, 
+                                user=db_user, 
+                                password=db_pass, 
+                                db='information_schema',
+                                port=db_port,
+                                charset='utf8', 
+                                connect_timeout=2,
+                                client_flag=CLIENT.MULTI_STATEMENTS)
+            except pymysql.OperationalError as e:
+                #print("connection health check = {0}".format(e))
+                header = {'Content-type': 'application/json'}
+                icon_emoji = ":skull_and_crossbones:"
+                username = "Moni"
+                channel = "monitor"
+                text = "[PROBLEM] {0} {1}=*{2}*".format(dbname, curl_title, str(e))
+
+                attachments = [{
+                    "color": "#0000FF",
+                    "mrkdwn_in": ["text"]
+                }]
+                attachments[0]['text'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " / {0} = {1}".format(curl_title, e)
+
+                data = {"channel": channel, "username": username, "icon_emoji": icon_emoji, "text": text, "attachments": attachments}
+                #print(data)
+                requests.post(curl_url, headers=header, json=data)
+                #print('슬랙 NG 얼럿 전송')
+                continue
 
             slave_io_running = None
             slave_sql_running = None
