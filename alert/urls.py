@@ -32,4 +32,6 @@ urlpatterns = [
     path('slow_query_select', views.slow_query_select, name='slow_query_select'),
     path('undo_size', views.undo_size, name='undo_size'),
     path('undo_size_select', views.undo_size_select, name='undo_size_select'),
+    path('connection_check', views.connection_check, name='connection_check'),
+    path('connection_check_select', views.connection_check_select, name='connection_check_select'),
 ]
